@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import { FONT } from '../constants'
+import type { SceneData } from '../types'
 import { addText } from '../utils'
 
 // 메인 게임 플레이 씬
@@ -28,10 +29,10 @@ export class GameScene extends Scene {
 
     // 임시 테스트용 키 바인딩
     this.input.keyboard?.on('keydown-C', () => {
-      this.scene.start('ClearScene', { score: 1000 })
+      this.scene.start('ClearScene', { score: 1000 } satisfies SceneData)
     })
     this.input.keyboard?.on('keydown-G', () => {
-      this.scene.start('GameOverScene', { score: 500 })
+      this.scene.start('GameOverScene', { score: 500 } satisfies SceneData)
     })
   }
 }

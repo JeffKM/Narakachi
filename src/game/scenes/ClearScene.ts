@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import { FONT } from '../constants'
+import type { SceneData } from '../types'
 import { addText } from '../utils'
 
 // 스테이지 클리어 씬
@@ -10,7 +11,7 @@ export class ClearScene extends Scene {
     super('ClearScene')
   }
 
-  init(data: { score?: number }) {
+  init(data: SceneData) {
     this.score = data.score ?? 0
   }
 

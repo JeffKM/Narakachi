@@ -1,5 +1,6 @@
 import { Scene } from 'phaser'
 import { FONT } from '../constants'
+import type { SceneData } from '../types'
 import { addText } from '../utils'
 
 // 게임 오버 씬
@@ -10,7 +11,7 @@ export class GameOverScene extends Scene {
     super('GameOverScene')
   }
 
-  init(data: { score?: number }) {
+  init(data: SceneData) {
     this.score = data.score ?? 0
   }
 
