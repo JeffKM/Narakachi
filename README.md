@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 나라카찌 (Narakatchi)
 
-## Getting Started
+나라카 컨셉(메이드)카페 팬게임. **Godot 4** 기반, 도트 그래픽의 가벼운 **데일리 교감 + 체키(포토카드) 수집** 게임.
 
-First, run the development server:
+매일 나라카에 들러 사장 **옥자**(지옥의 마녀)와 교감하며 친해지고, 이벤트 데이 의상의 **체키**를 모은다. 웹(HTML5/PWA) 모바일 세로.
+
+## 실행
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Godot 4 에디터로 열기
+godot project.godot
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 메인 씬: `scenes/Main.tscn` (현재 부트 플레이스홀더 — 270×480 확인용)
+- 웹 빌드: 에디터에서 `Web` export preset 구성 후 `Project > Export`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 문서
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 파일 | 내용 |
+|---|---|
+| [CLAUDE.md](./CLAUDE.md) | 개발 가이드 (엔진·구조·규칙) |
+| [PRD.md](./PRD.md) | 게임 명세 + 수치 밸런스(§4.5) + 이벤트(§9.1) |
+| [ROADMAP.md](./ROADMAP.md) | 1주 7일 개발 계획 |
+| [CONTEXT.md](./CONTEXT.md) | 도메인 용어집 |
+| [docs/script-okja.md](./docs/script-okja.md) | 옥자 대사 스크립트 |
+| [docs/adr/](./docs/adr/) | 핵심 결정 기록 (도트 규격 · 체키 모델) |
 
-## Learn More
+## 폴더 구조
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+project.godot
+scenes/        씬 (셸·온보딩·교감·컬렉션북·공유)
+scripts/       GDScript
+  systems/     호감도·스태미나·체키·저장·출석
+data/          이벤트/체키/대사/밸런스 상수
+assets/
+  sprites/     옥자 표정·시온이·체키 카드·프레임·게임기 셸
+  fonts/       갈무리
+```
