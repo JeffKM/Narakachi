@@ -1,0 +1,36 @@
+class_name DebugTools
+extends Node
+## 개발/시연 편의 디버그 키 — **디버그 빌드 전용**(Main 이 OS.is_debug_build() 일 때만 붙임).
+## release 웹 export(데모 배포)에선 생성되지 않으므로 일반 플레이어에겐 노출 0.
+##
+##   1 = 완전 초기화(세이브 삭제) → 온보딩부터 (fresh new game)
+##   2 = 데모 시드(반말 전환 직전 · 온보딩 스킵) → 바로 교감 화면 (시연용)
+##   3 = 현재 씬 리로드(세이브 유지) — 입장 연출/하루치 다시 보기
+##
+## (숫자열 키 — 노트북 Fn 조합 불필요. F5/Ctrl+R 같은 웹 새로고침과도 충돌 없음.)
+## 셸(shell.gd)은 자기 KEYMAP(TAB/방향/스페이스/ESC 등)만 가로채므로 1~3 은 여기로 온다.
+
+const KEYS := {
+  KEY_1: "wipe",
+  KEY_2: "seed",
+  KEY_3: "reload",
+}
+
+
+func _unhandled_input(event: InputEvent) -> void:
+  if not (event is InputEventKey and event.pressed and not event.echo):
+    return
+  match KEYS.get((event as InputEventKey).keycode, ""):
+    "wipe":
+      SaveManager.wipe()  # 파일 삭제 + 메모리 default → onboarded=false
+      _reload()
+    "seed":
+      SaveManager.reset(true)  # 데모 시드 저장(반말 전환 직전, onboarded=true)
+      _reload()
+    "reload":
+      _reload()
+
+
+## 현재 씬을 다시 로드한다. SaveManager 는 autoload 라 유지되고, Main._ready 가 갱신된 세이브를 다시 읽는다.
+func _reload() -> void:
+  get_tree().reload_current_scene()

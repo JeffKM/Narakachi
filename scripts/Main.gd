@@ -33,6 +33,11 @@ func _ready() -> void:
   else:
     _start_onboarding(shell.lcd_root)
 
+  # 디버그 빌드에서만: 초기화/시드/리로드 단축키 + 화면 힌트 (release 데모엔 미노출)
+  if OS.is_debug_build():
+    add_child(DebugTools.new())
+    add_child(_make_debug_hint())
+
 
 ## 온보딩 오버레이를 카페 위에 띄운다. 끝나면 걷고 카페 세션 시작.
 func _start_onboarding(lcd_root: Node2D) -> void:
@@ -45,6 +50,20 @@ func _on_onboarding_done() -> void:
   _onboarding.queue_free()
   _onboarding = null
   _cafe.start()
+
+
+## 디버그 단축키 힌트 — 셸 하단 여백(캔버스 좌표)에 작게 (디버그 빌드만).
+func _make_debug_hint() -> Label:
+  var lb := Label.new()
+  lb.text = "[1] 초기화   [2] 데모시드   [3] 리로드"
+  lb.position = Vector2(0, ShellFrame.CANVAS.y - 26)
+  lb.size = Vector2(ShellFrame.CANVAS.x, 20)
+  lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+  lb.add_theme_font_size_override("font_size", Fonts.SIZE_SMALL)
+  lb.add_theme_color_override("font_color", Palette.GREY_300)
+  lb.add_theme_color_override("font_outline_color", Palette.INK)
+  lb.add_theme_constant_override("outline_size", 4)
+  return lb
 
 
 ## 셸 3버튼 → 활성 화면으로 중계.

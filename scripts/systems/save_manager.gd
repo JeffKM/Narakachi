@@ -157,9 +157,11 @@ func set_value(path: String, value: Variant) -> void:
 
 ## 데모 시연 시드: 누적 옥자 호감도를 반말 전환(600) 직전인 ~560으로 채운다.
 ## 첫 세션 한 번의 교감으로 '반말 전환 컷인'이 터지게 하는 연출 장치 (PRD §4.5).
+## 온보딩은 끝난 단골 직전 상태이므로 onboarded=true 로 둬 바로 교감 화면으로 진입한다.
 func _apply_demo_seed() -> void:
   data["okja"]["affinity_total"] = Balance.DEMO_SEED_AFFINITY
   data["player"]["nickname"] = "손님"
+  data["flags"]["onboarded"] = true
 
 
 ## 구버전 세이브를 최신 스키마로 끌어올린다 (골격 — 버전 오를 때 분기 추가).
