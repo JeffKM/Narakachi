@@ -114,6 +114,13 @@ func add_affinity_okja(base: int) -> int:
   return amount
 
 
+## 게이지를 비운다(0). "오늘의 체키" 획득 후 호출 — 안 비우면 매 액션마다 gauge_full 재발화.
+func consume_gauge_okja() -> void:
+  SaveManager.set_value("okja.gauge", 0)
+  SaveManager.save_game()
+  changed.emit()
+
+
 ## 옥자 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환.
 func add_touch_affinity() -> int:
   var used := int(SaveManager.get_value("session.touch_affinity", 0))

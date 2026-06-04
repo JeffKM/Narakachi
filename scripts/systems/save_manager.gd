@@ -48,8 +48,9 @@ func default_save() -> Dictionary:
       "affinity_total": 0,
       "gauge": 0,
     },
-    # 보유 체키. 키 "{character}:{event}" → {common:int 보유수, butterfly:bool, shards:int}
-    # 본격 모델은 T12에서 확장. 골격에선 빈 컬렉션.
+    # 보유 체키 (T12 → scripts/systems/cheki.gd). 키 "{character}:{event}" →
+    #   {common:int 획득누적, butterfly:bool 나비승급, shards:int 나비조각,
+    #    nickname:String 첫획득 닉 스냅샷, acquired_at:int 첫획득 epoch}  (→ ADR 0002·0003)
     "cheki": {},
     # 출석/연속출석. last_date 는 "YYYY-MM-DD" 로컬 날짜 문자열.
     "attendance": {
@@ -160,7 +161,7 @@ func set_value(path: String, value: Variant) -> void:
 ## 온보딩은 끝난 단골 직전 상태이므로 onboarded=true 로 둬 바로 교감 화면으로 진입한다.
 func _apply_demo_seed() -> void:
   data["okja"]["affinity_total"] = Balance.DEMO_SEED_AFFINITY
-  data["player"]["nickname"] = "손님"
+  data["player"]["nickname"] = "지은"  # 시연용 샘플 닉(체키 표지·반말 전환에 이름이 보이게)
   data["flags"]["onboarded"] = true
 
 

@@ -124,12 +124,10 @@ func _submit_nickname() -> void:
   _confirm.text = "시작하기"
 
 
-## 첫 방문 기념: 지뢰계(★히어로) 일반체키 1장. (체키 모델 본격화는 T12)
+## 첫 방문 기념: 지뢰계(★히어로) 일반체키 1장. (체키 모델 T12 → Cheki.grant)
+## 닉네임을 막 저장한 직후 호출되므로 grant 가 그 닉을 표지 헌사로 스냅샷한다.
 func _grant_first_cheki() -> void:
-  var key := Events.cheki_key(Events.OKJA, Events.FIRST_GIFT_EVENT)
-  var cheki: Dictionary = SaveManager.get_value("cheki", {})
-  cheki[key] = {"common": 1, "butterfly": false, "shards": 0}
-  SaveManager.set_value("cheki", cheki)
+  Cheki.grant(Events.OKJA, Events.FIRST_GIFT_EVENT)
 
 
 ## 가운데 정렬 + 외곽선 라벨 헬퍼.

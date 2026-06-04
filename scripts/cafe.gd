@@ -8,7 +8,7 @@ extends Node2D
 ## 보이스는 data/dialogue.gd 풀에서 골라 티커(T06a)에 띄운다.
 ##
 ## 미연시 핵심 연출은 후속:
-##   - 게이지 풀 → 오늘의 체키 자동 획득: T13/T18 (지금은 hop + 티커 플레이스홀더)
+##   - 게이지 풀 → 오늘의 체키 자동 획득(T13): 그랜트 + 리빌 오버레이(ChekiReveal) + 게이지 소진. ✅
 ##   - 대화 2지선다 분기 · 선물 선호표: T11 (지금은 간이 +호감도)
 ##   - 반말 전환 컷인: T11 (지금은 단계 상승 티커만)
 
@@ -25,9 +25,11 @@ var _hud: Hud
 var _bar: ActionBar
 var _ticker: Ticker
 var _revert: Tween  # 표정 자동 복귀 트윈 (중복 시 이전 것 취소)
+var _reveal: ChekiReveal  # 체키 획득 리빌 오버레이 (열려 있으면 셸 입력을 여기로)
 
 
 func _ready() -> void:
+  add_to_group(&"cafe")  # DebugTools 가 찾아 debug_grant_cheki() 호출(디버그 빌드 전용)
   _build()
 
 
@@ -41,8 +43,11 @@ func start() -> void:
   _ticker.show_line(Dialogue.okja_line(sit, meters.stage(), _nick()))
 
 
-## 셸 3버튼 중계 (Main → Cafe).
+## 셸 3버튼 중계 (Main → Cafe). 체키 리빌이 떠 있으면 그쪽이 먼저 먹는다.
 func handle_shell_action(action: StringName) -> void:
+  if _reveal != null:
+    _reveal.handle_shell_action(action)
+    return
   match action:
     &"select": _bar.move_cursor()
     &"ok": _bar.activate_focused()
@@ -154,10 +159,37 @@ func _on_okja_touch() -> void:
 
 # ── 미터 신호 처리 ────────────────────────────────────────
 
-## 게이지 풀 — 오늘의 체키 (실제 획득/연출은 T13/T18). 지금은 폴짝 + 보이스.
-func _on_gauge_full(_character: String) -> void:
-  _okja.hop()
+## 게이지 풀 → "오늘의 체키" 자동 획득 (T13). 미보유 우선 일반 / 중복 → 나비 승급.
+## 그랜트 → 게이지 소진(재발화 방지) → 옥자 폴짝 + 보이스 → 리빌 오버레이.
+func _on_gauge_full(character: String) -> void:
+  if character != Events.OKJA or _reveal != null:
+    return
+  var event := Cheki.pick_today(Events.OKJA)
+  var result := Cheki.grant(Events.OKJA, event)
+  meters.consume_gauge_okja()
+
+  _okja.hop()  # smile 재사용 폴짝 (리워드 순간 → ADR 0001/T07)
   _ticker.show_line(Dialogue.okja_line("cheki_get", meters.stage(), _nick()))
+
+  _reveal = ChekiReveal.new()
+  _reveal.setup(result)
+  _reveal.closed.connect(_on_reveal_closed)
+  add_child(_reveal)  # 맨 위(마지막 자식) → HUD·액션바 덮음
+
+
+func _on_reveal_closed() -> void:
+  _reveal = null
+  _hud.refresh()
+  _to_idle()
+
+
+## 디버그 — 게이지를 즉시 채워 "오늘의 체키" 획득 리빌을 띄운다(DebugTools 키 4 / 컬렉션북 전 확인용).
+func debug_grant_cheki() -> void:
+  if _reveal != null:
+    return
+  SaveManager.set_value("okja.gauge", Balance.GAUGE_OKJA)  # 게이지 풀(연출·HUD 일관성)
+  _hud.refresh()
+  _on_gauge_full(Events.OKJA)  # 정규 획득 경로 그대로 — 그랜트 + 소진 + 리빌
 
 
 ## 관계 단계 상승 — 반말 전환 컷인은 T11. 지금은 티커 한 줄로 암시.

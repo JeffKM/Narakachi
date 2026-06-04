@@ -8,13 +8,21 @@ extends RefCounted
 const OKJA := "okja"
 const SION := "sion"
 
-## 이벤트 정의: id → { name(표시명), okja(옥자 칸 여부), sion(시온이 칸 여부), theme(나비 테마 프레임 메모) }
+## 이벤트 정의: id → { name(표시명), slug(에셋 파일 접미사), okja, sion, theme(나비 테마 프레임 메모) }
+## ⚠️ id 와 slug 는 다를 수 있다 — id="mine"(지뢰계)의 에셋 접미사는 "jirai"(okja_jirai/bg_cheki_jirai/frame_jirai).
 const LIST := {
-  "mine":   {"name": "지뢰계", "okja": true,  "sion": true,  "theme": "메탈하트·리본"},
-  "kinder": {"name": "유치원", "okja": true,  "sion": false, "theme": "크레용·무지개"},
-  "hiphop": {"name": "힙합",   "okja": true,  "sion": false, "theme": "그래피티·체인"},
-  "butler": {"name": "집사",   "okja": true,  "sion": false, "theme": "은쟁반·장미"},
-  "xmas":   {"name": "크리스마스", "okja": true, "sion": true, "theme": "눈·리스"},
+  "mine":   {"name": "지뢰계", "slug": "jirai",  "okja": true,  "sion": true,  "theme": "메탈하트·리본"},
+  "kinder": {"name": "유치원", "slug": "kinder", "okja": true,  "sion": false, "theme": "크레용·무지개"},
+  "hiphop": {"name": "힙합",   "slug": "hiphop", "okja": true,  "sion": false, "theme": "그래피티·체인"},
+  "butler": {"name": "집사",   "slug": "butler", "okja": true,  "sion": false, "theme": "은쟁반·장미"},
+  "xmas":   {"name": "크리스마스", "slug": "xmas", "okja": true, "sion": true, "theme": "눈·리스"},
+}
+
+# 체키 카드 아트(의상 누끼 + 사진 배경 + 테마 프레임)가 준비된 이벤트.
+# "오늘의 체키"는 여기 있는 이벤트 안에서만 고른다(아트 없는 칸을 렌더러에 넘기지 않게).
+# A4/A5로 의상·배경·프레임이 추가되면 해당 id를 켠다. (→ asset-checklist A2~A5)
+const ART_READY := {
+  "mine": true,
 }
 
 # 첫 방문 기념 증정 = 지뢰계(★히어로) 일반체키 (PRD §4.5 / T06b)
@@ -30,3 +38,40 @@ static func cheki_key(character: String, event: String) -> String:
 static func event_name(event: String) -> String:
   var e: Dictionary = LIST.get(event, {})
   return e.get("name", event)
+
+
+## 체키 뒷면 폴라로이드 윗쪽에 오버레이되는 데이 라벨. 표시명에서 "{표시명} 데이"로 파생. (→ ADR 0003)
+## (별도 caption 필드를 두지 않고 이름에서 만든다 — 커스텀 문구가 필요해지면 LIST에 필드 추가)
+static func cheki_day_label(event: String) -> String:
+  return "%s 데이" % event_name(event)
+
+
+## 에셋 파일 접미사(slug). 없으면 id 그대로. (id="mine" → "jirai")
+static func event_slug(event: String) -> String:
+  var e: Dictionary = LIST.get(event, {})
+  return e.get("slug", event)
+
+
+## 이 이벤트의 체키 카드 아트가 준비됐나(의상·배경·테마 프레임). "오늘의 체키" 후보 필터.
+static func cheki_art_ready(event: String) -> bool:
+  return bool(ART_READY.get(event, false))
+
+
+# ── 체키 카드 합성 레이어 에셋 경로 (→ ADR 0003) ─────────────────
+# 사진 면 = [배경 bg_cheki_*] + [의상 누끼 {char}_{slug}] + [테마/표준 프레임]
+
+## 의상 누끼 스탠딩 경로. okja → okja_{slug}, sion → sion_{slug}.
+static func cheki_costume_path(character: String, event: String) -> String:
+  return "res://assets/sprites/%s_%s.png" % [character, event_slug(event)]
+
+
+## 사진 면 배경(불투명 풍경) 경로. 의상(이벤트)별.
+static func cheki_bg_path(event: String) -> String:
+  return "res://assets/sprites/bg_cheki_%s.png" % event_slug(event)
+
+
+## 사진 면 테두리 프레임 경로. 나비 = 이벤트 테마 프레임, 일반 = 표준 프레임.
+static func cheki_frame_path(event: String, butterfly: bool) -> String:
+  if butterfly:
+    return "res://assets/sprites/frame_%s.png" % event_slug(event)
+  return "res://assets/sprites/frame_standard.png"
