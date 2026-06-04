@@ -111,7 +111,7 @@ func _add_okja_touch() -> void:
 func _on_action(id: String) -> void:
   # 스태미나 게이트 — 소진 시 오늘 종료 (벌 없음, 내일 회복)
   if not meters.can_act():
-    _okja.set_expression(&"sad")
+    _react(&"sad")  # 잠깐 시무룩 → 무표정 복귀 (계속 축 처져 있지 않게)
     _ticker.show_line(Dialogue.okja_line("no_stamina", meters.stage(), _nick()))
     return
 
