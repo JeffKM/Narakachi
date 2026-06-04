@@ -60,14 +60,23 @@ def index_to_palette(rgb, pal):
   return pal[d.argmin(1)].astype(np.uint8).reshape(rgb.shape)
 
 
-def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128):
-  """핵심 파이프라인: 축소 → 알파 이진화 → 팔레트 인덱싱 → LCD 투명."""
+def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
+           chroma=None, chroma_tol=48):
+  """핵심 파이프라인: 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명."""
   im = Image.open(src_path).convert("RGBA")
   im = fit_resize(im, target_w, target_h)
   arr = np.array(im)
   rgb, alpha = arr[:, :, :3], arr[:, :, 3]
 
-  mask = alpha > alpha_thr if transparent else np.ones(alpha.shape, bool)
+  if chroma is not None:
+    # 단색(크로마키) 배경 → 투명. AI가 만든 단색 배경 분리용.
+    ck = np.array(chroma, dtype=np.float32)
+    dist = np.sqrt(((rgb.astype(np.float32) - ck) ** 2).sum(2))
+    mask = (dist > chroma_tol) & (alpha > alpha_thr)
+  elif transparent:
+    mask = alpha > alpha_thr
+  else:
+    mask = np.ones(alpha.shape, bool)
   mapped = index_to_palette(rgb, load_palette())
   out = np.dstack([mapped, np.where(mask, 255, 0).astype(np.uint8)])
 
@@ -116,8 +125,15 @@ def main():
   ap.add_argument("--size", help="직접 규격 지정 (예: 120x180)")
   ap.add_argument("--transparent", action="store_true", help="--size 사용 시 투명배경 처리")
   ap.add_argument("--out", required=True, help="출력 PNG 경로")
+  ap.add_argument("--chroma", help="단색 배경색(예: 00ff00)을 투명 처리 — AI 단색 배경 분리용")
+  ap.add_argument("--chroma-tol", type=int, default=48, help="크로마키 색 허용 오차(기본 48)")
   ap.add_argument("--preview", type=int, default=3, help="×N nearest 확대 미리보기 배율 (0=off)")
   args = ap.parse_args()
+
+  chroma = None
+  if args.chroma:
+    h = args.chroma.lstrip("#")
+    chroma = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
   if args.preset:
     tw, th, transparent, lcd = PRESETS[args.preset]
@@ -127,7 +143,8 @@ def main():
   else:
     ap.error("--preset 또는 --size 중 하나는 필수")
 
-  img = dotify(args.src, tw, th, transparent, lcd)
+  img = dotify(args.src, tw, th, transparent or chroma is not None, lcd, chroma=chroma,
+               chroma_tol=args.chroma_tol)
   img.save(args.out)
 
   if args.preview > 0:

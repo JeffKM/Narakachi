@@ -20,7 +20,12 @@ tools/.venv/bin/python tools/dotify.py 원본.png --preset frame --out out.png
 
 # 직접 규격 지정
 tools/.venv/bin/python tools/dotify.py 원본.png --size 120x180 --transparent --out cheki.png
+
+# 단색(크로마키) 배경 제거 — AI가 단색 배경으로 준 캐릭터 분리
+tools/.venv/bin/python tools/dotify.py okja_raw.png --preset okja --chroma 00ff00 --out okja.png
 ```
+
+> Gemini 프롬프트로 캐릭터를 받을 땐 [docs/gemini-prompts.md](../docs/gemini-prompts.md) 참고 — 단색 배경으로 받아 `--chroma`로 분리한다.
 
 ### 프리셋 (→ ADR 0001 규격)
 
