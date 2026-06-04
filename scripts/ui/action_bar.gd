@@ -24,14 +24,18 @@ const ACTIONS := [
 
 var _buttons: Array[Button] = []
 var _cursor := 0
+var _bw := 0.0          # 버튼 폭(커서 위치 계산용)
+var _heart: HeartCursor # 포커스된 버튼 위 골드 하트 커서
 
 
 func _ready() -> void:
   var n := ACTIONS.size()
-  var bw := float(LCD_W - 2 * MARGIN - (n - 1) * GAP) / float(n)
+  _bw = float(LCD_W - 2 * MARGIN - (n - 1) * GAP) / float(n)
   for i in range(n):
-    var x := MARGIN + i * (bw + GAP)
-    _buttons.append(_make_button(i, x, bw))
+    var x := MARGIN + i * (_bw + GAP)
+    _buttons.append(_make_button(i, x, _bw))
+  _heart = HeartCursor.new()
+  add_child(_heart)
   _update_cursor()
 
 
@@ -53,27 +57,10 @@ func _make_button(idx: int, x: float, w: float) -> Button:
   btn.text = ACTIONS[idx]["label"]
   btn.position = Vector2(x, BAR_Y)
   btn.size = Vector2(w, BTN_H)
-  btn.focus_mode = Control.FOCUS_NONE  # 커서는 우리가 직접 그린다
-  btn.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
-  btn.add_theme_color_override("font_color", Palette.CREAM)
-  btn.add_theme_color_override("font_hover_color", Palette.WHITE)
-  btn.add_theme_color_override("font_pressed_color", Palette.WHITE)
-  btn.add_theme_stylebox_override("normal", _style(false))
-  btn.add_theme_stylebox_override("hover", _style(false))
-  btn.add_theme_stylebox_override("pressed", _style(true))
+  UiTheme.style_button(btn)  # 공용 지옥풍 버튼 테마 (커서는 우리가 직접 그린다)
   btn.pressed.connect(_choose.bind(idx))
   add_child(btn)
   return btn
-
-
-## 버튼 스타일 박스. focused=true 면 골드 테두리(커서 표시).
-func _style(focused: bool) -> StyleBoxFlat:
-  var sb := StyleBoxFlat.new()
-  sb.bg_color = Palette.WOOD if focused else Palette.WOOD_DARK
-  sb.set_corner_radius_all(4)
-  sb.set_border_width_all(2 if focused else 1)
-  sb.border_color = Palette.GOLD if focused else Palette.GOLD_DARK
-  return sb
 
 
 ## 터치/OK 공통: 커서를 그 버튼으로 옮기고 선택 통지.
@@ -83,9 +70,10 @@ func _choose(idx: int) -> void:
   action_chosen.emit(ACTIONS[idx]["id"])
 
 
-## 포커스된 버튼만 골드 테두리로 강조.
+## 포커스된 버튼만 강조 바탕 + 그 위에 골드 하트 커서를 둔다.
 func _update_cursor() -> void:
   for i in range(_buttons.size()):
-    var focused := i == _cursor
-    _buttons[i].add_theme_stylebox_override("normal", _style(focused))
-    _buttons[i].add_theme_stylebox_override("hover", _style(focused))
+    UiTheme.set_button_focused(_buttons[i], i == _cursor)
+  # 하트는 포커스 버튼의 상단 중앙 살짝 위에
+  var bx := MARGIN + _cursor * (_bw + GAP) + _bw / 2.0
+  _heart.position = Vector2(bx, BAR_Y - 6)

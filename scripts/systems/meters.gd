@@ -26,24 +26,48 @@ const _MOOD_ORDER := [MOOD_SULKY, MOOD_NORMAL, MOOD_HAPPY]  # 교감 1회마다 
 var was_neglected := false  # 방치(24h+) 후 복귀로 시무룩해져 있었나
 
 
-## 세션 시작 처리 — 일일 스태미나 회복 + 방치 기분 판정 + 출석 갱신.
-## 화면(Cafe) 진입 시 1회 호출한다.
-func begin_session() -> void:
-  was_neglected = false
+## 세션 진입 판정 (읽기전용) — 스플래시/카페가 입장·복귀·출석 연출을 고를 때 쓴다.
+## ⚠️ 저장을 건드리지 않는다(쓰기는 begin_session). 스플래시는 카페보다 먼저 떠서
+##    streak/방치 여부를 미리 보여줘야 하므로, 판정만 떼어 두 곳에서 공유한다.
+## 반환: { "was_neglected": bool, "is_new_day": bool, "streak": int }
+##   streak = 오늘 출석을 반영한 "예정" 연속일(아직 커밋 전이라도 화면엔 이 값을 노출).
+static func evaluate_session() -> Dictionary:
   var now := int(Time.get_unix_time_from_system())
   var last_saved := int(SaveManager.get_value("last_saved_unix", 0))
 
-  # 1) 기분: 마지막 저장 이후 경과시간 (단, 첫 세션 last_saved==0 은 방치로 보지 않음)
+  # 방치: 마지막 저장 이후 경과시간 (첫 세션 last_saved==0 은 방치 아님)
+  var neglected := false
   if last_saved > 0:
     var elapsed_h := float(now - last_saved) / 3600.0
-    if elapsed_h >= float(Balance.MOOD_PENALTY_HOURS):
-      SaveManager.set_value("okja.mood", MOOD_SULKY)
-      was_neglected = true
+    neglected = elapsed_h >= float(Balance.MOOD_PENALTY_HOURS)
 
-  # 2) 일일 회복: 날짜가 바뀌었으면 스태미나 풀 충전 + 세션 누적값 리셋 + 출석 갱신
+  # 출석: 날짜가 바뀌었나 + 오늘을 반영한 예정 streak
   var today := Time.get_date_string_from_system()  # 로컬 "YYYY-MM-DD"
   var last_date := String(SaveManager.get_value("attendance.last_date", ""))
-  if last_date != today:
+  var is_new_day := last_date != today
+  var streak := int(SaveManager.get_value("attendance.streak", 0))
+  if is_new_day:
+    var yesterday := Time.get_datetime_string_from_unix_time(now - 86400).split("T")[0]
+    streak = (streak + 1) if (last_date != "" and last_date == yesterday) else 1
+
+  return {"was_neglected": neglected, "is_new_day": is_new_day, "streak": streak}
+
+
+## 세션 시작 처리 — 판정(evaluate_session)을 적용·저장한다(스태미나 회복·기분·출석).
+## 화면(Cafe) 진입 시 1회 호출한다(단일 진실원). 스플래시는 evaluate_session 만 읽는다.
+func begin_session() -> void:
+  var eval := evaluate_session()
+  was_neglected = bool(eval["was_neglected"])
+
+  # 1) 기분: 방치였으면 시무룩
+  if was_neglected:
+    SaveManager.set_value("okja.mood", MOOD_SULKY)
+
+  # 2) 일일 회복: 날짜가 바뀌었으면 스태미나 풀 충전 + 세션 누적값 리셋 + 출석 갱신
+  if bool(eval["is_new_day"]):
+    var now := int(Time.get_unix_time_from_system())
+    var today := Time.get_date_string_from_system()
+    var last_date := String(SaveManager.get_value("attendance.last_date", ""))
     SaveManager.set_value("stamina", Balance.STAMINA_MAX)
     SaveManager.set_value("session.touch_affinity", 0)
     _update_attendance(today, last_date, now)

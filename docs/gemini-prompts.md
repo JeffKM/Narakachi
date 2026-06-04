@@ -180,6 +180,47 @@ no multiple screens, no extra buttons beyond the three, no clutter, asymmetry.
 
 ---
 
+## 지옥문 (타이틀/출석 스플래시 — 통짜 1장)
+
+> 게임을 켜면 셸 LCD 안에서 **귀여운 지옥문이 양쪽으로 쫙 열리며** 옥자가 맞이하는 진입 연출(= 데일리 출석 화면, T14 흡수). **닫힌 문 한 장만** 그리면 된다 — 코드가 가운데(x≈166)에서 좌/우로 잘라 바깥으로 슬라이드해 여닫는다. 그러므로 **완벽한 좌우 대칭**이 생명.
+> **무드**: "지옥문"이지만 무섭지 않게 — **어두운 고딕 철문 + 버건디**가 본체, **이음선에서 새어나오는 붉은 불빛(ember glow)**으로 "안쪽이 지옥"임을 암시. **골드는 하트 손잡이 + 얇은 트림 액센트로만**(전체 골드 프레임 금지 — 화려한 성문/궁전처럼 보임). **상단 가운데 작은 둥근 뿔**로 장난기. SD 옥자/셸과 같은 다크 앤티크 팔레트.
+> **누끼**: 캐릭터처럼 크로마 그린. 단 **문 본체는 화면을 꽉 채워 불투명**, 아치형 상단 양 모서리 바깥만 크로마로 비워 둥근 윤곽을 준다(그 틈으로 뒤 무대가 살짝 비침).
+> **구도 핵심**: 정확히 `333:480`(7:10) 세로, 가운데 세로 이음선 기준 **완전 대칭**. 가운데 이음선에 하트 손잡이 한 쌍 + 붉은 불빛, 상단 정중앙에 뿔. 좌우로 갈라도 양쪽이 거울상이 되도록.
+
+```
+Pixel art / dot art of a CUTE but slightly EERIE closed HELL GATE — a pair of heavy GOTHIC doors, front view, NO characters.
+The gate is SHUT, the two doors meeting at the exact vertical CENTER seam,
+       with a faint warm EMBER-RED glow leaking through the seam (firelight from the underworld behind it).
+Shape: tall vertical portrait, aspect ratio exactly 7:10 (≈333:480), filling the frame;
+       a pointed GOTHIC ARCH top, perfectly LEFT-RIGHT SYMMETRIC about the center seam (it will be split down the middle).
+Material: DARK and heavy — deep burgundy wood with BLACK WROUGHT-IRON gothic bands, bars and rivets; ominous, weighty.
+         This is NOT a shiny golden palace gate — most of the gate is DARK (ink-black iron + deep burgundy).
+Gold is a MINIMAL accent ONLY: the heart handles and a thin worn-brass edge trim. Do NOT gild the whole frame.
+Cute details: a pair of small GOLD HEART-shaped handles at the center seam,
+              two small ROUNDED cute DEVIL HORNS at the top-center of the arch, a tiny bat silhouette.
+Mood: the gate to a GENTLE underworld — a little spooky yet charming and cozy, lit warmly from BEHIND by embers.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — deep burgundy and INK-BLACK dominate, only SMALL antique-gold accents, warm ember-red glow at the seam.
+Background: FLAT SOLID chroma green (#00ff00) ONLY in the arched top corners outside the gate; the gate body itself is opaque.
+```
+
+### 네거티브 (지옥문)
+
+```
+no characters, no face, no cat, no people, no text, no watermark, no signature,
+no shiny golden gate, no bright royal palace gate, no castle entrance, no fairytale gate, no marble, no white stone,
+no full gold frame, no excessive gold, no glossy reflections, no glitter,
+no open doors, no gap in the middle, no asymmetry, no off-center seam,
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render,
+no gore, no horror, no scary spikes, no skulls on the doors, no clutter.
+```
+
+> 톤 팁: **골드를 줄이는 게 핵심** — 손잡이(하트)와 얇은 가장자리 트림만 골드, 나머지는 어두운 철문 + 버건디. 화려하면 성문이 된다.
+> **"지옥"은 이음선의 붉은 불빛**이 만든다(안쪽에서 불이 새는 느낌). 뿔은 작고 둥글게(장난기), 무섭거나 뾰족하면 SD 옥자와 안 붙는다.
+> 검수 포인트: **좌우 대칭**(반 접어 겹쳐 보기) + 가운데 이음선이 정확히 중앙(x≈166)인지. 어긋나면 슬라이드 시 양쪽 두께가 달라 보인다.
+
+---
+
 ## 후처리 연결 (받은 PNG → 규격 에셋)
 
 ```bash
@@ -199,6 +240,10 @@ tools/.venv/bin/python tools/dotify.py naraka_bg_raw.png \
 # ※ dotify가 아니라 prep_shell.py. 새 레퍼런스면 먼저 SRC_* 계측값부터 갱신할 것.
 tools/.venv/bin/python tools/prep_shell.py \
   --in assets/sprites/_src/damagochi_frame.png --out assets/sprites/shell_frame.png
+
+# 지옥문 (333×480, 아치 모서리만 크로마 그린 제거 → 문 본체 불투명 통짜)
+tools/.venv/bin/python tools/dotify.py gate_naraka_raw.png \
+  --size 333x480 --chroma 00ff00 --out assets/sprites/gate_naraka.png
 ```
 
 > ⚠️ `--preset bg`(270×480)는 셸 교체 이전 값이라 현 LCD `333×480`과 안 맞는다 — 배경은 위처럼 `--size 333x480`로 뽑을 것(또는 `tools/dotify.py` PRESETS의 `bg`를 `(333, 480, False, None)`으로 갱신).

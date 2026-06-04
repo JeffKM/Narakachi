@@ -48,10 +48,9 @@ func _ready() -> void:
 
   _confirm = Button.new()
   _confirm.text = "들어가기"
-  _confirm.focus_mode = Control.FOCUS_NONE
   _confirm.position = Vector2((LCD_W - 140) / 2, 300)
   _confirm.size = Vector2(140, 40)
-  _confirm.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
+  UiTheme.style_button(_confirm)  # 공용 지옥풍 버튼 테마
   _confirm.pressed.connect(_advance)
   add_child(_confirm)
 

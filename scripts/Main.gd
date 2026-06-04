@@ -9,7 +9,9 @@ extends Node2D
 ## 구성 요소: 셸 scripts/systems/shell.gd · 카페 scripts/cafe.gd · 온보딩 scripts/onboarding.gd
 ## 미터 scripts/systems/meters.gd · 대사 data/dialogue.gd · 팔레트 data/palette.gd · 폰트 scripts/systems/fonts.gd
 
+var _lcd_root: Node2D
 var _cafe: Cafe
+var _splash: Splash       # 진입 스플래시(지옥문 열림 + 옥자 맞이). 진행 중이면 셸 입력을 여기로.
 var _onboarding: Onboarding  # 진행 중이면 셸 입력을 여기로 (없으면 카페로)
 
 
@@ -22,21 +24,36 @@ func _ready() -> void:
   var shell := ShellFrame.new()
   add_child(shell)
   shell.button_pressed.connect(_on_shell_button)
+  _lcd_root = shell.lcd_root
 
-  # LCD 안에 메인 교감 화면
+  # LCD 안에 메인 교감 화면 (아직 세션 시작 안 함 — 스플래시 뒤에 깔아둠)
   _cafe = Cafe.new()
-  shell.lcd_root.add_child(_cafe)
+  _lcd_root.add_child(_cafe)
 
-  # 첫 접속이면 온보딩, 아니면 바로 세션 시작
-  if bool(SaveManager.get_value("flags.onboarded", false)):
-    _cafe.start()
-  else:
-    _start_onboarding(shell.lcd_root)
+  # 진입 스플래시 오버레이 — 끝나면 온보딩(첫 접속) 또는 카페 세션으로
+  _start_splash()
 
   # 디버그 빌드에서만: 초기화/시드/리로드 단축키 + 화면 힌트 (release 데모엔 미노출)
   if OS.is_debug_build():
     add_child(DebugTools.new())
     add_child(_make_debug_hint())
+
+
+## 진입 스플래시를 카페 위에 띄운다. 끝나면 걷고 분기.
+func _start_splash() -> void:
+  _splash = Splash.new()
+  _splash.finished.connect(_on_splash_done)
+  _lcd_root.add_child(_splash)
+
+
+func _on_splash_done() -> void:
+  _splash.queue_free()
+  _splash = null
+  # 첫 접속이면 온보딩, 아니면 바로 세션 시작
+  if bool(SaveManager.get_value("flags.onboarded", false)):
+    _cafe.start()
+  else:
+    _start_onboarding(_lcd_root)
 
 
 ## 온보딩 오버레이를 카페 위에 띄운다. 끝나면 걷고 카페 세션 시작.
@@ -66,9 +83,11 @@ func _make_debug_hint() -> Label:
   return lb
 
 
-## 셸 3버튼 → 활성 화면으로 중계.
+## 셸 3버튼 → 활성 화면으로 중계 (스플래시 → 온보딩 → 카페 순).
 func _on_shell_button(action: StringName) -> void:
-  if _onboarding != null:
+  if _splash != null:
+    _splash.handle_shell_action(action)
+  elif _onboarding != null:
     _onboarding.handle_shell_action(action)
   else:
     _cafe.handle_shell_action(action)
