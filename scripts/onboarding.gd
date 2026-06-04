@@ -14,7 +14,14 @@ const LCD_H := 480
 const NICK_MAX := 8
 const NICK_DEFAULT := "손님"
 
+# 가운데 초대장 카드 규격 (글자를 배경에서 떼어내 가독성 + 겹침 해소)
+const CARD := Rect2(24, 96, 285, 304)
+const HEART_SCALE := 2.4  # 골드 하트 엠블럼 확대 배율 (맥동)
+const INPUT_W := 200
+const BTN_W := 160
+
 var _step := 0  # 0=닉네임 입력, 1=맞이/증정
+var _submitting := false  # 제출 await 중 중복 진입 방지(엔터+버튼 동시)
 var _title: Label
 var _body: Label
 var _nick_edit: LineEdit
@@ -23,33 +30,53 @@ var _nick := ""
 
 
 func _ready() -> void:
-  # 화면 전체를 덮는 어두운 패널 (뒤 Cafe 입력 차단)
+  # 1) 화면 전체를 살짝 어둡게 덮어 카페 입력 차단 (앤틱 무드는 살짝 남김)
   var bg := ColorRect.new()
-  bg.color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.94)
+  bg.color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.82)
   bg.position = Vector2.ZERO
   bg.size = Vector2(LCD_W, LCD_H)
   add_child(bg)
 
-  _title = _make_label("나라카에 오신 걸\n환영해요", 120, Fonts.SIZE_TITLE, Palette.CANDLE)
+  # 2) 가운데 초대장 카드 (골드 테두리 버건디 패널 + 부드러운 그림자)
+  var card := Panel.new()
+  card.position = CARD.position
+  card.size = CARD.size
+  var sb := StyleBoxFlat.new()
+  sb.bg_color = Color(Palette.BURGUNDY_DARK.r, Palette.BURGUNDY_DARK.g, Palette.BURGUNDY_DARK.b, 0.96)
+  sb.set_corner_radius_all(10)
+  sb.set_border_width_all(2)
+  sb.border_color = Palette.GOLD
+  sb.shadow_color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.6)
+  sb.shadow_size = 6
+  card.add_theme_stylebox_override("panel", sb)
+  add_child(card)
+
+  # 3) 맥동하는 골드 하트 엠블럼 (귀여움 포인트)
+  var heart := HeartCursor.new()
+  heart.position = Vector2(LCD_W / 2.0, 122)
+  heart.scale = Vector2(HEART_SCALE, HEART_SCALE)
+  add_child(heart)
+
+  _title = _make_label("나라카에 오신 걸\n환영해요", 140, Fonts.SIZE_TITLE, Palette.CANDLE)
   add_child(_title)
 
-  _body = _make_label("당신을 뭐라고 부를까요?", 196, Fonts.SIZE_BODY, Palette.CREAM)
+  _body = _make_label("당신을 뭐라고 부를까요?", 212, Fonts.SIZE_BODY, Palette.CREAM)
   add_child(_body)
 
   _nick_edit = LineEdit.new()
   _nick_edit.placeholder_text = "닉네임"
   _nick_edit.max_length = NICK_MAX
   _nick_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
-  _nick_edit.position = Vector2((LCD_W - 180) / 2, 230)
-  _nick_edit.size = Vector2(180, 34)
-  _nick_edit.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
+  _nick_edit.position = Vector2((LCD_W - INPUT_W) / 2.0, 248)
+  _nick_edit.size = Vector2(INPUT_W, 34)
+  UiTheme.style_input(_nick_edit)  # 공용 지옥풍 입력칸 테마
   _nick_edit.text_submitted.connect(func(_t): _advance())  # 엔터로 제출
   add_child(_nick_edit)
 
   _confirm = Button.new()
   _confirm.text = "들어가기"
-  _confirm.position = Vector2((LCD_W - 140) / 2, 300)
-  _confirm.size = Vector2(140, 40)
+  _confirm.position = Vector2((LCD_W - BTN_W) / 2.0, 314)
+  _confirm.size = Vector2(BTN_W, 40)
   UiTheme.style_button(_confirm)  # 공용 지옥풍 버튼 테마
   _confirm.pressed.connect(_advance)
   add_child(_confirm)
@@ -74,6 +101,13 @@ func _advance() -> void:
 
 ## 닉네임 확정 → 저장 + 첫 체키 증정 → 맞이 화면으로.
 func _submit_nickname() -> void:
+  if _submitting:
+    return
+  _submitting = true
+  # 한글 IME 로 조합 중(preedit)인 마지막 음절은 아직 LineEdit.text 에 없다.
+  # 포커스를 풀어 조합을 확정시키고 한 프레임 뒤에 읽어 마지막 글자 누락을 막는다.
+  _nick_edit.release_focus()
+  await get_tree().process_frame
   _nick = _nick_edit.text.strip_edges()
   if _nick.is_empty():
     _nick = NICK_DEFAULT
@@ -102,8 +136,9 @@ func _grant_first_cheki() -> void:
 func _make_label(text: String, y: int, size: int, color: Color) -> Label:
   var lb := Label.new()
   lb.text = text
-  lb.position = Vector2(16, y)
-  lb.size = Vector2(LCD_W - 32, 0)
+  # 카드 안쪽(좌우 12px 여백)에 맞춰 가운데 정렬
+  lb.position = Vector2(CARD.position.x + 12, y)
+  lb.size = Vector2(CARD.size.x - 24, 0)
   lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   lb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
   lb.add_theme_font_size_override("font_size", size)

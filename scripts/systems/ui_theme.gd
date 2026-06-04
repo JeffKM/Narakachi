@@ -30,3 +30,28 @@ static func style_button(btn: Button) -> void:
 static func set_button_focused(btn: Button, focused: bool) -> void:
   btn.add_theme_stylebox_override("normal", button_box(focused))
   btn.add_theme_stylebox_override("hover", button_box(focused))
+
+
+## 텍스트 입력칸 배경 스타일박스. focused=true 면 골드 테두리로 강조.
+static func input_box(focused: bool) -> StyleBoxFlat:
+  var sb := StyleBoxFlat.new()
+  sb.bg_color = Palette.GREY_900
+  sb.set_corner_radius_all(5)
+  sb.set_border_width_all(2)
+  sb.border_color = Palette.GOLD if focused else Palette.GOLD_DARK
+  sb.content_margin_left = 8
+  sb.content_margin_right = 8
+  sb.content_margin_top = 4
+  sb.content_margin_bottom = 4
+  return sb
+
+
+## LineEdit 에 공용 지옥풍 입력칸 테마(글자색·플레이스홀더·캐럿·상태별 스타일박스).
+static func style_input(edit: LineEdit) -> void:
+  edit.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
+  edit.add_theme_color_override("font_color", Palette.CREAM)
+  edit.add_theme_color_override("font_placeholder_color", Palette.GREY_400)
+  edit.add_theme_color_override("caret_color", Palette.GOLD)
+  edit.add_theme_color_override("selection_color", Palette.BURGUNDY)
+  edit.add_theme_stylebox_override("normal", input_box(false))
+  edit.add_theme_stylebox_override("focus", input_box(true))
