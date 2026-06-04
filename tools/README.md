@@ -64,6 +64,30 @@ tools/.venv/bin/python tools/dot_studio.py --port 8800 --no-browser
 4. **LCD 투명 마스킹** — LCD 사각을 지정한 프리셋/규격은 게임 화면칸을 투명으로 뚫음
 5. **검수 리포트** — 치수·색 수·팔레트 외 색·반투명·LCD 투명을 자동 판정(통과 시 exit 0)
 
+## 워터마크 제거 (dewatermark.py)
+
+Gemini/Imagen 생성 이미지는 **우하단에 은색 4각 스파클(✦) 워터마크**를 박는다. dotify 후에도 작은 은빛/크림빛 덩어리로 남아 인게임(문 열림·체키 카드 등)에 거슬린다. 이 도구가 찾아 인페인트로 지운다.
+
+```bash
+# 1) 검출 미리보기 (원본 불변, 빨강=제거대상 → <파일>.prev.png) — 기본 동작
+tools/.venv/bin/python tools/dewatermark.py assets/sprites/gate_naraka.png
+tools/.venv/bin/python tools/dewatermark.py assets/sprites/*.png   # 여러 장 한 번에
+
+# 2) 적용 (원본은 <파일>.bak 백업 → .gitignore 대상)
+tools/.venv/bin/python tools/dewatermark.py assets/sprites/bg_naraka.png --apply
+
+# 3) 검출이 애매하면 영역 직접 지정
+#    문틀처럼 세로 줄무늬가 지나가면 --vertical(세로 보간으로 구조 보존)
+tools/.venv/bin/python tools/dewatermark.py assets/sprites/gate_naraka.png --box 303,448,17,18 --vertical --apply
+#    따뜻한 톤(은색 아님) ✦ 은 --solid 로 박스 통째 인페인트
+tools/.venv/bin/python tools/dewatermark.py assets/sprites/frame_standard.png --box 106,167,11,10 --solid --apply
+```
+
+- **항상 미리보기 먼저** — 자동 검출은 *밝고 채도 낮은 작은 덩어리*를 잡으므로 **흰 옷·네온 점·금속 하이라이트를 오검출**할 수 있다(예: `okja_jirai` 흰 치마, `bg_cheki_jirai` 네온 보케). 빨강 미리보기로 확인하고, 아트가 잡히면 `--box`로 코너만 지정한다.
+- 적용 후 **Godot 에디터에서 재임포트**(또는 `godot --headless --import`)해야 게임에 반영된다.
+- 임계값(`--sat-max`/`--bright-min`/`--local-delta`)·검출범위(`--corner-w/h`, `--region full`)는 옵션으로 미세조정. 전체 도움말은 `--help`.
+- okja 표정 6종 등 **누끼 캐릭터**는 워터마크가 크로마 배경과 함께 키잉돼 보통 남지 않는다(검출 0이 정상). 망토의 금색 십자 벨트는 아트지 워터마크가 아니다.
+
 ## 한계 (중요)
 
 - 툴은 규격을 강제하지만 **입력 그림의 구도가 규격과 어긋나면 못 메운다.**
