@@ -60,10 +60,15 @@ def index_to_palette(rgb, pal):
   return pal[d.argmin(1)].astype(np.uint8).reshape(rgb.shape)
 
 
-def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
-           chroma=None, chroma_tol=48):
-  """핵심 파이프라인: 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명."""
-  im = Image.open(src_path).convert("RGBA")
+def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
+                 chroma=None, chroma_tol=48, apply_palette=True, palette=None):
+  """핵심 파이프라인(메모리 이미지): 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명.
+
+  CLI(dotify)와 GUI(dot_studio)가 공유하는 단일 처리 함수. 규격 로직은 여기 한 곳에서만 산다.
+  apply_palette=False는 팔레트 인덱싱 전 원본 색을 유지(미리보기 비교용).
+  palette=(N,3) 배열을 주면 파일 대신 그 팔레트로 인덱싱(스튜디오 라이브 편집용).
+  """
+  im = im.convert("RGBA")
   im = fit_resize(im, target_w, target_h)
   arr = np.array(im)
   rgb, alpha = arr[:, :, :3], arr[:, :, 3]
@@ -77,7 +82,11 @@ def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
     mask = alpha > alpha_thr
   else:
     mask = np.ones(alpha.shape, bool)
-  mapped = index_to_palette(rgb, load_palette())
+  if apply_palette:
+    pal = palette if palette is not None else load_palette()
+    mapped = index_to_palette(rgb, pal)
+  else:
+    mapped = rgb
   out = np.dstack([mapped, np.where(mask, 255, 0).astype(np.uint8)])
 
   if lcd:
@@ -85,6 +94,13 @@ def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
     out[y:y + h, x:x + w, 3] = 0  # 게임 화면 구멍 = 완전 투명
 
   return Image.fromarray(out, "RGBA")
+
+
+def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
+           chroma=None, chroma_tol=48):
+  """파일 경로 → 규격 도트 이미지(CLI용 얇은 래퍼)."""
+  return dotify_image(Image.open(src_path), target_w, target_h, transparent, lcd,
+                      alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol)
 
 
 def audit(img, target_w, target_h, pal, lcd):

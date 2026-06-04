@@ -2,6 +2,7 @@
 
 > 출처: [ROADMAP.md](../ROADMAP.md) 아트 트랙(A1~A5) · [docs/adr/0001-dot-art-spec.md](./adr/0001-dot-art-spec.md) 규격 · [PRD.md](../PRD.md) §9.1 데모 이벤트.
 > 파이프라인(1세트): **실물 사진 → AI 도트화 → nearest 축소 → 마스터 팔레트(~32색) 인덱싱 → 수동 정리**.
+> 🛠 **생산 도구**: 이 체크리스트는 `tools/asset_manifest.json`으로 구조화되어 **도트 스튜디오 GUI**(`tools/dot_studio.py`)의 왼쪽 체크리스트 패널에 빈 슬롯으로 뜬다. 슬롯을 클릭해 규격·저장 경로를 자동 세팅하고 하나씩 채운다(완료 = 파일 존재). 슬롯 증감은 매니페스트에서 편집.
 
 ## 작업 원칙 (언제 만드나)
 

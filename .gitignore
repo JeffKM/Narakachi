@@ -16,3 +16,4 @@
 # 외부 도구 (자체 git 저장소)
 /mcp-shrimp-task-manager/
 tools/.venv/
+tools/__pycache__/
