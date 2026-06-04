@@ -21,26 +21,32 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_SRC = os.path.join(ROOT, "assets", "sprites", "_src", "damagochi_frame.png")
 DEFAULT_OUT = os.path.join(ROOT, "assets", "sprites", "shell_frame.png")
 
-# 레퍼런스(원본) 기준 측정값 — 행/열 프로파일로 계측 (tools 분석 결과)
-SRC_LCD = (418, 334, 1342, 1668)         # x0,y0,x1,y1
-SRC_BTN_CX = {"select": 549, "ok": 879, "cancel": 1211}
-SRC_BTN_Y = 2080
-SRC_BTN_W = 180                           # 캡슐 폭(원본)
-SRC_BTN_H = 116                           # 캡슐 높이(원본, 추정)
+# 레퍼런스(원본) 기준 측정값 — 행/열 프로파일·캡슐 마스크로 계측 (1760×2432 기준)
+SRC_LCD = (418, 334, 1341, 1665)         # x0,y0,x1,y1 (갈색 LCD 런 계측, 비율 0.693)
+SRC_BTN_CX = {"select": 550, "ok": 879, "cancel": 1208}  # 하단 캡슐 중심 x
+SRC_BTN_Y = 2121                          # 캡슐 중심 y
+SRC_BTN_W = 229                           # 캡슐 폭(원본)
+SRC_BTN_H = 130                           # 캡슐 높이(원본)
 
 CONTENT_H = 480                           # 게임 콘텐츠 세로 (가로는 LCD 비율에 맞춤)
 LCD_PUNCH_INSET = 10                       # LCD 투명화 inset(원본px) — 베젤 라인 보존
 
 
-def clear_white(img, thr=210):
-  """모든 불투명 근백색 픽셀을 투명화(배경 + 목걸이 고리 안쪽 + 얼굴 눈·이빨까지 전부 누끼).
+def clear_white(img, bright=150, neutral_tol=45):
+  """밝고 무채색인 배경 픽셀을 전부 투명화 — 흰색(255)뿐 아니라 밝은 회색 배경(예: 204)까지.
 
-  연결성을 따지지 않고 흰색이면 다 뺀다 — 셸 아트에 보존할 흰 디테일이 없기 때문.
-  (도형 외곽의 흰 프린지는 리샘플 뒤 clean_edge_fringe가 추가로 정리)
+  AI 프레임마다 배경이 순백이거나 밝은 회색일 수 있어, 단순 흰색 임계값(>thr) 대신
+  '밝다(min(R,G,B)>bright) + 무채색(max-min<neutral_tol)' 으로 판정한다. 빨간 달걀·
+  불꽃·글자는 채도가 높아(또는 어두워) 보존된다. 연결성은 따지지 않는다 — 셸 아트에
+  보존할 밝은 무채색 디테일이 없기 때문(LCD 안쪽은 따로 펀칭).
+  (도형 외곽 프린지는 리샘플 뒤 한 번 더 호출해 정리)
   """
   a = np.array(img)
-  rgb, al = a[:, :, :3], a[:, :, 3]
-  mask = (al > 0) & (rgb[:, :, 0] > thr) & (rgb[:, :, 1] > thr) & (rgb[:, :, 2] > thr)
+  rgb = a[:, :, :3].astype(np.int16)
+  al = a[:, :, 3]
+  mn = rgb.min(axis=2)
+  mx = rgb.max(axis=2)
+  mask = (al > 0) & (mn > bright) & ((mx - mn) < neutral_tol)
   a[mask] = (0, 0, 0, 0)
   return Image.fromarray(a, "RGBA")
 

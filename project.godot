@@ -26,12 +26,14 @@ SaveManager="*res://scripts/systems/save_manager.gd"
 
 [display]
 
-window/size/viewport_width=633
-window/size/viewport_height=875
-window/size/window_width_override=633
-window/size/window_height_override=875
+window/size/viewport_width=635
+window/size/viewport_height=877
+window/size/window_width_override=953
+window/size/window_height_override=1316
+window/size/resizable=true
 window/stretch/mode="canvas_items"
-window/stretch/scale_mode="integer"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="fractional"
 window/per_pixel_transparency/allowed=true
 window/handheld/orientation=1
 

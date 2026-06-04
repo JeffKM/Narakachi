@@ -1,8 +1,8 @@
 class_name ShellFrame
 extends Node2D
-## 게임기 셸 — 달걀 바디 + LCD 구멍(270×480) + 3버튼(SELECT/OK/CANCEL). (→ ADR 0001)
-## 베이스 캔버스(460×818) 안에서 셸을 세로 중앙 배치하고, 위아래 여백은 다크 버건디로 채운다.
-## LCD 콘텐츠는 외부에서 `lcd_root`(270×480 로컬 좌표) 아래에 붙인다.
+## 게임기 셸 — 달걀 바디 + LCD 구멍(333×480) + 3버튼(SELECT/OK/CANCEL). (→ ADR 0001)
+## 셸 텍스처가 베이스 캔버스(635×877)를 통째로 채운다(셸 = 화면, 별도 여백 없음).
+## LCD 콘텐츠는 외부에서 `lcd_root`(LCD 구멍 333×480 로컬 좌표) 아래에 붙인다.
 ## 버튼은 키보드/터치 하이브리드로 받아 `button_pressed(action)` 신호로 통지한다.
 ##   action: &"select" · &"ok" · &"cancel"
 
@@ -11,20 +11,20 @@ signal button_pressed(action: StringName)
 const SHELL_TEX := "res://assets/sprites/shell_frame.png"
 
 # ── 레이아웃 규격 (tools/prep_shell.py 가 레퍼런스에서 계측·출력) ─────────────
-# 도트풍 레퍼런스(damagochi_frame.png)를 t=480/LCD높이 로 리샘플 → 캔버스 633×875.
-# 콘텐츠(270×480)는 LCD(가로 333) 중앙에 배치, 좌우는 셸 LCD색이 여백으로 노출. (→ ADR 0001)
-const CANVAS := Vector2i(633, 875)    # 셸 텍스처 = 캔버스 (셸이 화면 꽉)
+# 도트풍 레퍼런스(damagochi_frame.png)를 t=480/LCD높이 로 리샘플 → 캔버스 635×877.
+# 내부 화면은 LCD 구멍(333×480)에 꽉 채운다(크롭·여백 없음). (→ ADR 0001)
+const CANVAS := Vector2i(635, 877)    # 셸 텍스처 = 캔버스 (셸이 화면 꽉)
 const SHELL_POS := Vector2(0, 0)      # 셸 좌상단
-const LCD_OFFSET := Vector2(150, 120) # LCD 구멍 좌상단 — 내부 화면 원점
+const LCD_OFFSET := Vector2(151, 120) # LCD 구멍 좌상단 — 내부 화면 원점
 const LCD_SIZE := Vector2(333, 480)   # 내부 화면 = LCD 구멍에 꽉 (크롭 없음)
 
 # 하단 3버튼 (캔버스 좌표 — prep_shell.py 계측)
-const BTN_Y := 748
-const BTN_W := 65
-const BTN_H := 42
+const BTN_Y := 765
+const BTN_W := 83
+const BTN_H := 47
 const BTN_COLS := {
   &"select": 198,
-  &"ok": 316,
+  &"ok": 317,
   &"cancel": 436,
 }
 
