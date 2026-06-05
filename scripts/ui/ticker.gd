@@ -5,7 +5,7 @@ extends Node2D
 ## 라인 풀은 data/dialogue.gd. 새 줄이 들어오면 살짝 페이드인.
 
 const LCD_W := 333
-const STRIP_H := 22  # 티커 스트립 높이
+const STRIP_H := 30  # 티커 스트립 높이(보이스 한 줄 — 두께 키움)
 
 var _label: Label
 var _fade: Tween
@@ -26,7 +26,7 @@ func _ready() -> void:
   _label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
   _label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   _label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-  _label.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
+  _label.add_theme_font_size_override("font_size", Fonts.SIZE_LEAD)
   _label.add_theme_color_override("font_color", Palette.CREAM)
   _label.mouse_filter = Control.MOUSE_FILTER_IGNORE
   add_child(_label)

@@ -336,6 +336,7 @@ func _on_talk_chosen(choice: Dictionary) -> void:
   meters.spend_stamina()
   meters.add_affinity_okja(_talk_affinity(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"talk"))
+  _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
 
 
 ## 선물 선택 확정 — 스태미나 1회 소모 + 선호도(tier) 별 호감도 + 옥자 표정 반응.
@@ -343,6 +344,7 @@ func _on_gift_chosen(choice: Dictionary) -> void:
   meters.spend_stamina()
   meters.add_affinity_okja(_gift_affinity(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"shy"))
+  _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
 
 
 func _on_popup_closed() -> void:
