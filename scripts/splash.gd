@@ -118,9 +118,9 @@ func _make_card() -> Control:
     sub = "%d일째 방문" % int(_eval["streak"])
 
   var cw := 280
-  var ch := 64
+  var ch := 72
   var panel := Panel.new()
-  panel.position = Vector2((LCD_W - cw) / 2.0, 300)
+  panel.position = Vector2((LCD_W - cw) / 2.0, 296)
   panel.size = Vector2(cw, ch)
   var sb := StyleBoxFlat.new()
   sb.bg_color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.78)
@@ -130,12 +130,20 @@ func _make_card() -> Control:
   panel.add_theme_stylebox_override("panel", sb)
 
   var lb := _label(title, Palette.CREAM)
-  lb.position = Vector2(8, 10)
-  lb.size = Vector2(cw - 16, 0)
-  panel.add_child(lb)
-  if sub != "":
+  if sub == "":
+    # 단일 인사(첫 방문 등) — 박스 전체 높이에 세로 중앙 정렬(위 붙음·하단 공백 해소)
+    lb.position = Vector2(8, 0)
+    lb.size = Vector2(cw - 16, ch)
+    lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    panel.add_child(lb)
+  else:
+    # 인사 + 부제 — 두 줄을 박스 중앙쯤에 묶어 배치(부제는 작게 위계)
+    lb.position = Vector2(8, 16)
+    lb.size = Vector2(cw - 16, 0)
+    panel.add_child(lb)
     var lb2 := _label(sub, Palette.CANDLE)
-    lb2.position = Vector2(8, 36)
+    lb2.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
+    lb2.position = Vector2(8, 44)
     lb2.size = Vector2(cw - 16, 0)
     panel.add_child(lb2)
   return panel
@@ -147,10 +155,11 @@ func _label(text: String, color: Color) -> Label:
   lb.text = text
   lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   lb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-  lb.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
+  lb.add_theme_font_size_override("font_size", Fonts.SIZE_LEAD)  # 인사 글자 키움(11→14)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
   lb.add_theme_constant_override("outline_size", 2)
+  lb.add_theme_constant_override("line_spacing", 4)
   return lb
 
 

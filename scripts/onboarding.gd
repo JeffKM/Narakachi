@@ -53,31 +53,36 @@ func _ready() -> void:
 
   # 3) 맥동하는 골드 하트 엠블럼 (귀여움 포인트)
   var heart := HeartCursor.new()
-  heart.position = Vector2(LCD_W / 2.0, 122)
+  heart.position = Vector2(LCD_W / 2.0, 126)
   heart.scale = Vector2(HEART_SCALE, HEART_SCALE)
   add_child(heart)
 
-  _title = _make_label("나라카에 오신 걸\n환영해요", 140, Fonts.SIZE_TITLE, Palette.CANDLE)
+  # 세로 리듬: 하트(126) → 제목(150, 2줄@22) → 본문(236, 안내@14) → 입력(276) → 버튼(344).
+  # 제목 2줄 블록이 ~204에서 끝나므로 본문을 236으로 내려 "환영해요"와 확실히 띄운다(겹침 해소).
+  # step1(맞이/증정)은 입력을 숨기고 본문이 4줄로 늘어 버튼 직전까지 찬다.
+  _title = _make_label("나라카에 오신 걸\n환영해요", 150, Fonts.SIZE_TITLE, Palette.CANDLE)
   add_child(_title)
 
-  _body = _make_label("당신을 뭐라고 부를까요?", 212, Fonts.SIZE_BODY, Palette.CREAM)
+  _body = _make_label("당신을 뭐라고 부를까요?", 236, Fonts.SIZE_LEAD, Palette.CREAM)
   add_child(_body)
 
   _nick_edit = LineEdit.new()
   _nick_edit.placeholder_text = "닉네임"
   _nick_edit.max_length = NICK_MAX
   _nick_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
-  _nick_edit.position = Vector2((LCD_W - INPUT_W) / 2.0, 248)
-  _nick_edit.size = Vector2(INPUT_W, 34)
+  _nick_edit.position = Vector2((LCD_W - INPUT_W) / 2.0, 276)
+  _nick_edit.size = Vector2(INPUT_W, 36)
   UiTheme.style_input(_nick_edit)  # 공용 지옥풍 입력칸 테마
+  _nick_edit.add_theme_font_size_override("font_size", Fonts.SIZE_LEAD)  # 입력 글자 키움(공용 11→14)
   _nick_edit.text_submitted.connect(func(_t): _advance())  # 엔터로 제출
   add_child(_nick_edit)
 
   _confirm = Button.new()
   _confirm.text = "들어가기"
-  _confirm.position = Vector2((LCD_W - BTN_W) / 2.0, 314)
+  _confirm.position = Vector2((LCD_W - BTN_W) / 2.0, 344)
   _confirm.size = Vector2(BTN_W, 40)
   UiTheme.style_button(_confirm)  # 공용 지옥풍 버튼 테마
+  _confirm.add_theme_font_size_override("font_size", Fonts.SIZE_LEAD)  # 버튼 글자 키움(공용 11→14)
   _confirm.pressed.connect(_advance)
   add_child(_confirm)
 
@@ -143,5 +148,5 @@ func _make_label(text: String, y: int, size: int, color: Color) -> Label:
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
   lb.add_theme_constant_override("outline_size", 2)
-  lb.add_theme_constant_override("line_spacing", 4)
+  lb.add_theme_constant_override("line_spacing", 6)
   return lb
