@@ -150,7 +150,7 @@ func _label(text: String, color: Color) -> Label:
   lb.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 4)
+  lb.add_theme_constant_override("outline_size", 2)
   return lb
 
 

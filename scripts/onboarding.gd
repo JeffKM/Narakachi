@@ -142,6 +142,6 @@ func _make_label(text: String, y: int, size: int, color: Color) -> Label:
   lb.add_theme_font_size_override("font_size", size)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 4)
+  lb.add_theme_constant_override("outline_size", 2)
   lb.add_theme_constant_override("line_spacing", 4)
   return lb

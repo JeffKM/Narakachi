@@ -202,7 +202,7 @@ func _make_label(font_size: int, color: Color, align: int) -> Label:
   lb.add_theme_font_size_override("font_size", font_size)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 3)
+  lb.add_theme_constant_override("outline_size", 2)
   lb.horizontal_alignment = align
   lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
   lb.mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -175,7 +175,7 @@ func _make_label(font_size: int, color: Color, y: float) -> Label:
   lb.add_theme_font_size_override("font_size", font_size)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 4)
+  lb.add_theme_constant_override("outline_size", 2)
   lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   lb.position = Vector2(0, y)
   lb.size = Vector2(LCD.x, 18)

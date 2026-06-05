@@ -79,7 +79,7 @@ func _make_debug_hint() -> Label:
   lb.add_theme_font_size_override("font_size", Fonts.SIZE_SMALL)
   lb.add_theme_color_override("font_color", Palette.GREY_300)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 4)
+  lb.add_theme_constant_override("outline_size", 2)
   return lb
 
 
