@@ -61,10 +61,10 @@
 
 ## Phase 2 — 대화 분기 & 체키 획득 (Day 2~3)
 
-- [ ] **T11** 대화 팝업(짧은 2지선다) + 한 줄 티커 보이스 + 선물 선호 + **관계 단계(존댓말→반말) 전환 컷인**
+- [x] **T11** 대화 팝업(짧은 2지선다) + 선물 선호표 + **관계 단계(존댓말→반말) 전환 컷인** — `대화`/`선물` → `scripts/ui/choice_popup.gd`(2~3지선다, 옥자 질문→반응 한 줄, 셸 SELECT/OK/CANCEL·터치 하이브리드, **선택 시점에만 스태미나 소모·호감도 적용**=취소 시 무변경). 토막·선호표 데이터 `data/dialogue.gd`(`TALK`/`GIFTS` + `pick_talk`/`gift_choices`/`gift_prompt`, tier→`Balance.AFF_*` 매핑은 `cafe.gd`). 단계 guest→regular 도달 시 **반말 해금 컷인** `scripts/ui/stage_cutin.gd`(옥자 3줄 시퀀스 + "반말 해금" 골드 배지 + 폴짝) — 떠 있는 오버레이(리빌·팝업·책)가 다 닫힌 뒤 발화하도록 `_maybe_cutin` 예약. 데모 시드 `DEMO_SEED_AFFINITY` 560→595(첫 교감 한 번으로 컷인 발화).
 - [x] **T12** 체키 데이터 모델(`scripts/systems/cheki.gd`): 슬롯 = `캐릭터 × 이벤트`, 레코드 `{common, butterfly, shards, nickname, acquired_at}`(SaveManager SSOT) · `grade()`/`owned()` · **`pick_today()`**(아트 준비된 이벤트 중 미보유 우선 → 일반만 보유 우선 → 나비) · **`grant()`**(미보유→신규 일반, 중복→나비 조각+승급 판정). 이벤트 id↔에셋 slug 매핑(`Events.event_slug`, mine↔jirai) + 합성 레이어 경로 헬퍼(`cheki_costume/bg/frame_path`). (→ ADR 0002·0003)
 - [x] **T13** **체키 획득: 호감도 게이지 가득 → 오늘의 체키 자동 획득**(`cafe._on_gauge_full`): `Cheki.grant` → `meters.consume_gauge_okja()`(재발화 방지) → 옥자 폴짝 + **리빌 오버레이**(`scripts/ui/cheki_reveal.gd`). 미보유 우선 일반 / 중복→나비 승급. 셸 OK/탭 하이브리드.
-- [ ] **T14** 나비 해금(연속출석 마일스톤 보상: 3일/7일 → 나비 조각, `data/balance.gd` `ATTENDANCE_MILESTONE_3/7`) — ※ **출석 맞이 연출은 T06c(진입 스플래시)에서 완료**, 여기선 마일스톤 보상 로직 + (필요 시) 보상 획득 팝업만
+- [x] **T14** 나비 해금(연속출석 마일스톤 보상: 3일/7일 → 나비 조각) — `meters.begin_session`이 일자 갱신 후 `_update_attendance`가 돌려준 streak로 `_check_milestone`(정확히 3일/7일에만 발화) → `Cheki.grant_milestone_shards(amount)`(`ATTENDANCE_REWARD_SHARDS_3=1`/`_7=2`)가 **보유한 일반 칸 중 승급에 가장 가까운(조각 최다) 칸**에 적립(승급 판정 포함) → `meters.pending_milestone`에 적재. `Cafe.start()`가 이를 소비해 **보상 리빌**(`ChekiReveal` 재사용 + `setup(reward, headline)` 상단 골드 배너 "N일 연속 출석!", 승급이면 나비 카드) 표시. `Cheki.add_shards`/`_result_of` 헬퍼 신설. ※ 출석 맞이 연출은 T06c에서 완료.
 - ✅ **A2** 옥자 지뢰계 의상(★히어로) + 체키 카드 양면 세트(표지 파치먼트·날개/나비 엠블럼·나라카 워드마크 + 사진 배경 `bg_cheki_jirai` + 표준/지뢰계 프레임) — 규격·누끼 검수 통과, 임포트·렌더 확인
 
 ## Phase 3 — 시온이 교감 모드 & 컬렉션북 (Day 3~4)
@@ -114,7 +114,7 @@
 ## 데모 합격 체크리스트 (이게 다 되면 들고 간다)
 
 - [ ] 링크 열면 **옥자가 살아 움직이며 맞이한다**
-- [ ] 옥자 4버튼(체키주문/음료/대화/선물)이 작동, **음료 제조 연출** + **대화 선택지 분기**
+- [x] 옥자 4버튼(체키주문/음료/대화/선물)이 작동, **음료 제조 연출** + **대화 선택지 분기**(T11)
 - [x] **시온이 탭 → 버튼이 시온이용으로 전환**되어 시온이와 교감
 - [ ] **호감도 게이지 가득 → 체키 자동 획득** + **중복→나비 승급**
 - [x] 컬렉션북에 **모은 체키 + 잠긴 칸**이 보인다
