@@ -29,12 +29,12 @@ signal flipped(showing_back: bool)
 var _front: Control      # 표지 면
 var _back: Control       # 사진 면
 var _emblem: TextureRect
+var _event_label: Label  # 앞면 리본: 데이명(사진면에서 이사 — 사진 깨끗하게)
 var _nick_label: Label
 var _date_label: Label
 var _frame: TextureRect
 var _bg: TextureRect
 var _costume: TextureRect
-var _day_label: Label
 
 var _showing_back := false
 var _flip_tw: Tween
@@ -52,17 +52,17 @@ func _ready() -> void:
 ## 카드 내용 채우기. record/grant 결과(또는 Cheki.record)로 호출.
 ##   character·event = 칸 식별, butterfly = 등급, nickname·acquired_at = 표지 헌사.
 func setup(character: String, event: String, butterfly: bool, nickname: String, acquired_at: int) -> void:
-  # ── 표지(앞) ──
+  # ── 표지(앞) ── 리본 3줄: 데이명 → 닉네임 → 날짜
   _emblem.texture = _tex(EMBLEM_BUTTERFLY if butterfly else EMBLEM_WING)
   _center_x(_emblem, _emblem.texture)
+  _event_label.text = Events.cheki_day_label(event)
   _nick_label.text = _resolve_nick(nickname)
   _date_label.text = _format_date(acquired_at)
 
-  # ── 사진(뒤) ── 3겹 합성: 배경 + 의상 누끼 + 프레임
+  # ── 사진(뒤) ── 3겹 합성: 배경 + 의상 누끼 + 프레임 (데이명은 앞면 리본으로 이사 → 사진 깨끗)
   _bg.texture = _tex(Events.cheki_bg_path(event))
   _costume.texture = _tex(Events.cheki_costume_path(character, event))
   _frame.texture = _tex(Events.cheki_frame_path(event, butterfly))
-  _day_label.text = Events.cheki_day_label(event)
 
 
 ## 즉시 한 면으로(애니메이션 없이). back=true 면 사진 면.
@@ -130,12 +130,7 @@ func _build_back() -> void:
   _frame.size = CARD
   _frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
   _back.add_child(_frame)
-
-  # 데이 라벨 — 사진 창 윗쪽 오버레이(손글씨 자리)
-  _day_label = _make_label(Fonts.SIZE_SMALL, Palette.CREAM, HORIZONTAL_ALIGNMENT_CENTER)
-  _day_label.position = Vector2(BORDER, BORDER + 4)
-  _day_label.size = Vector2(WINDOW.x, 14)
-  _back.add_child(_day_label)
+  # 데이 라벨은 사진면에서 제거 → 앞면 리본으로 이사(사진 침범 없음, 공유 정체성은 앞면이 유지).
 
 
 func _build_front() -> void:
@@ -168,14 +163,25 @@ func _build_front() -> void:
   _emblem.mouse_filter = Control.MOUSE_FILTER_IGNORE
   _front.add_child(_emblem)
 
-  # 닉네임 헌사 + 날짜 (엠블럼 바로 아래 묶음 — 바닥에 붙지 않게 위로)
-  _nick_label = _make_label(Fonts.SIZE_BODY, Palette.BURGUNDY, HORIZONTAL_ALIGNMENT_CENTER)
-  _nick_label.position = Vector2(8, 124)
-  _nick_label.size = Vector2(CARD.x - 16, 16)
+  # ── 하단 헌사 블록(파치먼트에 직접 적은 잉크) ──
+  # 별도 명패/리본 없이 종이 위에 바로 적힌 느낌. 잡다한 파치먼트에서도 읽히도록
+  # 진한 잉크색 글자 + 따뜻한 캔들색 후광 1px 로 분리한다(= 잉크가 종이에 번진 앤틱 톤).
+  # 위계: 데이명(중·진버건디) → 닉네임(대·버건디) → 날짜(소·진버건디). 닉네임이 감정 스타.
+  # 데이명 — 카테고리
+  _event_label = _make_ink_label(Fonts.SIZE_BODY, Palette.BURGUNDY_DARK)
+  _event_label.position = Vector2(8, 118)
+  _event_label.size = Vector2(CARD.x - 16, 14)
+  _front.add_child(_event_label)
+
+  # 닉네임 — 주인공(크게)
+  _nick_label = _make_ink_label(Fonts.SIZE_LEAD, Palette.BURGUNDY)
+  _nick_label.position = Vector2(8, 132)
+  _nick_label.size = Vector2(CARD.x - 16, 18)
   _front.add_child(_nick_label)
 
-  _date_label = _make_label(Fonts.SIZE_SMALL, Palette.GOLD_DARK, HORIZONTAL_ALIGNMENT_CENTER)
-  _date_label.position = Vector2(8, 144)
+  # 날짜 — 각주(가장 작게) — Galmuri9 네이티브로 크리스프하게
+  _date_label = _make_ink_label(Fonts.SIZE_SMALL, Palette.BURGUNDY_DARK)
+  _date_label.position = Vector2(8, 154)
   _date_label.size = Vector2(CARD.x - 16, 14)
   _front.add_child(_date_label)
 
@@ -197,8 +203,23 @@ func _center_x(rect: TextureRect, tex: Texture2D) -> void:
     rect.size = tex.get_size()
 
 
+## 앞면 헌사용 — 파치먼트에 직접 적은 잉크 톤. 진한 글자 + 밝은 크림 후광으로
+## 잡다한 종이결에서도 분리돼 읽힌다(명패/플레이트 없이). 가운데 정렬 고정.
+func _make_ink_label(font_size: int, color: Color) -> Label:
+  var lb := _make_label(font_size, color, HORIZONTAL_ALIGNMENT_CENTER)
+  # 따뜻한 캔들색 후광 1px — 흰 외곽선의 "스티커" 느낌 대신 잉크가 종이에 번진 톤(앤틱 조화).
+  lb.add_theme_color_override("font_outline_color", Palette.CANDLE)
+  lb.add_theme_constant_override("outline_size", 1)
+  return lb
+
+
 func _make_label(font_size: int, color: Color, align: int) -> Label:
   var lb := Label.new()
+  # ≤9px 는 Galmuri11 을 축소하면 흐려져 9px 네이티브 폰트(Galmuri9)로 크리스프하게.
+  if font_size <= 9:
+    var f9 := Fonts.galmuri9()
+    if f9:
+      lb.add_theme_font_override("font", f9)
   lb.add_theme_font_size_override("font_size", font_size)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)

@@ -1,24 +1,25 @@
 class_name CharacterTab
 extends Control
-## 캐릭터 색인 탭 — 미니 초상 + (활성 시)이름. (→ 컬렉션북 장식 합의 2026-06-05)
+## 캐릭터 색인 탭 — 미니 초상-only 정사각 칩. (→ 컬렉션북 개선 2026-06-06)
 ##
-## 바인더 색인 은유: 비활성=초상만 / 활성=초상+이름+강조 바탕 / locked=왁스 봉랍(이름·초상 없음).
+## 바인더 색인 은유: 초상만 노출, 활성/포커스는 바탕·테두리로만 구분 / locked=왁스 봉랍.
 ##   - 초상은 portrait_{id}.png(24×24) 훅. 없으면 캐릭터색 플레이스홀더 박스.
-##   - 활성(현재 페이지)=버건디 바탕 + 이름 노출. 포커스(평면 링 SELECT)=골드 테두리. 둘은 독립.
+##   - 활성(현재 페이지)=버건디 바탕 + 굵은 골드 테두리. 포커스(평면 링 SELECT)=골드 테두리. 둘은 독립.
+##   - 이름은 탭에서 제거 → 헤더("체키북 · 옥자")가 방향감을 담당(CollectionBook).
 ##
 ## 슬롯과 같은 관용구: 시각 요소 + 위를 덮는 투명 Button → pressed 중계(터치/포커스 공통 진입).
 
 signal pressed
 
-const TAB := Vector2(78, 30)
+const TAB := Vector2(30, 30)       # 초상-only 정사각 칩(24 초상 + 사방 3 패딩)
 const PORTRAIT := Vector2(24, 24)
+const PAD := 3.0                   # (TAB - PORTRAIT) / 2 — 초상 가운데 정렬
 
 var id: String
 var disp_name: String
 var locked: bool = false
 
 var _bg: Panel
-var _name: Label
 var _active := false
 var _focused := false
 
@@ -47,17 +48,12 @@ func _ready() -> void:
     add_child(seal)
   else:
     _build_portrait()
-    _name = _make_label(Fonts.SIZE_BODY, Palette.CREAM, HORIZONTAL_ALIGNMENT_LEFT)
-    _name.text = disp_name
-    _name.position = Vector2(32, 0)
-    _name.size = Vector2(TAB.x - 34, TAB.y)
-    add_child(_name)
 
   _build_touch()
   _refresh()
 
 
-## 현재 페이지 탭 여부(강조 바탕 + 이름).
+## 현재 페이지 탭 여부(강조 바탕).
 func set_active(active: bool) -> void:
   _active = active
   _refresh()
@@ -71,7 +67,7 @@ func set_focused(focused: bool) -> void:
 
 # ── 구성 ─────────────────────────────────────────────────
 
-## 미니 초상 — portrait_{id}.png 훅, 없으면 캐릭터색 플레이스홀더.
+## 미니 초상 — portrait_{id}.png 훅(가운데 정렬), 없으면 캐릭터색 플레이스홀더.
 func _build_portrait() -> void:
   var path := "res://assets/sprites/portrait_%s.png" % id
   if ResourceLoader.exists(path):
@@ -79,7 +75,7 @@ func _build_portrait() -> void:
     tr.texture = load(path) as Texture2D
     tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     tr.size = PORTRAIT
-    tr.position = Vector2(5, 3)
+    tr.position = Vector2(PAD, PAD)
     tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
     add_child(tr)
     return
@@ -87,7 +83,7 @@ func _build_portrait() -> void:
   var box := ColorRect.new()
   box.color = Palette.BURGUNDY if id == "okja" else Palette.GREY_300
   box.size = PORTRAIT
-  box.position = Vector2(5, 3)
+  box.position = Vector2(PAD, PAD)
   box.mouse_filter = Control.MOUSE_FILTER_IGNORE
   add_child(box)
 
@@ -106,11 +102,11 @@ func _build_touch() -> void:
   add_child(btn)
 
 
-## 활성/포커스 상태에 맞춰 바탕·이름 갱신.
+## 활성/포커스 상태에 맞춰 바탕·테두리 갱신.
 func _refresh() -> void:
   var sb := StyleBoxFlat.new()
   sb.bg_color = Palette.BURGUNDY if _active else Palette.GREY_900
-  # 탭 모양 — 윗모서리만 둥글게
+  # 탭 모양 — 윗모서리만 둥글게(아래 선반에 꽂힌 색인 혀)
   sb.corner_radius_top_left = 8
   sb.corner_radius_top_right = 8
   sb.corner_radius_bottom_left = 2
@@ -119,17 +115,3 @@ func _refresh() -> void:
   sb.set_border_width_all(2 if hot else 1)
   sb.border_color = Palette.GOLD if hot else Palette.GOLD_DARK
   _bg.add_theme_stylebox_override("panel", sb)
-  if _name:
-    _name.visible = _active
-
-
-func _make_label(font_size: int, color: Color, align: int) -> Label:
-  var lb := Label.new()
-  lb.add_theme_font_size_override("font_size", font_size)
-  lb.add_theme_color_override("font_color", color)
-  lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 2)
-  lb.horizontal_alignment = align
-  lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-  lb.mouse_filter = Control.MOUSE_FILTER_IGNORE
-  return lb

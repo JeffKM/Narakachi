@@ -28,6 +28,20 @@ static func galmuri() -> FontFile:
   return f
 
 
+## 갈무리9 로드 (없으면 null). 작은 글자(≤9px) 전용 — Galmuri11을 9px로 축소하면
+## 비정수 스케일로 흐려져, 9px 네이티브로 디자인된 별도 폰트를 쓴다.
+static func galmuri9() -> FontFile:
+  if not ResourceLoader.exists(GALMURI9):
+    return null
+  var f := load(GALMURI9) as FontFile
+  if f:
+    f.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+    f.hinting = TextServer.HINTING_NONE
+    f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+    f.multichannel_signed_distance_field = false
+  return f
+
+
 ## 프로젝트 기본 테마 (갈무리 적용). 폰트가 없으면 빈 테마(엔진 기본 폰트 사용).
 static func make_theme() -> Theme:
   var t := Theme.new()

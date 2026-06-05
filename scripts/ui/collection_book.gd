@@ -63,6 +63,7 @@ var _scroll: ScrollContainer
 var _grid: GridContainer
 var _hint: Label
 var _counter: Control            # 진행도 핍+숫자 홀더(재구성)
+var _char_label: Label           # 헤더 "· 옥자" — 활성 캐릭터명(탭 초상-only 대체 방향감)
 var _detail: CardDetail
 
 
@@ -179,8 +180,15 @@ func _build_header() -> void:
   var title := _make_label(Fonts.SIZE_TITLE, Palette.GOLD, HORIZONTAL_ALIGNMENT_LEFT)
   title.text = "체키북"
   title.position = Vector2(14, 6)
-  title.size = Vector2(120, 26)
+  title.size = Vector2(70, 26)
   add_child(title)
+
+  # 활성 캐릭터명 — 탭이 초상-only라 "내가 누구 페이지인지"를 헤더가 담당.
+  # 타이틀("체키북") 오른쪽에 캔들색 브레드크럼으로. _update_title 이 텍스트 채움.
+  _char_label = _make_label(Fonts.SIZE_LEAD, Palette.CANDLE, HORIZONTAL_ALIGNMENT_LEFT)
+  _char_label.position = Vector2(82, 12)
+  _char_label.size = Vector2(120, 18)
+  add_child(_char_label)
 
   # 진행도 카운터 홀더(우측, ✕ 왼쪽) — _update_counter 가 채운다.
   _counter = Control.new()
@@ -197,7 +205,8 @@ func _build_header() -> void:
 
 
 func _build_tabs() -> void:
-  var x := 12.0
+  # 그리드 좌단(GRID_X=50)에 정렬 — 탭과 카드 열이 한 수직선에서 시작.
+  var x := float(GRID_X)
   for i in TABS.size():
     var t: Dictionary = TABS[i]
     var tab := CharacterTab.new()
@@ -207,8 +216,31 @@ func _build_tabs() -> void:
     tab.pressed.connect(func() -> void: _on_tab(idx))
     add_child(tab)
     _tabs.append(tab)
-    x += CharacterTab.TAB.x + 4.0
+    x += CharacterTab.TAB.x + 6.0
+  _build_tab_shelf()
   _refresh_tab_marks()
+
+
+## 탭 선반 — 탭 행 바로 밑에 깔리는 가로 골드 룰(베벨). 탭 하단(y68)과 살짝 겹쳐(y65~68)
+## "선반에 꽂힌 색인 혀"로 보이게 한다 → 탭이 크림 위에 붕 뜨는 느낌·아래 빈 포켓감 제거.
+## 탭보다 뒤에 추가하지 않고 위에 얹어 탭의 둥근 하단 솔기를 가린다.
+func _build_tab_shelf() -> void:
+  var x := float(GRID_X) - 2.0
+  var w := float(GRID_W) + 4.0
+  var y := 65.0
+  _add_rule(x, y - 1.0, w, 1.0, Palette.CANDLE)   # 윗 하이라이트(베벨)
+  _add_rule(x, y, w, 2.0, Palette.GOLD)           # 골드 본선(탭이 얹히는 선반)
+  _add_rule(x, y + 2.0, w, 1.0, Palette.GOLD_DARK) # 아래 그림자
+
+
+## 가로 룰 1개 — 입력 무시 ColorRect.
+func _add_rule(x: float, y: float, w: float, h: float, color: Color) -> void:
+  var r := ColorRect.new()
+  r.color = color
+  r.position = Vector2(x, y)
+  r.size = Vector2(w, h)
+  r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  add_child(r)
 
 
 func _build_grid_container() -> void:
@@ -387,6 +419,19 @@ func _populate(character: String) -> void:
     slot.pressed.connect(_on_slot_pressed.bind(slot))
     _slots.append(slot)
   _refresh_tab_marks()
+  _update_title()
+
+
+## 헤더 캐릭터명 갱신 — 활성 캐릭터의 표시명을 "· 옥자" 형태로. 탭 전환(=_populate)마다 호출.
+func _update_title() -> void:
+  if _char_label == null:
+    return
+  var name := ""
+  for t in TABS:
+    if String(t["id"]) == _active_char:
+      name = String(t["name"])
+      break
+  _char_label.text = ("· " + name) if not name.is_empty() else ""
 
 
 # ── 탭 ───────────────────────────────────────────────────
