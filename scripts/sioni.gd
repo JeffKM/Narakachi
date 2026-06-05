@@ -14,7 +14,7 @@ const EXPRESSIONS := {
   &"play":  "res://assets/sprites/sioni_play.png",
   &"pet":   "res://assets/sprites/sioni_pet.png",
 }
-const SPR_SIZE := Vector2(48, 48)
+const SPR_SIZE := Vector2(60, 60)  # 디오라마 리프레임: 받침 위 가독성 위해 48→60 (Phase 3.5)
 
 var current: StringName = &"idle"
 
@@ -49,12 +49,14 @@ func _start_bob() -> void:
     .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
-## 반응 전환: 하드컷 교체 + 짧은 스쿼시 정착. (같은 반응이면 무시)
+## 반응 전환: 하드컷 교체 + 짧은 스쿼시 정착.
+## 같은 반응을 다시 눌러도 스쿼시는 한 번 더 줘서 매 탭이 살아있게 한다(텍스처만 같을 때 스킵).
 func set_expression(name: StringName) -> void:
-  if not _textures.has(name) or name == current:
+  if not _textures.has(name):
     return
-  current = name
-  _sprite.texture = _textures[name]  # ← 하드컷
+  if name != current:
+    current = name
+    _sprite.texture = _textures[name]  # ← 하드컷
   _settle()
 
 

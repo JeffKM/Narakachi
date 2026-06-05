@@ -15,19 +15,36 @@ extends Node2D
 const LCD_W := 333
 const LCD_H := 480
 const BG_TEX := "res://assets/sprites/bg_naraka.png"
+const BINDER_TEX := "res://assets/sprites/cheki_binder.png"
+const BINDER_SIZE := Vector2(48, 56)
 const OkjaScript := preload("res://scripts/okja.gd")
 const SioniScript := preload("res://scripts/sioni.gd")
+const ContactShadowScript := preload("res://scripts/ui/contact_shadow.gd")
 
 const OKJA_FEET := Vector2(LCD_W / 2.0, 400)  # 발밑 기준 배치 (HUD 아래 ~ 액션바 위)
-const SIONI_FEET := Vector2(266, 402)         # 옥자 오른쪽 발치(액션바 위·옥자와 안 겹침)
+# 디오라마 리프레임(Phase 3.5): 시온이는 우측 바 카운터 위, 바인더는 좌측 캐비닛 상판.
+# (배경 bg_naraka.png v2 받침에 맞춘 좌표 — 우측 벽 선반은 포션으로 차 카운터 위에 앉힘)
+# 발밑 = 스프라이트 불투명 영역의 바닥(아트 여백 보정 후 받침에 안착). bob 떠도 그림자는 고정.
+const SIONI_FEET := Vector2(96, 406)          # 옥자 좌하단 바닥(같은 바닥선·앞쪽). 아트 하단여백 6px 보정 포함
+const SIONI_PAD_BOTTOM := 6                   # sioni_idle 60px 캔버스 하단 투명 여백
+const BINDER_FEET := Vector2(54, 320)         # 좌측 캐비닛 상판(바인더 아트 하단여백 17px 보정)
+const BINDER_PAD_BOTTOM := 17                 # cheki_binder 56px 캔버스 하단 투명 여백
+
+# 시온이 교감 모드 줌(Phase 3.5 T27) — 디오라마 컨테이너를 정수 2배로 푸시(픽셀 또렷).
+const ZOOM_SION := 2.0
+const SION_FOCUS_LOCAL := Vector2(96, 375)    # 줌 중심(시온이 몸통 중앙 — 좌하단)
+const SION_FOCUS_SCREEN := Vector2(140, 250)  # 그 점을 화면 이 위치로(옥자 우측 맥락 유지)
 
 # 교감 대상 모드 — 옥자(기본) ↔ 시온이. 시온이 탭으로 진입, 옥자 탭/CANCEL 로 복귀. (T15)
 const MODE_OKJA := "okja"
 const MODE_SION := "sion"
 
 var meters: Meters
+var _stage: Node2D        # 줌 대상 디오라마 컨테이너(배경+옥자+시온이+가구/터치). HUD·바·티커는 바깥 고정. (T26/T27)
+var _zoom_tw: Tween       # 시온이 줌 푸시/복귀 트윈(중복 시 이전 것 취소)
 var _okja: Okja
 var _sioni: Sioni
+var _binder: Sprite2D     # 좌측 캐비닛 위 체키북 바인더(탭 → 컬렉션북, T29)
 var _hud: Hud
 var _bar: ActionBar       # 옥자 4버튼
 var _bar_sion: ActionBar  # 시온이 4버튼(평소 숨김)
@@ -82,22 +99,31 @@ func _active_bar() -> ActionBar:
 # ── 화면 구성 ─────────────────────────────────────────────
 
 func _build() -> void:
-  # 1) 나라카 지옥 배경 (LCD 꽉)
+  # 0) 줌 대상 디오라마 컨테이너 (배경+옥자+시온이+가구/터치). HUD·바·티커는 self 직속(줌 제외). (T26)
+  _stage = Node2D.new()
+  add_child(_stage)
+
+  # 1) 나라카 디오라마 배경 (LCD 꽉) — 좌 캐비닛/책장, 우 포션선반+카운터 (v2)
   var bg := Sprite2D.new()
   bg.texture = load(BG_TEX)
   bg.centered = false
   bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-  add_child(bg)
+  _stage.add_child(bg)
 
-  # 2) 라이브 옥자
+  # 2) 라이브 옥자 (중앙 전신)
   _okja = OkjaScript.new()
   _okja.position = OKJA_FEET
-  add_child(_okja)
+  _stage.add_child(_okja)
 
-  # 2b) 라이브 시온이 (T15) — 옥자 발치 오른쪽. 탭하면 시온이 교감 모드.
+  # 2b) 라이브 시온이 (T15) — 옥자 좌하단 바닥. 탭하면 시온이 교감 모드 + 2배 줌.
+  #     접지 그림자(바닥 고정) → 시온이 → 옥자보다 앞. bob 떠도 그림자가 바닥에 잡아준다.
+  _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 40, 9)
   _sioni = SioniScript.new()
   _sioni.position = SIONI_FEET
-  add_child(_sioni)
+  _stage.add_child(_sioni)
+
+  # 2c) 좌측 캐비닛 위 체키북 바인더 (T29) — 탭하면 컬렉션북.
+  _add_binder()
 
   # 3) 옥자 터치 영역 (T10) — 몸통 위 투명 버튼 (HUD/액션바와 겹치지 않게)
   _add_okja_touch()
@@ -105,10 +131,10 @@ func _build() -> void:
   # 3a) 시온이 터치 영역 (T15) — 고양이 위 투명 버튼
   _add_sioni_touch()
 
-  # 3b) 컬렉션북 진입 아이콘 (T16) — 우상단 배경 위(HUD·옥자와 안 겹침)
-  _add_book_button()
+  # 3b) 바인더 터치 영역 (T29) — 바인더 위 투명 버튼
+  _add_binder_touch()
 
-  # 4) HUD (상단)
+  # 4) HUD (상단, 줌 제외)
   _hud = Hud.new()
   add_child(_hud)
 
@@ -138,67 +164,81 @@ func _build() -> void:
   _hud.refresh()
 
 
-## 컬렉션북 진입 아이콘 — 우상단 배경(x250~333 / y30~112 빈 구간) 위 28×28.
-## ⚠️ 임시 텍스트 아이콘("체키"). A3에서 도트 아이콘으로 교체.
-func _add_book_button() -> void:
-  var btn := Button.new()
-  btn.text = "체키"
-  UiTheme.style_button(btn)
-  btn.add_theme_font_size_override("font_size", Fonts.SIZE_SMALL)
-  btn.position = Vector2(295, 34)
-  btn.size = Vector2(32, 24)
-  btn.pressed.connect(_open_book)
-  add_child(btn)
+## 좌측 캐비닛 위 체키북 바인더 (T29) — 발밑 기준 배치(스프라이트는 디오라마 컨테이너에).
+func _add_binder() -> void:
+  _add_shadow(Vector2(BINDER_FEET.x, BINDER_FEET.y - BINDER_PAD_BOTTOM), 26, 7)
+  _binder = Sprite2D.new()
+  _binder.texture = load(BINDER_TEX)
+  _binder.centered = false
+  _binder.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+  # 발밑(하단 중앙)이 BINDER_FEET 에 오도록 좌상단을 끌어올린다(아트 하단여백 보정 포함).
+  _binder.position = BINDER_FEET + Vector2(-BINDER_SIZE.x / 2.0, -BINDER_SIZE.y)
+  _stage.add_child(_binder)
 
 
-## 옥자 몸통 위 투명 터치 버튼.
+## 받침 표면에 접지 그림자 한 장. (스프라이트보다 먼저 add → 아래에 깔림)
+func _add_shadow(surface_at: Vector2, width: float, height: float) -> void:
+  var sh := ContactShadowScript.new()
+  _stage.add_child(sh)
+  sh.setup(surface_at, width, height)
+
+
+## 옥자 몸통 위 투명 터치 버튼. (디오라마 컨테이너 — 줌에 함께 변환)
 func _add_okja_touch() -> void:
-  var btn := Button.new()
-  btn.flat = true
-  btn.focus_mode = Control.FOCUS_NONE
-  btn.position = Vector2(OKJA_FEET.x - 70, OKJA_FEET.y - 280)
-  btn.size = Vector2(140, 280)
-  var empty := StyleBoxEmpty.new()
-  btn.add_theme_stylebox_override("normal", empty)
-  btn.add_theme_stylebox_override("hover", empty)
-  btn.add_theme_stylebox_override("pressed", empty)
+  var btn := _make_touch(Vector2(OKJA_FEET.x - 70, OKJA_FEET.y - 280), Vector2(140, 280))
   btn.pressed.connect(_on_okja_touch)
-  add_child(btn)
+  _stage.add_child(btn)
 
 
-## 시온이 위 투명 터치 버튼 (T15) — 발치 기준 48×48 + 약간 여유.
+## 시온이 위 투명 터치 버튼 (T15) — 발치 기준 60×64.
 func _add_sioni_touch() -> void:
+  var btn := _make_touch(Vector2(SIONI_FEET.x - 32, SIONI_FEET.y - 60), Vector2(64, 64))
+  btn.pressed.connect(_on_sioni_touch)
+  _stage.add_child(btn)
+
+
+## 바인더 위 투명 터치 버튼 (T29) — 발치 기준 + 여유.
+func _add_binder_touch() -> void:
+  var btn := _make_touch(BINDER_FEET + Vector2(-BINDER_SIZE.x / 2.0 - 4, -BINDER_SIZE.y - 4),
+    BINDER_SIZE + Vector2(8, 8))
+  btn.pressed.connect(_open_book)
+  _stage.add_child(btn)
+
+
+## 투명 터치 버튼 헬퍼 — 보이지 않는 클릭 영역.
+func _make_touch(pos: Vector2, size: Vector2) -> Button:
   var btn := Button.new()
   btn.flat = true
   btn.focus_mode = Control.FOCUS_NONE
-  btn.position = Vector2(SIONI_FEET.x - 28, SIONI_FEET.y - 52)
-  btn.size = Vector2(56, 52)
+  btn.position = pos
+  btn.size = size
   var empty := StyleBoxEmpty.new()
   btn.add_theme_stylebox_override("normal", empty)
   btn.add_theme_stylebox_override("hover", empty)
   btn.add_theme_stylebox_override("pressed", empty)
-  btn.pressed.connect(_on_sioni_touch)
-  add_child(btn)
+  return btn
 
 
 # ── 4버튼 교감 (T09 옥자 / T15 시온이) ─────────────────────
 
 func _on_action(id: String) -> void:
-  # 스태미나(옥자/시온이 공유) 게이트 — 소진 시 오늘 종료 (벌 없음, 내일 회복)
-  if not meters.can_act():
-    if _mode == MODE_SION:
-      _react_sion(&"idle")
-      _ticker.show_line(Dialogue.sion_line())
-    else:
-      _react(&"sad")  # 잠깐 시무룩 → 무표정 복귀
-      _ticker.show_line(Dialogue.okja_line("no_stamina", meters.stage(), _nick()))
+  # 스태미나(옥자/시온이 공유) 게이트 — 소진 시 호감도는 안 오름(오늘 종료, 벌 없음).
+  var can := meters.can_act()
+
+  # 시온이(펫): 감정 반응은 기력과 무관하게 항상 보여준다(벌 없는 설계). 호감도만 게이트.
+  if _mode == MODE_SION:
+    if can:
+      meters.spend_stamina()
+    _on_sion_action(id, can)
+    return
+
+  # 옥자: 기력 소진 시 시무룩 + 안내 한 줄.
+  if not can:
+    _react(&"sad")  # 잠깐 시무룩 → 무표정 복귀
+    _ticker.show_line(Dialogue.okja_line("no_stamina", meters.stage(), _nick()))
     return
 
   meters.spend_stamina()
-  if _mode == MODE_SION:
-    _on_sion_action(id)
-    return
-
   match id:
     "cheki":
       meters.add_affinity_okja(Balance.AFF_CHEKI)
@@ -215,22 +255,20 @@ func _on_action(id: String) -> void:
   _ticker.show_line(Dialogue.okja_line(id, meters.stage(), _nick()))
 
 
-## 시온이 4버튼(체키 주문/간식/놀기/쓰담) — 호감도 + 반응 스왑. (T15)
+## 시온이 4버튼(체키 주문/간식/놀기/쓰담) — 호감도(기력 있을 때만) + 반응 스왑(항상). (T15)
 ## 시온이는 펫이라 기분·관계 단계 없이 게이지만 쌓는다. 선호 간식 보너스·옥자 교차 보너스는 후속.
-func _on_sion_action(id: String) -> void:
+## can=false(기력 0)면 호감도는 안 오르지만 감정 반응은 보여준다(펫 — 벌 없는 설계).
+func _on_sion_action(id: String, can: bool) -> void:
+  if can:
+    match id:
+      "cheki": meters.add_affinity_sion(Balance.AFF_CHEKI)
+      "snack", "play", "pet": meters.add_affinity_sion(Balance.AFF_SION)
+  # 버튼별 감정 반응(항상)
   match id:
-    "cheki":
-      meters.add_affinity_sion(Balance.AFF_CHEKI)
-      _react_sion(&"play")
-    "snack":
-      meters.add_affinity_sion(Balance.AFF_SION)
-      _react_sion(&"snack")
-    "play":
-      meters.add_affinity_sion(Balance.AFF_SION)
-      _react_sion(&"play")
-    "pet":
-      meters.add_affinity_sion(Balance.AFF_SION)
-      _react_sion(&"pet")
+    "cheki": _react_sion(&"play")
+    "snack": _react_sion(&"snack")
+    "play": _react_sion(&"play")
+    "pet": _react_sion(&"pet")
   _ticker.show_line(Dialogue.sion_line())
 
 
@@ -275,6 +313,7 @@ func _enter_sion_mode() -> void:
   _bar.visible = false
   _bar_sion.visible = true
   _hud.set_focus(MODE_SION)
+  _focus_stage(SION_FOCUS_LOCAL, ZOOM_SION, SION_FOCUS_SCREEN)  # 시온이로 2배 푸시 줌 (T27)
   _react_sion(&"play")
   _ticker.show_line("시온이가 다가왔다. (옥자를 누르면 돌아가요)")
 
@@ -287,8 +326,37 @@ func _exit_sion_mode() -> void:
   _bar_sion.visible = false
   _bar.visible = true
   _hud.set_focus(MODE_OKJA)
+  _reset_stage()  # 1x 풀 디오라마 복귀 (T27)
   _to_idle()
   _ticker.show_line(Dialogue.okja_line("idle", meters.stage(), _nick()))
+
+
+# ── 디오라마 줌 (T27) ─────────────────────────────────────
+
+## 디오라마 컨테이너를 local_target 기준 zoom 배로 푸시 — local_target 을 화면 screen_at 위치로.
+## 컨테이너가 LCD(333×480)를 항상 덮도록 위치를 클램프하고, 정지 위치는 정수로 맞춰 픽셀을 또렷이.
+func _focus_stage(local_target: Vector2, zoom: float, screen_at: Vector2) -> void:
+  var pos := screen_at - local_target * zoom
+  pos.x = clampf(pos.x, LCD_W - LCD_W * zoom, 0.0)
+  pos.y = clampf(pos.y, LCD_H - LCD_H * zoom, 0.0)
+  pos = pos.round()  # 정지 시 정수 위치(도트 정렬)
+  _tween_stage(Vector2(zoom, zoom), pos)
+
+
+## 1x 풀 디오라마로 복귀.
+func _reset_stage() -> void:
+  _tween_stage(Vector2.ONE, Vector2.ZERO)
+
+
+## 스케일·위치를 0.3s 동안 함께 트윈(전환만 비정수, 정지 상태는 정수 → 픽셀 또렷).
+func _tween_stage(scale_to: Vector2, pos_to: Vector2) -> void:
+  if _zoom_tw and _zoom_tw.is_valid():
+    _zoom_tw.kill()
+  _zoom_tw = create_tween().set_parallel(true)
+  _zoom_tw.tween_property(_stage, "scale", scale_to, 0.3) \
+    .set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+  _zoom_tw.tween_property(_stage, "position", pos_to, 0.3) \
+    .set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 # ── 미터 신호 처리 ────────────────────────────────────────
