@@ -14,7 +14,8 @@ const EXPRESSIONS := {
   &"play":  "res://assets/sprites/sioni_play.png",
   &"pet":   "res://assets/sprites/sioni_pet.png",
 }
-const SPR_SIZE := Vector2(60, 60)  # 디오라마 리프레임: 받침 위 가독성 위해 48→60 (Phase 3.5)
+const SPR_SIZE := Vector2(60, 60)  # 텍스처 캔버스 크기(sioni_*.png)
+const SION_SCALE := 1.4  # 디오라마 리프레임: 받침 위 존재감 + 옥자와 균형 (Phase 3.5)
 
 var current: StringName = &"idle"
 
@@ -31,8 +32,9 @@ func _ready() -> void:
   _sprite = Sprite2D.new()
   _sprite.centered = false
   _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # 도트 또렷
-  # 발밑이 노드 원점(0,0)에 오도록 좌상단을 끌어올린다.
-  _sprite_base = Vector2(-SPR_SIZE.x / 2.0, -SPR_SIZE.y)
+  _sprite.scale = Vector2(SION_SCALE, SION_SCALE)  # 정수배 확대(Nearest라 픽셀 또렷)
+  # 발밑이 노드 원점(0,0)에 오도록 좌상단을 끌어올린다(확대 크기 반영).
+  _sprite_base = Vector2(-SPR_SIZE.x * SION_SCALE / 2.0, -SPR_SIZE.y * SION_SCALE)
   _sprite.position = _sprite_base
   _sprite.texture = _textures[current]
   add_child(_sprite)
