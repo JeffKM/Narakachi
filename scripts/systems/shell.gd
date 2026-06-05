@@ -3,6 +3,8 @@ extends Node2D
 ## 게임기 셸 — 달걀 바디 + LCD 구멍(333×480) + 3버튼(SELECT/OK/CANCEL). (→ ADR 0001)
 ## 셸 텍스처가 베이스 캔버스(635×877)를 통째로 채운다(셸 = 화면, 별도 여백 없음).
 ## LCD 콘텐츠는 외부에서 `lcd_root`(LCD 구멍 333×480 로컬 좌표) 아래에 붙인다.
+## LCD 는 333×480 SubViewport 안에서 렌더돼 구멍 경계로 하드 클리핑된다 —
+##   디오라마 줌(scale 2x)으로 콘텐츠가 커져도 셸 밖으로 새지 않는다.
 ## 버튼은 키보드/터치 하이브리드로 받아 `button_pressed(action)` 신호로 통지한다.
 ##   action: &"select" · &"ok" · &"cancel"
 
@@ -35,18 +37,36 @@ const KEYMAP := {
   KEY_ESCAPE: &"cancel", KEY_X: &"cancel", KEY_BACKSPACE: &"cancel",
 }
 
-## LCD 콘텐츠를 붙일 루트 (위치 = SHELL_POS + LCD_OFFSET). _ready 후 사용 가능.
+## LCD 콘텐츠를 붙일 루트 (SubViewport 로컬 0,0 원점). _ready 후 사용 가능.
 var lcd_root: Node2D
 
+var _lcd_viewport: SubViewport  # LCD 콘텐츠 렌더 타깃 (구멍 333×480 으로 클리핑)
 var _flashes := {}  # action -> Panel (눌림 피드백)
 
 
 func _ready() -> void:
-  # ── 1) LCD 콘텐츠 루트 (셸보다 먼저 = 뒤에 깔림) ────
-  # 셸 바깥 여백은 칠하지 않음 → 뷰포트 투명 배경으로 비침(Main 에서 설정).
+  # ── 1) LCD = SubViewport (구멍 333×480 으로 하드 클리핑, 셸보다 먼저 = 뒤에 깔림) ────
+  # 콘텐츠를 333×480 SubViewport 안에서 렌더 → 컨테이너가 LCD 구멍 위치에 1:1 표시.
+  # 디오라마 줌(scale 2x)으로 콘텐츠가 커져도 뷰포트 경계에서 잘려 셸 밖으로 새지 않는다.
+  # 입력은 SubViewportContainer 가 좌표를 변환해 내부 Control(터치 버튼)로 전달한다.
+  var lcd_container := SubViewportContainer.new()
+  lcd_container.position = SHELL_POS + LCD_OFFSET
+  lcd_container.size = LCD_SIZE
+  lcd_container.stretch = false  # 1:1 (정수배·도트 사수 → ADR 0001)
+  lcd_container.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+  add_child(lcd_container)
+
+  _lcd_viewport = SubViewport.new()
+  _lcd_viewport.size = Vector2i(LCD_SIZE)
+  _lcd_viewport.transparent_bg = true  # 콘텐츠 없는 부분 = 셸 뒤 투명(웹/창 배경 비침)
+  _lcd_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS  # 줌/표정 트윈 매 프레임
+  _lcd_viewport.canvas_item_default_texture_filter = \
+    Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST  # 도트 보간 금지
+  lcd_container.add_child(_lcd_viewport)
+
+  # 외부에서 LCD 콘텐츠를 붙이는 루트 (SubViewport 로컬 0,0 원점)
   lcd_root = Node2D.new()
-  lcd_root.position = SHELL_POS + LCD_OFFSET
-  add_child(lcd_root)
+  _lcd_viewport.add_child(lcd_root)
 
   # ── 2) 셸 스프라이트 (콘텐츠 위에 얹혀 구멍/베젤로 보임) ─
   var spr := Sprite2D.new()
