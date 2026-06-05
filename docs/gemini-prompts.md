@@ -404,6 +404,7 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 
 ## 나라카 지옥 배경 (교감화면 무대)
 
+> ⚠️ **Phase 3.5에서 대체됨** → 아래 "**메인 디오라마 배경 v2 (A7)**" 사용. 이 v1은 좌우 가구가 단순 장식이라 시온이/바인더 받침이 없다. 구도·네거티브 참고용으로 남겨둔다.
 > 옥자가 그 앞에 서는 **무대 배경**. 내부 LCD 구멍 `333×480`(세로)에 꽉 차게, 크로마키 없이 통째로 쓴다(캐릭터처럼 누끼 안 침). **SD 옥자에 어울리는 "귀엽고 아늑한 지옥 메이드카페"** 무드 — 무섭지 않고 포근하게.
 > **🔁 재생성 메모(왜 다시 뽑나)**: 1차 결과가 ① **270×480로 좁게** 나와 LCD(333폭)를 못 채웠고 ② **찻잔 선반이 화면 정중앙(옥자 상체 높이)**을 점령해 캐릭터 뒤가 산만했다. 아래 프롬프트는 이 둘을 **강하게 교정**한 버전.
 > **구도 핵심 ①(비율)**: **가로로 넓은 방** — 화면을 **7:10(≈333:480) 비율로 가장자리까지 꽉** 채운다. 좁고 긴 세로 복도/한쪽 벽만 보이는 구도 **금지**. **좌·우 양쪽 벽이 다 보이는 넓은 실내**.
@@ -616,6 +617,109 @@ no chroma green on the subject, no gradient, no soft anti-aliased edges, no 3D r
 
 ---
 
+## Phase 3.5 — 메인 디오라마 리프레임 에셋 (ROADMAP A7·A8)
+
+> 2026-06-05 grill-me 합의(→ 메모리 `main-screen-diorama-reframe`). 메인 교감화면을 **카페 디오라마**로 재구성: 중앙 옥자 전신 + **좌우 대칭 엔틱 가구**가 시온이/체키북을 얹는 **받침**이 된다. 우=포션·술병 선반(어깨 높이에 시온이), 좌=엔틱 서랍장/책장(위에 체키북 바인더). 버튼은 나인패치 귀여운 틀로 전면 통일.
+> **핵심 분업**: 가구·병·책은 **배경 그림**(A7)에 박고, **시온이·바인더·버튼은 별도 스프라이트**(A8)로 코드가 그 위에 얹는다. 그래서 배경엔 받침이 될 **평평한 선반/상판**을 비워 둬야 한다.
+
+### A7 — 메인 디오라마 배경 v2 (`bg_naraka.png`, 333×480, 누끼 없음)
+
+> 기존 "나라카 지옥 배경"을 **대체**. 차이: 이제 좌우 가구가 단순 장식이 아니라 **스프라이트 받침**이다 — 오른쪽엔 **어깨 높이에 평평한 선반 칸 하나를 비워**(시온이가 앉음), 왼쪽엔 **하중단에 평평한 캐비닛/책장 상판을 비워**(바인더가 놓임) 둔다. 중앙은 옥자 전신이 서므로 여전히 비운다.
+> **정확한 y는 그림을 보고 코드(`SIONI_FEET`·바인더 좌표)를 맞춘다** — AI는 대략의 위치만, 받침이 또렷이 평평하면 된다.
+> **2x 줌 대비**: 시온이 탭 시 오른쪽 선반이 2배 확대되므로, **오른쪽 선반·병 디테일을 또렷하고 깔끔하게**(확대해도 안 지저분하게).
+
+```
+Pixel art interior background of a COZY, CUTE hell-themed maid cafe ("Naraka"), no characters, no cat.
+WIDE room filling the FULL frame edge-to-edge, aspect ratio about 7:10 (≈333:480) — NOT a narrow strip, show BOTH side walls.
+Back wall across the top, wide warm wooden floor across the bottom.
+Mood: cozy and charming, NOT scary — a warm candlelit witch's cafe in a gentle underworld.
+LEFT wall: a tall ANTIQUE dark-wood CABINET / BOOKSHELF with stacked old leather books and a few potion jars,
+       and ONE clear FLAT EMPTY shelf-top / cabinet surface in the LOWER-MIDDLE area (kept uncluttered — an object will sit there).
+RIGHT wall: a tall apothecary SHELF of glowing colored POTION BOTTLES and liquor flasks,
+       with ONE clear FLAT EMPTY shelf plank at UPPER-MIDDLE / shoulder height (kept uncluttered — a small pet will sit there).
+Both side furniture pieces read as solid LEDGES/PLATFORMS, roughly SYMMETRIC framing on left and right.
+Decor: softly glowing candles and small CUTE round flames, a heart-shaped sign high on the back wall,
+       tiny cute skulls and little bats, dripping-candle wall sconces, an arched gothic window with faint ember glow.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — deep burgundy walls, blood red, antique gold trim, ink black, warm candle-yellow glow;
+       the right-wall potion bottles glow in soft jewel tones (still flat, stepped dot shading).
+Composition: the CENTER COLUMN and LOWER-CENTER FLOOR are EMPTY (a standing character goes there) —
+       plain back wall + clear open floor in the middle, ALL furniture against the side walls,
+       with the two clear empty ledges (left lower-middle, right shoulder-height) ready to hold objects.
+```
+
+#### 네거티브 (배경 v2)
+
+```
+no characters, no people, no cat, no binder, no book held open, no text, no watermark, no signature,
+no gradient sky, no soft anti-aliased edges, no realistic photo finish, no 3D render,
+no gore, no horror, no scary monsters, no clutter in the center, no furniture in the center,
+no narrow tall strip, no corridor framing,
+no bottles or books covering the two empty ledges (keep the left lower-middle surface and the right shoulder-height plank clear).
+```
+
+> ⚠️ 검수: ① 333폭 꽉 참(좁은 세로 띠 아님) ② **오른쪽 어깨 높이 + 왼쪽 하중단에 평평하게 빈 받침**이 또렷한지 ③ 중앙·하단 중앙이 비어 옥자가 읽히는지 ④ 포근한 캔들 톤(무섭지 않게) ⑤ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/bg_naraka.png`(기존 덮어쓰기, `cafe.gd` `BG_TEX`와 일치).
+
+### A8-1 — 시온이 60px (받침 위 가독성)
+
+> 디오라마에선 시온이가 발치가 아니라 **선반 어깨 높이**에 앉아 옥자와 한 쌍으로 읽힌다. **그림은 위 "시온이 (펫)" 프롬프트 그대로**, 출력만 `48→60px`. 새로 그릴 필요 없이 **기존 raw(또는 확정 idle)를 `--size 60x60`으로 재출력**하고, `sioni.gd`의 `SPR_SIZE`를 `Vector2(60,60)`으로 올린다(앵커=바닥 중앙은 동일). 4종(idle/snack/play/pet) 모두 60px.
+
+### A8-2 — 나인패치 귀여운 버튼 틀 (`btn_9slice_normal` · `btn_9slice_focused`)
+
+> 액션바·온보딩·팝업 공용. **9-slice라 중앙은 완전 평평**해야 늘려도 안 번진다 — 장식은 **테두리·모서리에만**, 가운데 채움은 단일 톤. 라벨 글자는 코드가 갈무리 폰트로 위에 얹으니 **글자 없이** 빈 틀만. 두 상태: normal(잔잔) / focused(밝게+골드 글로우). 둥근 모서리 바깥은 크로마 그린 누끼.
+> **규격 권장**: ~`64×40`, 모서리 반경 ~10px, 9-slice 인셋(margin) 사방 14px. 두 장 모두 **같은 크기·같은 모서리 반경**(상태 스왑 시 안 튀게).
+
+```
+Pixel art / dot art of a SINGLE cute rounded-rectangle UI BUTTON PLATE, front view, EMPTY (no text, no icon).
+Shape: a horizontal rounded-rectangle plate with soft rounded corners, perfectly symmetric.
+Surface: the CENTER fill is ONE FLAT UNIFORM color (so it can be stretched / 9-sliced) —
+         all detail lives ONLY on the BORDER and CORNERS: a clean rounded antique-gold outline with a subtle inner bevel,
+         tiny gold corner flourishes.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat stepped shading.
+Color mood: deep burgundy fill, antique-gold rounded border, ink-black thin outline — to match the cafe UI.
+Background: FLAT SOLID chroma green (#00ff00) outside the rounded plate (so the rounded corners cut out cleanly).
+```
+
+> **focused 변형 — 한 줄만 추가**: `Variant: brighter / highlighted state — lighter burgundy fill, a GLOWING bright antique-gold border (thicker, with a soft warm gold rim), reads as "selected".`
+
+#### 네거티브 (나인패치 버튼)
+
+```
+no text, no letters, no numbers, no icon, no symbol in the center,
+no decoration in the CENTER (center must stay a flat uniform fill for 9-slicing),
+no multiple buttons, no drop shadow outside the plate, no gradient fill, no soft anti-aliased edges,
+no realistic 3D button, no glossy plastic reflection, no chroma green on the plate itself.
+```
+
+> ⚠️ 검수: ① **중앙이 단색 평면**인지(여기에 디테일 있으면 9-slice에서 번짐) ② 모서리 반경이 두 상태 동일한지 ③ 둥근 바깥이 깔끔히 누끼됐는지. 인셋(14px)은 Godot `StyleBoxTexture.texture_margin_*`로 설정 → `ui_theme.gd`.
+
+### A8-3 — 체키북 바인더 오브젝트 (`cheki_binder`, 좌측 가구 위 탭 대상)
+
+> 왼쪽 엔틱 캐비닛 상판에 놓여 **탭하면 컬렉션북으로** 들어가는 오브젝트. 실물 포토카드 바인더 은유(→ `collection-book-structure`). 닫힌 가죽 앨범/바인더가 **살짝 비스듬히 세워진** 모습(받침 위에 놓인 게 읽히게). 기존 `book_frame_leather`의 가죽·하트 톤과 한 세트.
+> **규격**: ~`48×56`(세로로 약간 큰 책). 누끼=크로마 그린. 앵커는 코드에서 바닥 중앙.
+
+```
+Pixel art / dot art of a SINGLE closed cute LEATHER PHOTO-CARD BINDER / album standing slightly tilted, front-3/4 view, NO characters.
+Object: a thick closed book / binder with a dark burgundy LEATHER cover, antique-gold corner caps and a gold spine,
+        a small GOLD HEART clasp on the front, a tiny butterfly/wing emblem embossed on the cover.
+It rests as if placed on a shelf — a small flat base, reads as a standing collectible album.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat stepped shading.
+Color mood: deep burgundy leather, antique gold trim, ink-black outline, cream page edges — matches the cheki binder UI.
+Background: FLAT SOLID chroma green (#00ff00), nothing else.
+```
+
+#### 네거티브 (바인더)
+
+```
+no characters, no cat, no hand, no open book, no readable text, no watermark, no signature,
+no stack of many books (ONE single binder), no scenery, no shelf drawn (the shelf is in the background),
+no chroma green on the binder, no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render.
+```
+
+> ⚠️ 검수: ① **닫힌 한 권**인지(책더미·펼친 책 아님) ② 가죽 버건디+골드 하트 클래스프로 `book_frame_leather`와 톤 일치 ③ 받침에 놓인 듯 바닥이 안정적인지 ④ 누끼 깔끔. 저장: `assets/sprites/cheki_binder.png`.
+
+---
+
 ## 후처리 연결 (받은 PNG → 규격 에셋)
 
 ```bash
@@ -711,6 +815,28 @@ tools/.venv/bin/python tools/dotify.py candle_deco_raw.png \
   --size 16x24 --chroma 00ff00 --out assets/sprites/candle_deco.png
 tools/.venv/bin/python tools/dotify.py ribbon_bookmark_raw.png \
   --size 12x40 --chroma 00ff00 --out assets/sprites/ribbon_bookmark.png
+
+# ── Phase 3.5 디오라마 리프레임 (A7·A8) ──
+# A7 메인 디오라마 배경 v2 (333×480 불투명, 좌우 가구 받침 — 기존 bg_naraka.png 덮어쓰기)
+tools/.venv/bin/python tools/dotify.py bg_naraka_v2_raw.png \
+  --size 333x480 --out assets/sprites/bg_naraka.png
+# A8-1 시온이 60px (그림 동일, 출력만 48→60 — 기존 raw/idle 재출력 후 sioni.gd SPR_SIZE=60)
+tools/.venv/bin/python tools/dotify.py sioni_idle_raw.png \
+  --size 60x60 --chroma 00ff00 --out assets/sprites/sioni_idle.png
+tools/.venv/bin/python tools/dotify.py sioni_snack_raw.png \
+  --size 60x60 --chroma 00ff00 --out assets/sprites/sioni_snack.png
+tools/.venv/bin/python tools/dotify.py sioni_play_raw.png \
+  --size 60x60 --chroma 00ff00 --out assets/sprites/sioni_play.png
+tools/.venv/bin/python tools/dotify.py sioni_pet_raw.png \
+  --size 60x60 --chroma 00ff00 --out assets/sprites/sioni_pet.png
+# A8-2 나인패치 버튼 틀 normal/focused (둥근 바깥 누끼 → 9-slice는 ui_theme.gd에서 인셋 14px)
+tools/.venv/bin/python tools/dotify.py btn_9slice_normal_raw.png \
+  --size 64x40 --chroma 00ff00 --out assets/sprites/btn_9slice_normal.png
+tools/.venv/bin/python tools/dotify.py btn_9slice_focused_raw.png \
+  --size 64x40 --chroma 00ff00 --out assets/sprites/btn_9slice_focused.png
+# A8-3 체키북 바인더 오브젝트 (좌측 가구 위 탭 대상)
+tools/.venv/bin/python tools/dotify.py cheki_binder_raw.png \
+  --size 48x56 --chroma 00ff00 --out assets/sprites/cheki_binder.png
 ```
 
 > ⚠️ `--preset bg`(270×480)는 셸 교체 이전 값이라 현 LCD `333×480`과 안 맞는다 — 배경은 위처럼 `--size 333x480`로 뽑을 것(또는 `tools/dotify.py` PRESETS의 `bg`를 `(333, 480, False, None)`으로 갱신).
