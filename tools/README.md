@@ -56,6 +56,26 @@ tools/.venv/bin/python tools/dot_studio.py --port 8800 --no-browser
 
 > 게임기 셸(`shell_frame.png`)은 이 파이프라인 대상이 아니라 **`tools/prep_shell.py`** 전용이다(흰 배경 누끼 + LCD 정밀 펀칭 필요). dot_studio 체크리스트에서도 `prep_shell.py · 635×877` 로만 표시되고 GUI 변환은 막혀 있다.
 
+## 콘텐츠 스튜디오 GUI (content_studio.py)
+
+대사·선택지·버튼·감정을 **코드를 안 만지고 브라우저에서 편집**하는 툴. `data/*.json`(ticker·talk·gifts·buttons)을 읽어 GUI로 보여주고, **검증 후 그대로 다시 쓴다**. 게임(`GameData`)과 이 툴이 같은 JSON을 본다 → 단일 출처.
+
+```bash
+python3 tools/content_studio.py            # 브라우저 자동 오픈(127.0.0.1:8770)
+python3 tools/content_studio.py --port 8800 --no-browser
+```
+
+> **추가 의존성 없음** — 표준 라이브러리 `http.server`만 쓴다(venv·pillow 불필요, 일반 `python3`). dotify 계열과 달리 이미지 변환이 없어 venv가 필요 없다.
+
+- **탭 5종**: ① 옥자 티커(상황×단계 라인) ② 시온이 티커(버튼별 풀) ③ 대화(토막 질문+선택지) ④ 선물(프롬프트+항목) ⑤ 버튼·감정.
+- **감정 = 얼굴 썸네일**: `assets/sprites/okja_*.png`·`sioni_*.png`를 그대로 서빙해 표정을 보고 고른다. 멀티 선택(옥자 터치 풀)은 토글.
+- **CRUD**: 라인·대화 토막·선택지(최대 4)·선물 항목을 추가/삭제/수정. **상황 키 13개와 시온이 버튼 id·호감도종류는 잠금**(코드 연동).
+- **{nick} 미리보기**: 상단 닉네임 입력에 맞춰 `{nick}` 치환 결과를 라인 아래 즉시 표시.
+- **저장 = 검증 후 쓰기**: 잘못된 감정/ tier 값, 없는 티커풀 참조 등은 **저장 차단**하고 사유를 보여준다. 통과 시 `data/*.json`에 직접 쓴다(들여쓰기 2칸, `_doc` 주석 키 보존). git이 복구 안전망.
+- **반영**: 저장 후 **Godot 에디터에서 F5(게임 재실행)** 하면 바로 보인다. 웹 빌드는 재-export 후 반영(JSON이 PCK에 구워짐).
+
+> 데이터 자체는 `data/dialogue.gd`·`action_bar.gd`·`cafe.gd`가 아니라 `data/*.json`이 출처다. `.gd`는 `GameData`로 JSON을 읽는 얇은 로더로 바뀌었다(정적 API 시그니처는 불변).
+
 ## 파이프라인 (dotify.py)
 
 1. **비율 맞춰 축소(fit)** — 왜곡 없이 규격 캔버스에 중앙 안착
