@@ -4,7 +4,7 @@ extends Node
 ##
 ##   godot --headless --path . tests/test_cutin.tscn
 ##
-## 주의: 데모 시드로 세이브를 덮으므로, 기존 세이브를 백업했다가 끝에 원복한다.
+## 주의: build_state/개발 프리셋으로 세이브를 덮으므로, 기존 세이브를 백업했다가 끝에 원복한다.
 
 const CafeScript = preload("res://scripts/cafe.gd")
 const SAVE_PATH = "user://narakuchi_save.json"
@@ -31,12 +31,11 @@ func _check(cond: bool, label: String) -> void:
 
 
 func _run() -> void:
-  # 0) 단골 등극 컷인: announced=guest 에서 단골(regular,200) 도달 → 다음 입장에 단골 컷인 발화
-  SaveManager.reset(true)
-  SaveManager.set_value("flags.announced_stage", "guest")
-  SaveManager.set_value("okja.affinity_total", Balance.REL_REGULAR)
+  # 0) 단골 등극 컷인: announced=guest 에서 단골(regular) 도달 → 다음 입장에 단골 컷인 발화
+  SaveManager.data = SaveManager.build_state({"okja_stage": "regular", "announced_stage": "guest"})
   SaveManager.save_game()
-  _check(Balance.relationship_stage(Balance.REL_REGULAR) == "regular", "시드: 200=단골(regular) 도달")
+  _check(Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0))) == "regular",
+    "상태: 단골(regular) 도달")
   var cafe0: Node = CafeScript.new()
   add_child(cafe0)
   cafe0.start()
@@ -48,12 +47,12 @@ func _run() -> void:
   cafe0.queue_free()
   await get_tree().process_frame
 
-  # 1) 데모 시드: 단골(595) + announced_stage=regular
-  SaveManager.reset(true)
+  # 1) 개발 프리셋 상태: 반말 전환(comfy) 직전 단골 + announced_stage=regular
+  SaveManager.apply_dev_preset("comfy_edge")
   _check(String(SaveManager.get_value("flags.announced_stage", "?")) == "regular",
-    "시드: announced_stage=regular")
+    "프리셋: announced_stage=regular")
   _check(Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0))) == "regular",
-    "시드: 단골(regular) 상태(595)")
+    "프리셋: comfy 직전이라 아직 단골(regular)")
 
   # 첫 입장 — 컷인 안 떠야(시드가 이미 단골이라 알릴 게 없음)
   var cafe1: Node = CafeScript.new()
@@ -66,10 +65,10 @@ func _run() -> void:
   cafe1.queue_free()
   await get_tree().process_frame
 
-  # 2) 한 번 교감해 600 넘김(595 → 603) — comfy 도달
-  SaveManager.set_value("okja.affinity_total", 603)
+  # 2) 한 번 교감해 임계값(REL_COMFY)을 넘김 — comfy 도달
+  SaveManager.set_value("okja.affinity_total", Balance.REL_COMFY)
   SaveManager.save_game()
-  _check(Balance.relationship_stage(603) == "comfy", "교감 후: 편해진 사이(comfy) 도달")
+  _check(Balance.relationship_stage(Balance.REL_COMFY) == "comfy", "교감 후: 편해진 사이(comfy) 도달")
 
   # 다음 입장 — 반말 전환 컷인 발화
   var cafe2: Node = CafeScript.new()

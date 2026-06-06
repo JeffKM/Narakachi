@@ -17,6 +17,7 @@ func _ready() -> void:
   _test_dialogue_talk()
   _test_dialogue_gift()
   _test_tier_affinity()
+  _test_build_state()
   _test_meters_milestone()
   _test_attendance_status()
   _test_book_smoke()
@@ -144,12 +145,40 @@ func _test_tier_affinity() -> void:
   _check(Balance.aff_talk("good") > Balance.aff_talk("plain"), "대화 good > plain 호감")
   _check(Balance.aff_gift("sion") > Balance.aff_gift("match"), "선물 sion > match 호감")
   _check(Balance.aff_gift("match") > Balance.aff_gift("plain"), "선물 match > plain 호감")
-  # 데모 시드가 '반말 전환(편해진 사이, 600)' 직전인지 — 첫 교감 한 번으로 넘어가야 함
-  var gap := Balance.REL_COMFY - Balance.DEMO_SEED_AFFINITY
-  _check(gap > 0 and gap <= Balance.aff_talk("plain"),
-    "데모 시드가 가장 작은 액션으로도 반말 전환(편해진 사이) 도달(gap=%d ≤ %d)" % [gap, Balance.aff_talk("plain")])
-  # 단골(200)은 시드(595)가 이미 넘긴 상태여야 함
-  _check(Balance.DEMO_SEED_AFFINITY >= Balance.REL_REGULAR, "데모 시드는 단골(200) 이상에서 시작")
+  # 반말 전환(편해진 사이, REL_COMFY) 경계 로직 — 시드 매직넘버가 아니라 임계값에서 파생.
+  # comfy 직전(−가장 작은 대화)은 아직 단골, 거기에 가장 작은 대화 한 번이면 comfy 도달.
+  var edge := Balance.REL_COMFY - Balance.aff_talk("plain")
+  _check(Balance.relationship_stage(edge) == "regular", "comfy 직전(−plain)은 아직 단골(regular)")
+  _check(Balance.relationship_stage(edge + Balance.aff_talk("plain")) == "comfy",
+    "가장 작은 대화 한 번으로 반말 전환(comfy) 도달")
+
+
+# ── 상태 빌더 (T23 — 테스트/개발 프리셋 단일 출처) ──────────
+# build_state 가 default_save 위에 의도한 키만 덮는지, 단계 지정이 임계값으로 매핑되는지 확인.
+
+func _test_build_state() -> void:
+  # 빈 opts → 기본 세이브와 동치
+  var base := SaveManager.build_state({})
+  _check(base["okja"]["affinity_total"] == 0 and base["flags"]["announced_stage"] == "guest",
+    "build_state({}) = 기본 세이브")
+
+  # 단계 지정 → 해당 임계값으로 매핑(매직넘버 없이 의미 단위)
+  var reg := SaveManager.build_state({"okja_stage": "regular"})
+  _check(int(reg["okja"]["affinity_total"]) == Balance.REL_REGULAR,
+    "okja_stage=regular → REL_REGULAR")
+  _check(Balance.relationship_stage(int(reg["okja"]["affinity_total"])) == "regular",
+    "okja_stage=regular 상태가 실제 regular 로 판정")
+
+  # 정확값(okja_affinity) 이 단계보다 우선
+  var exact := SaveManager.build_state({"okja_stage": "regular", "okja_affinity": Balance.REL_COMFY - 1})
+  _check(int(exact["okja"]["affinity_total"]) == Balance.REL_COMFY - 1,
+    "okja_affinity 가 okja_stage 보다 우선")
+
+  # 지정 안 한 키는 기본값 보존
+  var named := SaveManager.build_state({"nickname": "지은", "onboarded": true})
+  _check(String(named["player"]["nickname"]) == "지은" and bool(named["flags"]["onboarded"]),
+    "nickname/onboarded 반영")
+  _check(int(named["okja"]["affinity_total"]) == 0, "미지정 키(호감도)는 기본값 보존")
 
 
 # ── 미터 출석 마일스톤 (T14) ──────────────────────────────

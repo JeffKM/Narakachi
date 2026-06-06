@@ -4,7 +4,7 @@ extends Node
 ## release 웹 export(데모 배포)에선 생성되지 않으므로 일반 플레이어에겐 노출 0.
 ##
 ##   1 = 완전 초기화(세이브 삭제) → 온보딩부터 (fresh new game)
-##   2 = 데모 시드(반말 전환 직전 · 온보딩 스킵) → 바로 교감 화면 (시연용)
+##   2 = 개발 프리셋(반말 전환 직전 · 온보딩 스킵) → 바로 교감 화면 (apply_dev_preset)
 ##   3 = 현재 씬 리로드(세이브 유지) — 입장 연출/하루치 다시 보기
 ##   4 = 옥자 "오늘의 체키" 즉시 획득(게이지 풀 → 획득 리빌) — 컬렉션북(T16) 전 카드 확인용
 ##   5 = 연속출석 마일스톤(3일) 나비 조각 보상 리빌 — T14 확인용(3일 접속 없이 즉시)
@@ -15,7 +15,7 @@ extends Node
 
 const KEYS := {
   KEY_1: "wipe",
-  KEY_2: "seed",
+  KEY_2: "dev_preset",
   KEY_3: "reload",
   KEY_4: "cheki",
   KEY_5: "milestone",
@@ -30,8 +30,8 @@ func _unhandled_input(event: InputEvent) -> void:
     "wipe":
       SaveManager.wipe()  # 파일 삭제 + 메모리 default → onboarded=false
       _reload()
-    "seed":
-      SaveManager.reset(true)  # 데모 시드 저장(반말 전환 직전, onboarded=true)
+    "dev_preset":
+      SaveManager.apply_dev_preset("comfy_edge")  # 개발 프리셋(반말 전환 직전, onboarded=true)
       _reload()
     "reload":
       _reload()

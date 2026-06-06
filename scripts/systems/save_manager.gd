@@ -118,11 +118,65 @@ func save_game() -> bool:
   return true
 
 
-## 세이브 초기화. seed_demo=true 면 데모 시연용 시드(반말 전환 직전)로 채운다.
-func reset(seed_demo: bool = false) -> void:
+## 세이브를 새 게임 기본값으로 초기화하고 저장한다.
+func reset() -> void:
   data = default_save()
-  if seed_demo:
-    _apply_demo_seed()
+  save_game()
+
+
+## 파라미터로 세이브 상태를 조립한다 — 테스트/개발 프리셋의 단일 상태 출처.
+## default_save() 스키마 위에 주어진 키만 '의미 단위'로 덮어쓴다. 내러티브 시드(매직넘버)가
+## 아니라 호출자가 의도를 명시한다. 게임 로직(relationship_stage/컷인)과 독립적으로 상태만 만든다.
+## 지원 키: nickname, coins, onboarded, announced_stage,
+##   okja_affinity(정확값) | okja_stage(단계 임계값), okja_gauge, okja_mood,
+##   sion_affinity, sion_gauge, attendance_streak, attendance_last_date.
+func build_state(opts: Dictionary = {}) -> Dictionary:
+  var d := default_save()
+  if opts.has("nickname"):
+    d["player"]["nickname"] = String(opts["nickname"])
+  if opts.has("coins"):
+    d["player"]["coins"] = int(opts["coins"])
+  if opts.has("onboarded"):
+    d["flags"]["onboarded"] = bool(opts["onboarded"])
+  if opts.has("announced_stage"):
+    d["flags"]["announced_stage"] = String(opts["announced_stage"])
+  # 옥자 호감도: 정확값(okja_affinity) 우선, 없으면 단계(okja_stage)의 임계값.
+  if opts.has("okja_affinity"):
+    d["okja"]["affinity_total"] = int(opts["okja_affinity"])
+  elif opts.has("okja_stage"):
+    d["okja"]["affinity_total"] = Balance.stage_threshold(String(opts["okja_stage"]))
+  if opts.has("okja_gauge"):
+    d["okja"]["gauge"] = int(opts["okja_gauge"])
+  if opts.has("okja_mood"):
+    d["okja"]["mood"] = String(opts["okja_mood"])
+  if opts.has("sion_affinity"):
+    d["sion"]["affinity_total"] = int(opts["sion_affinity"])
+  if opts.has("sion_gauge"):
+    d["sion"]["gauge"] = int(opts["sion_gauge"])
+  if opts.has("attendance_streak"):
+    d["attendance"]["streak"] = int(opts["attendance_streak"])
+  if opts.has("attendance_last_date"):
+    d["attendance"]["last_date"] = String(opts["attendance_last_date"])
+  return d
+
+
+## 개발/시연용 상태 프리셋을 적용하고 저장한다(디버그 키 전용 — release 미노출).
+## build_state 로 상태만 조립한다(게임 로직과 분리). 이름에 "demo" 를 쓰지 않는다.
+func apply_dev_preset(preset: String) -> void:
+  var opts := {}
+  match preset:
+    "comfy_edge":
+      # 반말 전환(편해진 사이, REL_COMFY) 직전 — 다음 입장 한 번의 교감으로 반말 컷인이 터지게.
+      # announced=regular 라 단골 인사는 건너뛰고 comfy(반말) 연출만 남긴다. 온보딩 끝, 샘플 닉.
+      opts = {
+        "nickname": "지은",
+        "onboarded": true,
+        "announced_stage": "regular",
+        "okja_affinity": Balance.REL_COMFY - 1,
+      }
+    _:
+      push_warning("[Save] 알 수 없는 dev preset: %s → 기본값" % preset)
+  data = build_state(opts)
   save_game()
 
 
@@ -157,18 +211,6 @@ func set_value(path: String, value: Variant) -> void:
 
 
 # ── 내부 ─────────────────────────────────────────────────────
-
-## 데모 시연 시드: 누적 옥자 호감도를 '반말 전환(편해진 사이 600)' 직전인 595로 채운다.
-## 단계 상승 연출은 '다음 입장'에 1회 발화하므로(Cafe.start): 첫 세션엔 컷인이 안 뜨고,
-## 한 번 교감해 600 을 넘긴 뒤 다시 들어오면 반말 전환 컷인이 입장 인사로 터진다 (PRD §4.5).
-## announced_stage="regular": 시드가 이미 단골(595)이라 단골 인사는 안 띄우고, comfy(600)만 남긴다.
-## 온보딩은 끝난 상태이므로 onboarded=true 로 둬 바로 교감 화면으로 진입한다.
-func _apply_demo_seed() -> void:
-  data["okja"]["affinity_total"] = Balance.DEMO_SEED_AFFINITY
-  data["player"]["nickname"] = "지은"  # 시연용 샘플 닉(체키 표지·반말 전환에 이름이 보이게)
-  data["flags"]["onboarded"] = true
-  data["flags"]["announced_stage"] = "regular"  # 시드 595 = 단골 도달 → 단골 연출은 건너뜀
-
 
 ## 구버전 세이브를 최신 스키마로 끌어올린다 (골격 — 버전 오를 때 분기 추가).
 func _migrate(loaded_data: Dictionary) -> Dictionary:
