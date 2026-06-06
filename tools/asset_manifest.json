@@ -191,46 +191,6 @@
           "path": "assets/sprites/photo_sion_jirai.png"
         },
         {
-          "id": "icon_drink_1",
-          "label": "음료 아이콘 1",
-          "size": [
-            24,
-            24
-          ],
-          "transparent": true,
-          "path": "assets/sprites/icon_drink_1.png"
-        },
-        {
-          "id": "icon_drink_2",
-          "label": "음료 아이콘 2",
-          "size": [
-            24,
-            24
-          ],
-          "transparent": true,
-          "path": "assets/sprites/icon_drink_2.png"
-        },
-        {
-          "id": "icon_drink_3",
-          "label": "음료 아이콘 3",
-          "size": [
-            24,
-            24
-          ],
-          "transparent": true,
-          "path": "assets/sprites/icon_drink_3.png"
-        },
-        {
-          "id": "icon_drink_4",
-          "label": "음료 아이콘 4",
-          "size": [
-            24,
-            24
-          ],
-          "transparent": true,
-          "path": "assets/sprites/icon_drink_4.png"
-        },
-        {
           "id": "icon_gift_1",
           "label": "선물 아이콘 1",
           "size": [

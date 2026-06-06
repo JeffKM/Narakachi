@@ -916,7 +916,6 @@ no 3D render, no glossy reflections, no realistic photo finish.
 | `icon_gift_4` | 꽃다발 | `Object: a small wrapped BOUQUET of flowers — a few rounded blossoms (rose/tulip-like) with green leaves, gathered in a paper wrap tied with a ribbon.` | tier plain |
 
 > ⚠️ **검수 포인트**: ① 순수 크로마 그린에서 깨끗이 누끼되는지 ② **24px로 줄여도 무엇인지 즉시 읽히는지**(버튼에서 라벨 옆 작게 뜬다) ③ **어두운 버건디 버튼 위에서 묻히지 않게 외곽선/림이 있는지** ④ 츄르는 **발바닥 마크로 시온이용임이 드러나는지** ⑤ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/icon_gift_{1..4}.png`.
-> 💡 **음료 아이콘(`icon_drink_1~4`)도 같은 골격** — 이 공용 베이스·규격(24×24)·네거티브 그대로, object만 음료(커피·라떼·딸기우유·허브티 등)로 갈아끼운다(현재 게임 미배선, 후속 트랙).
 
 ---
 
