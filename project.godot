@@ -1,3 +1,11 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
 config_version=5
 
 [animation]
@@ -22,10 +30,7 @@ window/size/viewport_width=635
 window/size/viewport_height=877
 window/size/window_width_override=953
 window/size/window_height_override=1316
-window/size/resizable=true
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
-window/stretch/scale_mode="fractional"
 window/per_pixel_transparency/allowed=true
 window/handheld/orientation=1
 
