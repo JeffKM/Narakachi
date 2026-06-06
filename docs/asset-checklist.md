@@ -94,7 +94,8 @@
   - 누끼: 아치형 상단 모서리 바깥만 크로마 그린(`#00ff00`), 문 본체는 불투명. `dotify --size 333x480 --chroma 00ff00`.
 - [ ] 재화 아이콘 · `16×16` · 필요 시
 - [x] 공유 워터마크 (@나라카 + QR 자리) · T19 — **코드 합성**(`share_card.gd`): 붓글씨 로고 `wordmark_naraka`(재사용) + 갈무리 `@나라카` 핸들 + QR 자리(`qr_placeholder.gd` 코드 `_draw`) + 사진면 개인화 캡션(닉·날짜). 별도 워터마크 이미지 에셋 불필요. ※ 실제 QR은 호스팅 확정 후 T24.
-- [ ] PWA 아이콘 / 스플래시 (192·512 등) · T24
+- [ ] **실제 QR** `qr_naraka.png` · 2색(버건디 모듈/크림 배경) · T24 — **빌드타임 Python** `tools/gen_qr.py`(`qrcode`+`Pillow`)로 `https://narakuchi.vercel.app` 인코딩 → 마스터 팔레트 인덱싱. **공유 카드에만** 삽입(`qr_placeholder` `_draw` 교체). 신규 AI 0. (합의 2026-06-07)
+- [ ] **PWA 아이콘 / 스플래시** (192·512·180·144 + iOS 스플래시) · T24 — **옥자 얼굴 재활용 합성**(`okja_idle` 크롭 + 버건디 라운드 배경 + 골드 하트/`emblem_wing` 코너), `tools/make_pwa_icons.py`로 4규격 + 스플래시 일괄 export. nearest 업스케일 굵은 픽셀 = 도트 아이덴티티. 신규 AI 0. (합의 2026-06-07)
 
 ## 🔊 오디오 (T18 사운드 자리 / S3)
 

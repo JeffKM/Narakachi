@@ -77,8 +77,8 @@
           "id": "emblem_wing",
           "label": "표지 엠블럼 — 일반(비대칭 쌍날개)",
           "size": [
-            96,
-            56
+            64,
+            64
           ],
           "transparent": true,
           "chroma": "00ff00",

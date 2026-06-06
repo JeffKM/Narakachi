@@ -84,6 +84,20 @@ python3 tools/content_studio.py --port 8800 --no-browser
 4. **LCD 투명 마스킹** — LCD 사각을 지정한 프리셋/규격은 게임 화면칸을 투명으로 뚫음
 5. **검수 리포트** — 치수·색 수·팔레트 외 색·반투명·LCD 투명을 자동 판정(통과 시 exit 0)
 
+## 감사 스윕 (audit_sweep.py) — T20
+
+매니페스트(`asset_manifest.json`)의 **전 에셋을 한 번에 규격 검수**한다. 검수 로직은 `dotify.audit` 단일 출처를 그대로 재사용하므로 CLI/GUI와 판정이 동일하다.
+
+```bash
+tools/.venv/bin/python tools/audit_sweep.py            # 리포트만 (치수·팔레트외색·반투명·LCD)
+tools/.venv/bin/python tools/audit_sweep.py --verbose  # 위반 색 상세 + 최근접 팔레트색
+tools/.venv/bin/python tools/audit_sweep.py --fix      # 팔레트외/반투명 픽셀 재인덱싱(덮어쓰기, 치수는 손 안 댐)
+```
+
+- **`--fix`** 는 팔레트 밖 색을 최근접 팔레트색으로 인덱싱하고 알파를 0/255로 이진화한다. **치수 위반은 자동 수정하지 않는다**(비율 깨짐 위험 → 수동). 종료코드는 치수 위반/예기치 못한 누락이 있으면 1.
+- **소프트 면제(`SOFT_EXEMPT`)**: `shell_frame` 은 도트 파이프라인 산출물이 아니라 채택 레퍼런스 베젤(둥근 음영이 매력, → ADR 0001 §갱신이력)이라 **치수만 검사**하고 팔레트/알파는 면제한다.
+- **미래 에셋(`FUTURE_OK`)**: 아직 안 만드는 게 정상인 S그룹 슬롯(QR/PWA 등 T24)은 누락이어도 실패로 안 본다.
+
 ## 워터마크 제거 (dewatermark.py)
 
 Gemini/Imagen 생성 이미지는 **우하단에 은색 4각 스파클(✦) 워터마크**를 박는다. dotify 후에도 작은 은빛/크림빛 덩어리로 남아 인게임(문 열림·체키 카드 등)에 거슬린다. 이 도구가 찾아 인페인트로 지운다.
