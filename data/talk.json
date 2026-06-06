@@ -3,16 +3,16 @@
   "_choice_doc": "choice = { label(버튼), reply(옥자 반응 — 하단 티커로), tier, expr(선택 후 옥자 표정) }. tier: good(↑↑) | plain(↑). {nick} 토큰 치환. 선택지는 토막당 2~4개.",
   "guest": [
     {
-      "prompt": "또 오셨네요. 일은 안 하세요?",
+      "prompt": "또 오셨네요. 오늘은 어쩐 일로 오셨죠?",
       "choices": [
         {
           "label": "쉬러 왔어요",
           "reply": "팔자 좋으시네요.",
           "tier": "plain",
-          "expr": "idle"
+          "expr": "talk"
         },
         {
-          "label": "마녀님 보러요",
+          "label": "옥자님 보러요",
           "reply": "후, 입만 살아서는.",
           "tier": "good",
           "expr": "shy"
@@ -63,7 +63,7 @@
           "label": "농담이지?",
           "reply": "……됐어, 앉아.",
           "tier": "plain",
-          "expr": "idle"
+          "expr": "talk"
         }
       ]
     },
