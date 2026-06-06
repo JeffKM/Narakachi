@@ -83,6 +83,9 @@ func _make_button(idx: int, x: float, w: float) -> Button:
 func _choose(idx: int) -> void:
   _cursor = idx
   _update_cursor()
+  var aid := String(actions[idx]["id"])
+  # 주문(체키/음료)은 주문음, 그 외(대화/선물/간식/놀기/쓰담)는 UI 선택음. (T18 — 파일 없으면 무음)
+  Sfx.play(&"order" if aid == "cheki" or aid == "drink" else &"tap")
   action_chosen.emit(actions[idx]["id"])
 
 

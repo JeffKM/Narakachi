@@ -21,6 +21,7 @@ var _index: int = 0
 var _card: ChekiCard
 var _caption: Label
 var _hint: Label
+var _share: ShareCard       # 공유 이미지 오버레이 (T19, 열려 있으면 셸 입력을 여기로)
 var _closing := false
 
 
@@ -74,8 +75,11 @@ func _ready() -> void:
 
 # ── 입력 ─────────────────────────────────────────────────
 
-## 셸 3버튼 중계 (CollectionBook → 여기).
+## 셸 3버튼 중계 (CollectionBook → 여기). 공유 오버레이 떠 있으면 그쪽 우선.
 func handle_shell_action(action: StringName) -> void:
+  if _share != null:
+    _share.handle_shell_action(action)
+    return
   match action:
     &"ok": _flip()
     &"select": _step(1)
@@ -163,16 +167,29 @@ func _make_nav_arrow(glyph: String, x: float, cb: Callable) -> void:
   add_child(btn)
 
 
-## 공유 버튼(스텁) — 하단. T19 에서 이미지 내보내기로 채움.
+## 공유 버튼 (T19) — 현재 보고 있는 체키를 워터마크·QR 자리와 합성해 내보낸다.
 func _build_share_button() -> void:
   var btn := Button.new()
-  btn.text = "공유 (준비중)"
+  btn.text = "공유"
   UiTheme.style_button(btn)
   btn.position = Vector2(LCD.x / 2.0 - 56, 456)
   btn.size = Vector2(112, 22)
-  btn.pressed.connect(func() -> void:
-    _hint.text = "공유는 곧 — 이미지 내보내기 준비중")
+  btn.pressed.connect(_open_share)
   add_child(btn)
+
+
+## 공유 이미지 오버레이 열기 — 현재 인덱스 카드 기준.
+func _open_share() -> void:
+  if _share != null or _events.is_empty():
+    return
+  Sfx.play(&"tap")
+  var ev := String(_events[_index])
+  var r := Cheki.record(_character, ev)
+  _share = ShareCard.new()
+  _share.setup(_character, ev, bool(r["butterfly"]),
+    String(r["nickname"]), int(r["acquired_at"]))
+  _share.closed.connect(func() -> void: _share = null)
+  add_child(_share)  # 맨 위
 
 
 func _make_label(font_size: int, color: Color, y: float) -> Label:

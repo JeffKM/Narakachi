@@ -272,7 +272,7 @@ func _on_action(id: String) -> void:
       _open_gift()
       return
 
-  meters.spend_stamina()
+  meters.spend_stamina()  # 주문음은 ActionBar._choose 가 id 기준으로 발화 (T18)
   match id:
     "cheki":
       meters.add_affinity_okja(Balance.AFF_CHEKI)
@@ -475,6 +475,7 @@ func _tween_stage(scale_to: Vector2, pos_to: Vector2) -> void:
 func _on_gauge_full(character: String) -> void:
   if _reveal != null:
     return
+  Sfx.play(&"gauge_full")  # 게이지 가득 차오름 완료음 (T18)
   var event := Cheki.pick_today(character)
   var result := Cheki.grant(character, event)
 
@@ -507,6 +508,7 @@ func _on_reveal_closed() -> void:
 func _open_book() -> void:
   if _reveal != null or _book != null or _popup != null or _cutin != null:
     return
+  Sfx.play(&"book")  # 체키북 열기음 (T18)
   _book = CollectionBook.new()
   _book.closed.connect(_on_book_closed)
   add_child(_book)  # 맨 위(HUD·액션바 덮음)
