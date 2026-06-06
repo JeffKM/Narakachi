@@ -21,8 +21,14 @@ const LIST := {
 # 체키 카드 아트(의상 누끼 + 사진 배경 + 테마 프레임)가 준비된 이벤트.
 # "오늘의 체키"는 여기 있는 이벤트 안에서만 고른다(아트 없는 칸을 렌더러에 넘기지 않게).
 # A4/A5로 의상·배경·프레임이 추가되면 해당 id를 켠다. (→ asset-checklist A2~A5)
+# A4: kinder·hiphop·butler(옥자 의상 누끼 + bg_cheki_* + frame_*) 검수 통과.
+# A5: xmas(옥자 okja_xmas 3겹 합성 / 시온이 photo_sion_xmas 베이크 컷, frame_xmas 공용) 검수 통과.
 const ART_READY := {
   "mine": true,
+  "kinder": true,
+  "hiphop": true,
+  "butler": true,
+  "xmas": true,
 }
 
 # 첫 방문 기념 증정 = 지뢰계(★히어로) 일반체키 (PRD §4.5 / T06b)

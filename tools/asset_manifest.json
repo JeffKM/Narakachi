@@ -311,6 +311,36 @@
           "label": "집사 테마 프레임",
           "preset": "cheki",
           "path": "assets/sprites/frame_butler.png"
+        },
+        {
+          "id": "bg_cheki_kinder",
+          "label": "체키 사진 배경 — 유치원",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_kinder.png"
+        },
+        {
+          "id": "bg_cheki_hiphop",
+          "label": "체키 사진 배경 — 힙합",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_hiphop.png"
+        },
+        {
+          "id": "bg_cheki_butler",
+          "label": "체키 사진 배경 — 집사",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_butler.png"
         }
       ]
     },
@@ -325,16 +355,30 @@
           "path": "assets/sprites/okja_xmas.png"
         },
         {
-          "id": "sion_xmas",
-          "label": "시온이 크리스마스(루돌프) 체키 의상",
-          "path": "assets/sprites/sion_xmas.png",
-          "preset": "okja"
+          "id": "photo_sion_xmas",
+          "label": "시온이 크리스마스 체키 사진(배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_sion_xmas.png"
         },
         {
           "id": "frame_xmas",
           "label": "크리스마스 테마 프레임",
           "preset": "cheki",
           "path": "assets/sprites/frame_xmas.png"
+        },
+        {
+          "id": "bg_cheki_xmas",
+          "label": "체키 사진 배경 — 크리스마스",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_xmas.png"
         }
       ]
     },
