@@ -14,6 +14,7 @@ pixelartvillage 스타일의 인터랙티브 워크플로:
 """
 import argparse
 import base64
+import errno
 import io
 import json
 import os
@@ -24,8 +25,21 @@ import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-import numpy as np
-from PIL import Image
+try:
+  import numpy as np
+  from PIL import Image
+except ModuleNotFoundError as e:
+  # 시스템 python3 로 실행하면 numpy/pillow 가 없어 죽는다 — venv 로 안내.
+  sys.stderr.write(
+    "\n❌ '%s' 모듈이 없습니다 — dot_studio 는 이미지 변환(pillow/numpy)이 필요해 전용 venv 로 실행해야 합니다.\n\n"
+    "   ✅ 이렇게 실행하세요:\n"
+    "      tools/.venv/bin/python tools/dot_studio.py\n\n"
+    "   (venv 가 없다면 먼저 만드세요:\n"
+    "      python3 -m venv tools/.venv && tools/.venv/bin/pip install -r tools/requirements.txt)\n\n"
+    "   ※ content_studio.py(대사·선물 편집)는 이미지 변환이 없어 그냥 python3 로 됩니다.\n\n"
+    % e.name
+  )
+  sys.exit(1)
 
 import dotify  # 같은 폴더의 파이프라인 모듈
 
@@ -693,8 +707,25 @@ def main():
   ap.add_argument("--no-browser", action="store_true", help="브라우저 자동 오픈 안 함")
   args = ap.parse_args()
 
-  url = f"http://127.0.0.1:{args.port}/"
-  srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+  # 포트 fallback — 요청 포트가 막혀 있으면(이전 인스턴스 등) 다음 빈 포트를 자동으로 잡는다.
+  srv = None
+  port = args.port
+  for cand in range(args.port, args.port + 20):
+    try:
+      srv = ThreadingHTTPServer(("127.0.0.1", cand), Handler)
+      port = cand
+      break
+    except OSError as e:
+      if e.errno != errno.EADDRINUSE:
+        raise
+      print(f"⚠️  포트 {cand} 사용 중 — 다음 포트로 넘어갑니다…")
+  if srv is None:
+    sys.stderr.write(f"\n❌ {args.port}~{args.port + 19} 포트가 모두 사용 중입니다. --port 로 다른 포트를 지정하세요.\n")
+    sys.exit(1)
+
+  url = f"http://127.0.0.1:{port}/"
+  if port != args.port:
+    print(f"ℹ️  요청한 포트({args.port})가 막혀 {port} 로 실행합니다.")
   print(f"🎨 도트 스튜디오 실행 중 → {url}")
   print("   종료: Ctrl+C")
   if not args.no_browser:
