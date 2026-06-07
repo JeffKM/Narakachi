@@ -18,6 +18,7 @@ func _ready() -> void:
   _test_dialogue_gift()
   _test_tier_affinity()
   _test_build_state()
+  _test_first_cheki_nickname()
   _test_meters_milestone()
   _test_attendance_status()
   _test_book_smoke()
@@ -180,6 +181,23 @@ func _test_build_state() -> void:
   _check(String(named["player"]["nickname"]) == "지은" and bool(named["flags"]["onboarded"]),
     "nickname/onboarded 반영")
   _check(int(named["okja"]["affinity_total"]) == 0, "미지정 키(호감도)는 기본값 보존")
+
+
+# ── 첫 체키 닉 스냅샷 (T06b 온보딩→첫 체키 무결성) ──────────
+# 온보딩이 닉을 저장한 "직후" 첫 체키를 grant 하므로, grant 는 그 닉을 표지 헌사로
+# 박아야 한다(cheki.gd:91). 순서가 뒤집히면 헌사가 "손님"으로 비어 무결성이 깨진다.
+func _test_first_cheki_nickname() -> void:
+  _wipe()
+  SaveManager.set_value("player.nickname", "지은")
+  Cheki.grant(Events.OKJA, Events.FIRST_GIFT_EVENT)  # 첫 지뢰계 체키
+  var rec := Cheki.record(Events.OKJA, Events.FIRST_GIFT_EVENT)
+  _check(String(rec["nickname"]) == "지은", "첫 체키 헌사 = 획득 시점 닉 스냅샷")
+
+  # 헌사는 첫 획득 시점 고정 — 이후 닉이 바뀌고 중복 획득(나비 조각)해도 안 변한다.
+  SaveManager.set_value("player.nickname", "다른닉")
+  Cheki.grant(Events.OKJA, Events.FIRST_GIFT_EVENT)  # 중복 → 조각, 헌사 불변
+  var rec2 := Cheki.record(Events.OKJA, Events.FIRST_GIFT_EVENT)
+  _check(String(rec2["nickname"]) == "지은", "헌사는 첫 획득 닉으로 고정(이후 닉 변경 무관)")
 
 
 # ── 미터 출석 마일스톤 (T14) ──────────────────────────────
