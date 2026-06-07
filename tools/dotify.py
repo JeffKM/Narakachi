@@ -36,6 +36,11 @@ PRESETS = {
   "cheki": (120, 180, True,  None),
 }
 
+# 캐릭터 프리셋 = 자동 충전(콘텐츠 크롭→높이 충전·하단정렬) 기본 on.
+#  여백째 축소돼 작게 떠는 문제를 막아 모든 캐릭터·표정이 옥자와 같은 스케일로 정합된다.
+#  배경(bg/cheki)은 화면을 꽉 채우는 그림이라 충전 대상 아님.
+FILL_PRESETS = {"okja", "sioni"}
+
 
 def load_palette(path=PALETTE_HEX):
   """마스터 팔레트(.hex)를 (N,3) float 배열로 로드."""
@@ -55,6 +60,41 @@ def fit_resize(im, target_w, target_h):
   return canvas
 
 
+def content_mask(arr, chroma=None, chroma_tol=48, alpha_thr=128):
+  """배경(크로마/투명)을 뺀 콘텐츠(캐릭터) 픽셀 마스크. 크로마키·투명 PNG 모두 대응."""
+  rgb, alpha = arr[:, :, :3], arr[:, :, 3]
+  if chroma is not None:
+    ck = np.array(chroma, dtype=np.float32)
+    dist = np.sqrt(((rgb.astype(np.float32) - ck) ** 2).sum(2))
+    return (dist > chroma_tol) & (alpha > alpha_thr)
+  return alpha > alpha_thr
+
+
+def crop_to_content(im, chroma=None, chroma_tol=48, alpha_thr=128):
+  """원본 해상도에서 캐릭터 영역만 bbox로 잘라낸다(주변 여백 제거).
+  축소 '전'에 잘라야 캐릭터가 캔버스를 꽉 채운다 — 여백째 줄면 작게 떠버린다."""
+  mask = content_mask(np.array(im), chroma, chroma_tol, alpha_thr)
+  ys, xs = np.where(mask)
+  if len(xs) == 0:
+    return im  # 콘텐츠 없음 — 원본 그대로
+  return im.crop((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
+
+
+def fill_canvas(im, target_w, target_h, head_margin=0.04):
+  """캐릭터를 캔버스에 충전: 높이 우선으로 키워 머리 위 약간 여백·발은 바닥에 정렬.
+  단 폭이 캔버스를 넘으면 폭 기준으로 제한(팔·꼬리 잘림 방지) — 이땐 높이가 덜 찬다.
+  옥자 idle(충전 ~96%·바닥여백 0)과 같은 스케일로 모든 캐릭터·표정을 정합시킨다."""
+  src_w, src_h = im.size
+  scale = (target_h * (1 - head_margin)) / src_h  # 높이 우선
+  if src_w * scale > target_w:                     # 폭 초과 → 폭 기준 제한
+    scale = target_w / src_w
+  new_w, new_h = max(1, round(src_w * scale)), max(1, round(src_h * scale))
+  resized = im.resize((new_w, new_h), Image.BOX)
+  canvas = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+  canvas.paste(resized, ((target_w - new_w) // 2, target_h - new_h))  # 가로 중앙·하단 정렬
+  return canvas
+
+
 def index_to_palette(rgb, pal):
   """각 픽셀을 가장 가까운 팔레트색으로 매핑(RGB 유클리드 최근접)."""
   flat = rgb.reshape(-1, 3).astype(np.float32)
@@ -63,15 +103,20 @@ def index_to_palette(rgb, pal):
 
 
 def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
-                 chroma=None, chroma_tol=48, apply_palette=True, palette=None):
-  """핵심 파이프라인(메모리 이미지): 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명.
+                 chroma=None, chroma_tol=48, apply_palette=True, palette=None, fill=False):
+  """핵심 파이프라인(메모리 이미지): (충전) → 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명.
 
   CLI(dotify)와 GUI(dot_studio)가 공유하는 단일 처리 함수. 규격 로직은 여기 한 곳에서만 산다.
   apply_palette=False는 팔레트 인덱싱 전 원본 색을 유지(미리보기 비교용).
   palette=(N,3) 배열을 주면 파일 대신 그 팔레트로 인덱싱(스튜디오 라이브 편집용).
+  fill=True면 캐릭터를 캔버스에 꽉 충전(콘텐츠 크롭→높이 충전·하단정렬). 배경(bg/cheki)은 False.
   """
   im = im.convert("RGBA")
-  im = fit_resize(im, target_w, target_h)
+  if fill:
+    im = crop_to_content(im, chroma=chroma, chroma_tol=chroma_tol, alpha_thr=alpha_thr)
+    im = fill_canvas(im, target_w, target_h)
+  else:
+    im = fit_resize(im, target_w, target_h)
   arr = np.array(im)
   rgb, alpha = arr[:, :, :3], arr[:, :, 3]
 
@@ -99,14 +144,14 @@ def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
 
 
 def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
-           chroma=None, chroma_tol=48):
+           chroma=None, chroma_tol=48, fill=False):
   """파일 경로 → 규격 도트 이미지(CLI용 얇은 래퍼)."""
   return dotify_image(Image.open(src_path), target_w, target_h, transparent, lcd,
-                      alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol)
+                      alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol, fill=fill)
 
 
-def audit(img, target_w, target_h, pal, lcd):
-  """규격 검수 리포트. (통과여부, 라인들) 반환."""
+def audit(img, target_w, target_h, pal, lcd, check_fill=False):
+  """규격 검수 리포트. (통과여부, 라인들) 반환. check_fill=True면 충전·정렬도 검사(캐릭터)."""
   arr = np.array(img)
   w, h = img.size
   alpha = arr[:, :, 3]
@@ -129,6 +174,15 @@ def audit(img, target_w, target_h, pal, lcd):
   chk(len(uniq) <= 32, f"고유 색 {len(uniq)}개 (≤32)")
   chk(len(off) == 0, f"팔레트 외 색 {len(off)}개 (=0)")
   chk(semi == 0, f"반투명 픽셀 {semi}개 (=0, 도트는 0/255만)")
+  if check_fill:
+    bbox = img.split()[3].getbbox()  # (l,t,r,b)
+    if bbox:
+      fillpct = (bbox[3] - bbox[1]) / h * 100
+      foot = h - bbox[3]
+      chk(fillpct >= 90, f"높이충전 {fillpct:.0f}% (≥90, 옥자 idle≈96%)")
+      chk(foot <= 4, f"바닥여백 {foot}px (≤4, 발이 바닥에)")
+    else:
+      chk(False, "콘텐츠 없음(빈 이미지)")
   if lcd:
     x, y, lw, lh = lcd
     hole = arr[y:y + lh, x:x + lw, 3]
@@ -146,6 +200,10 @@ def main():
   ap.add_argument("--chroma", help="단색 배경색(예: 00ff00)을 투명 처리 — AI 단색 배경 분리용")
   ap.add_argument("--chroma-tol", type=int, default=48, help="크로마키 색 허용 오차(기본 48)")
   ap.add_argument("--preview", type=int, default=3, help="×N nearest 확대 미리보기 배율 (0=off)")
+  ap.add_argument("--fill", dest="fill", action="store_true", default=None,
+                  help="캐릭터를 캔버스에 꽉 충전(크롭→높이 충전·하단정렬). 캐릭터 프리셋은 기본 on")
+  ap.add_argument("--no-fill", dest="fill", action="store_false",
+                  help="자동 충전 끄기(여백 유지 중앙 배치)")
   args = ap.parse_args()
 
   chroma = None
@@ -155,23 +213,26 @@ def main():
 
   if args.preset:
     tw, th, transparent, lcd = PRESETS[args.preset]
+    fill_default = args.preset in FILL_PRESETS
   elif args.size:
     tw, th = (int(v) for v in args.size.lower().split("x"))
     transparent, lcd = args.transparent, None
+    fill_default = False
   else:
     ap.error("--preset 또는 --size 중 하나는 필수")
 
+  fill = fill_default if args.fill is None else args.fill  # --fill/--no-fill로 명시 시 우선
   img = dotify(args.src, tw, th, transparent or chroma is not None, lcd, chroma=chroma,
-               chroma_tol=args.chroma_tol)
+               chroma_tol=args.chroma_tol, fill=fill)
   img.save(args.out)
 
   if args.preview > 0:
     pv = os.path.splitext(args.out)[0] + f"_x{args.preview}.png"
     img.resize((tw * args.preview, th * args.preview), Image.NEAREST).save(pv)
 
-  ok, lines = audit(img, tw, th, load_palette(), lcd)
+  ok, lines = audit(img, tw, th, load_palette(), lcd, check_fill=fill)
   print(f"\n=== 도트화: {os.path.basename(args.src)} → {args.out} ===")
-  print(f"프리셋: {args.preset or args.size}")
+  print(f"프리셋: {args.preset or args.size}{'  (자동 충전 on)' if fill else ''}")
   print("\n[검수 리포트]")
   print("\n".join(lines))
   print(f"\n{'✅ 규격 통과 — 그대로 사용 가능' if ok else '⚠️ 일부 항목 미달 — pixilart 수동 정리 필요'}")
