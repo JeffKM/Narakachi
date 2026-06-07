@@ -140,22 +140,23 @@ no over-sexualized outfit (keep it cute street-gyaru, age-safe brand).
 
 ## 미호 지뢰계 체키 사진 배경 (`bg_cheki_miho_jirai`)
 
-> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경 — 지뢰계"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **이벤트 공통 `frame_jirai`(네이비·블랙 + 네온 핑크·퍼플)와 짝**이라 **네온 야경 팔레트는 유지**하고, 옥자(시부야 큰길)와 구분되게 **미호의 스팟 = 산업적 철제 계단/뒷골목**으로 달리한다(실물 레퍼 `_src/miho_jirai_ref.png` 배경 결 — 레오파드 스트릿 갸루 룩과 맞물림). 차가운 메탈 그런지 위에 **네온 핑크·퍼플 글로우**를 얹어 프레임과 한 세트로 붙이고, 미호 시그니처 노랑/골드는 **포인트 네온**으로만 살짝.
+> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경 — 지뢰계"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **미호의 스팟 = 붉은 홍등(랜턴) 야시장 골목** — 옥자(시부야 큰길)와 확실히 구분되는 미호만의 현장.
+> ⚠️ **팔레트 예외(의식적)**: 이벤트 공통 `frame_jirai`는 네온 핑크·퍼플인데, 이 배경은 **따뜻한 붉은 홍등 톤**이라 ADR 0003의 "프레임-배경 팔레트 통일"에서 **의도적으로 벗어난다**(소유자 결정 2026-06-07). 붉은 글로우 + 네온 핑크 프레임이 같은 "밤거리 발광" 계열이라 합성은 성립하되, 정확히 한 세트는 아님을 감안한다.
 
 ```
-Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a JIRAI-KEI ("landmine girl") grungy INDUSTRIAL BACK-ALLEY with a metal staircase and railings at night.
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a night MARKET ALLEY strung with glowing RED LANTERNS.
 NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
 (a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
-Scene: a moody industrial nook at night — a worn METAL STAIRCASE and pipe RAILINGS, corrugated metal / concrete walls,
-      a few PINK and PURPLE NEON tubes and signs glowing on the walls (abstract glyph-like glow, NOT real letters), exposed pipes; soft round BOKEH light orbs in the air.
-Depth: detailed metal railings, pipes and neon along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of neon light so a standing character reads clearly;
-      the LOWER-CENTER (character's feet area) stays calmer, just a metal-grate / concrete floor catching pink neon reflections.
+Scene: a narrow shopping alley at night — rows of round RED LANTERNS strung overhead, small lit shop fronts and signboards on both sides
+      (abstract glyph-like glow, NOT real letters), warm red-amber glow everywhere; soft round BOKEH light orbs in the air.
+Depth: dense lanterns and shop signs along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of red light
+      receding down the alley so a standing character reads clearly; the LOWER-CENTER (character's feet area) stays calmer, just a glossy street catching red reflections.
 Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
 FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
-Color mood: jirai-kei night, SAME neon palette as the shared jirai frame — deep navy/black + cool metal gray, hot pink, magenta, electric purple, a small touch of warm GOLD accent.
+Color mood: warm festival night — deep navy/black sky, glowing lantern RED, warm amber/gold, with a touch of pink to bridge toward the jirai frame.
 ```
 
-> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 "지뢰계 배경 네거티브" 그대로. 저장: `assets/sprites/bg_cheki_miho_jirai.png`.
+> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 "지뢰계 배경 네거티브" 그대로(특히 **캐릭터·마스코트 없는 순수 풍경** — 의상 누끼가 위에 올라간다). 저장: `assets/sprites/bg_cheki_miho_jirai.png`.
 
 ---
 
