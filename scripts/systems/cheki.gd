@@ -89,7 +89,7 @@ static func grant(character: String, event: String) -> Dictionary:
   if was_new:
     # 첫 획득 — 닉네임·날짜 스냅샷(표지 헌사용)
     r["nickname"] = String(SaveManager.get_value("player.nickname", "손님"))
-    r["acquired_at"] = int(Time.get_unix_time_from_system())
+    r["acquired_at"] = Clock.now()  # Clock seam: 케이던스 테스트/데모가 획득 날짜를 제어
   elif not bool(r["butterfly"]):
     # 중복 → 나비 조각. 다 모이면 변태 승급.
     r["shards"] = int(r["shards"]) + 1

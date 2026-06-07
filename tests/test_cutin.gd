@@ -90,6 +90,37 @@ func _run() -> void:
   cafe3.queue_free()
   await get_tree().process_frame
 
+  # 4) regular_edge 프리셋(단골 등극 직전, 디버그 키 7) — comfy_edge 와 대칭 데모 비트.
+  #    announced=guest 라 한 번 교감해 단골 도달하면 다음 입장에 '단골 인사' 컷인이 터져야.
+  SaveManager.apply_dev_preset("regular_edge")
+  _check(String(SaveManager.get_value("flags.announced_stage", "?")) == "guest",
+    "regular_edge: announced_stage=guest(단골 알림 살아있음)")
+  _check(Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0))) == "guest",
+    "regular_edge: 단골 직전이라 아직 손님(guest)")
+
+  # 첫 입장 — 아직 손님이라 컷인 없음
+  var cafe4: Node = CafeScript.new()
+  add_child(cafe4)
+  cafe4.start()
+  await get_tree().process_frame
+  _check(cafe4._cutin == null, "regular_edge 첫 입장: 컷인 없음(아직 손님)")
+  cafe4.queue_free()
+  await get_tree().process_frame
+
+  # 한 번 교감해 단골(REL_REGULAR) 도달 → 다음 입장에 단골 등극 컷인
+  SaveManager.set_value("okja.affinity_total", Balance.REL_REGULAR)
+  SaveManager.save_game()
+  var cafe5: Node = CafeScript.new()
+  add_child(cafe5)
+  cafe5.start()
+  await get_tree().process_frame
+  _check(cafe5._cutin != null and cafe5._cutin._stage == "regular",
+    "regular_edge: 단골 도달 → 단골 등극 컷인 발화")
+  _check(String(SaveManager.get_value("flags.announced_stage", "?")) == "regular",
+    "regular_edge: 단골 컷인 후 announced_stage=regular 커밋")
+  cafe5.queue_free()
+  await get_tree().process_frame
+
 
 func _read_save():
   if not FileAccess.file_exists(SAVE_PATH):

@@ -35,7 +35,7 @@ var pending_milestone: Dictionary = {}
 ## 반환: { "was_neglected": bool, "is_new_day": bool, "streak": int }
 ##   streak = 오늘 출석을 반영한 "예정" 연속일(아직 커밋 전이라도 화면엔 이 값을 노출).
 static func evaluate_session() -> Dictionary:
-  var now := int(Time.get_unix_time_from_system())
+  var now := Clock.now()
   var last_saved := int(SaveManager.get_value("last_saved_unix", 0))
 
   # 방치: 마지막 저장 이후 경과시간 (첫 세션 last_saved==0 은 방치 아님)
@@ -44,13 +44,13 @@ static func evaluate_session() -> Dictionary:
     var elapsed_h := float(now - last_saved) / 3600.0
     neglected = elapsed_h >= float(Balance.MOOD_PENALTY_HOURS)
 
-  # 출석: 날짜가 바뀌었나 + 오늘을 반영한 예정 streak
-  var today := Time.get_date_string_from_system()  # 로컬 "YYYY-MM-DD"
+  # 출석: 날짜가 바뀌었나 + 오늘을 반영한 예정 streak (날짜 기준은 Clock 으로 통일=로컬)
+  var today := Clock.today()
   var last_date := String(SaveManager.get_value("attendance.last_date", ""))
   var is_new_day := last_date != today
   var streak := int(SaveManager.get_value("attendance.streak", 0))
   if is_new_day:
-    var yesterday := Time.get_datetime_string_from_unix_time(now - 86400).split("T")[0]
+    var yesterday := Clock.day_string(now - 86400)
     streak = (streak + 1) if (last_date != "" and last_date == yesterday) else 1
 
   return {"was_neglected": neglected, "is_new_day": is_new_day, "streak": streak}
@@ -69,8 +69,8 @@ func begin_session() -> void:
 
   # 2) 일일 회복: 날짜가 바뀌었으면 스태미나 풀 충전 + 세션 누적값 리셋 + 출석 갱신
   if bool(eval["is_new_day"]):
-    var now := int(Time.get_unix_time_from_system())
-    var today := Time.get_date_string_from_system()
+    var now := Clock.now()
+    var today := Clock.today()
     var last_date := String(SaveManager.get_value("attendance.last_date", ""))
     SaveManager.set_value("stamina", Balance.STAMINA_MAX)
     SaveManager.set_value("session.touch_affinity", 0)
@@ -210,7 +210,7 @@ func _recover_mood() -> void:
 func _update_attendance(today: String, last_date: String, now: int) -> int:
   var streak := 1
   if last_date != "":
-    var yesterday := Time.get_datetime_string_from_unix_time(now - 86400).split("T")[0]
+    var yesterday := Clock.day_string(now - 86400)
     if last_date == yesterday:
       streak = int(SaveManager.get_value("attendance.streak", 0)) + 1
   SaveManager.set_value("attendance.last_date", today)

@@ -1,17 +1,15 @@
-extends Node
-## Phase 2(T11 대화·선물·반말 컷인 / T14 마일스톤) 헤드리스 회귀 테스트.
+extends TestBase
+## 콘텐츠/데이터 계약 회귀 테스트 (T23 재설계 — 구 test_phase2 의 콘텐츠 절).
+## Cheki(조각·승급·헌사) · Dialogue(대화·선물·tier) · build_state · 컬렉션북/HUD 빌드 스모크.
+## UI(ChoicePopup/StageCutin)는 디스플레이 의존이라 데이터 계약만 본다(컷인 통합은 test_cutin).
 ##
-## 실행: godot --headless res://tests/test_phase2.tscn
-## (autoload SaveManager 를 쓰므로 --script 가 아니라 씬으로 띄운다.)
-## 순수 로직(Cheki·Dialogue·Meters·Balance)을 SaveManager(autoload) 위에서 검증한다.
-## UI(ChoicePopup/StageCutin/ChekiReveal)는 디스플레이가 필요해 여기선 데이터 계약만 본다.
+## 실행: godot --headless res://tests/test_content.tscn  (전수는 tools/run_tests.sh)
 
-var _pass := 0
-var _fail := 0
+func _init() -> void:
+  _suite = "콘텐츠 계약"
 
 
-func _ready() -> void:
-  print("── Phase 2 테스트 시작 ──")
+func run_suite() -> void:
   _test_cheki_shards()
   _test_milestone_pick()
   _test_dialogue_talk()
@@ -19,86 +17,82 @@ func _ready() -> void:
   _test_tier_affinity()
   _test_build_state()
   _test_first_cheki_nickname()
-  _test_meters_milestone()
-  _test_attendance_status()
   _test_book_smoke()
   _test_t21_expansion()
   _test_hud_attendance()
-  print("── 결과: %d 통과 / %d 실패 ──" % [_pass, _fail])
-  SaveManager.wipe()  # 테스트가 user:// 세이브를 오염시키지 않게 정리(실제 플레이 보호)
-  get_tree().quit(1 if _fail > 0 else 0)
+  await _test_share_smoke()
 
 
 # ── 체키 조각/승급 (T14 기반) ─────────────────────────────
 
 func _test_cheki_shards() -> void:
-  _wipe()
+  wipe()
   # 첫 획득 = 신규 일반
   var r1 := Cheki.grant(Events.OKJA, "mine")
-  _check(bool(r1["was_new"]), "grant 첫 획득 = was_new")
-  _check(r1["grade"] == Cheki.GRADE_COMMON, "grant 첫 획득 = 일반")
-  _check(Cheki.owned(Events.OKJA, "mine"), "획득 후 owned")
+  check(bool(r1["was_new"]), "grant 첫 획득 = was_new")
+  check(r1["grade"] == Cheki.GRADE_COMMON, "grant 첫 획득 = 일반")
+  check(Cheki.owned(Events.OKJA, "mine"), "획득 후 owned")
 
   # 중복 1회 = 조각 +1
   var r2 := Cheki.grant(Events.OKJA, "mine")
-  _check(not bool(r2["was_new"]), "중복은 was_new 아님")
-  _check(int(r2["shards"]) == 1, "중복 1회 → 조각 1 (got %d)" % int(r2["shards"]))
+  check(not bool(r2["was_new"]), "중복은 was_new 아님")
+  check(int(r2["shards"]) == 1, "중복 1회 → 조각 1 (got %d)" % int(r2["shards"]))
 
   # add_shards 로 2개 더 → 3 도달 → 나비 승급
   var r3 := Cheki.add_shards(Events.OKJA, "mine", 2)
-  _check(bool(r3["upgraded"]), "조각 3 도달 → 승급")
-  _check(r3["grade"] == Cheki.GRADE_BUTTERFLY, "승급 후 등급 = 나비")
-  _check(int(r3["shards"]) == 0, "승급 시 조각 리셋 0 (got %d)" % int(r3["shards"]))
-  _check(Cheki.grade(Events.OKJA, "mine") == Cheki.GRADE_BUTTERFLY, "저장된 등급 = 나비")
+  check(bool(r3["upgraded"]), "조각 3 도달 → 승급")
+  check(r3["grade"] == Cheki.GRADE_BUTTERFLY, "승급 후 등급 = 나비")
+  check(int(r3["shards"]) == 0, "승급 시 조각 리셋 0 (got %d)" % int(r3["shards"]))
+  check(Cheki.grade(Events.OKJA, "mine") == Cheki.GRADE_BUTTERFLY, "저장된 등급 = 나비")
 
   # 이미 나비면 add_shards 무효
   var r4 := Cheki.add_shards(Events.OKJA, "mine", 5)
-  _check(r4.is_empty(), "나비 칸 add_shards → 빈 결과(무효)")
+  check(r4.is_empty(), "나비 칸 add_shards → 빈 결과(무효)")
 
   # 미보유 칸 add_shards 무효
   var r5 := Cheki.add_shards(Events.OKJA, "kinder", 1)
-  _check(r5.is_empty(), "미보유 칸 add_shards → 빈 결과(무효)")
+  check(r5.is_empty(), "미보유 칸 add_shards → 빈 결과(무효)")
 
 
 # ── 마일스톤 후보 선택 (T14) ──────────────────────────────
 
 func _test_milestone_pick() -> void:
-  _wipe()
+  wipe()
   # 후보 없음(아무것도 미보유) → 빈 결과
   var none := Cheki.grant_milestone_shards(1)
-  _check(none.is_empty(), "보유 일반 칸 없으면 마일스톤 보상 스킵")
+  check(none.is_empty(), "보유 일반 칸 없으면 마일스톤 보상 스킵")
 
   # 두 일반 칸: okja:mine(조각2), sion:mine(조각0). 승급에 가까운 mine(조각2) 우선.
   Cheki.grant(Events.OKJA, "mine")
   Cheki.add_shards(Events.OKJA, "mine", 2)        # okja:mine 조각 2
   Cheki.grant(Events.SION, "mine")                # sion:mine 조각 0
   var got := Cheki.grant_milestone_shards(1)
-  _check(not got.is_empty(), "보상 칸 선택됨")
-  _check(String(got["character"]) == Events.OKJA, "조각 최다 칸(okja) 우선 선택")
-  _check(bool(got["upgraded"]), "조각 2+1 → 3 → 승급")
+  check(not got.is_empty(), "보상 칸 선택됨")
+  check(String(got["character"]) == Events.OKJA, "조각 최다 칸(okja) 우선 선택")
+  check(bool(got["upgraded"]), "조각 2+1 → 3 → 승급")
 
 
 # ── 대화 토막 (T11) ───────────────────────────────────────
 
 func _test_dialogue_talk() -> void:
   var g := Dialogue.pick_talk("guest", "지은")
-  _check(g.has("prompt") and g.has("choices"), "pick_talk 구조 {prompt,choices}")
-  _check((g["choices"] as Array).size() >= 2, "대화 선택지 2개 이상")
+  check(g.has("prompt") and g.has("choices"), "pick_talk 구조 {prompt,choices}")
+  check((g["choices"] as Array).size() >= 2, "대화 선택지 2개 이상")
   var c0: Dictionary = g["choices"][0]
-  _check(c0.has("label") and c0.has("reply") and c0.has("tier") and c0.has("expr"),
+  check(c0.has("label") and c0.has("reply") and c0.has("tier") and c0.has("expr"),
     "선택지 필드 {label,reply,tier,expr}")
 
   # 단골(regular)은 아직 존댓말 풀, 편해진 사이(comfy)부터 반말 풀(guest 풀과 교집합 없어야 함)
   var guest_prompts := _talk_prompts("guest")
   var reg := Dialogue.pick_talk("regular", "지은")
-  _check(guest_prompts.has(String(reg["prompt"])), "단골(regular) = 아직 존댓말 풀에서 선택")
+  check(guest_prompts.has(String(reg["prompt"])), "단골(regular) = 아직 존댓말 풀에서 선택")
   var comfy := Dialogue.pick_talk("comfy", "지은")
-  _check(not guest_prompts.has(String(comfy["prompt"])), "편해진 사이(comfy) = 반말 풀에서 선택")
+  check(not guest_prompts.has(String(comfy["prompt"])), "편해진 사이(comfy) = 반말 풀에서 선택")
 
   # {nick} 치환 확인 — 토큰이 남아있으면 안 됨
   for _i in range(10):
     var t := Dialogue.pick_talk("guest", "지은")
-    _check(not String(t["prompt"]).contains("{nick}"), "{nick} 치환됨(prompt)")
+    check(not String(t["prompt"]).contains("{nick}"), "{nick} 치환됨(prompt)")
 
 
 func _talk_prompts(stage: String) -> Array:
@@ -112,46 +106,46 @@ func _talk_prompts(stage: String) -> Array:
 
 func _test_dialogue_gift() -> void:
   var choices := Dialogue.gift_choices("guest", "지은")
-  _check(choices.size() == 4, "선물 4종 (got %d)" % choices.size())
+  check(choices.size() == 4, "선물 4종 (got %d)" % choices.size())
   var tiers := {}
   for c in choices:
-    _check((c as Dictionary).has("tier") and (c as Dictionary).has("reply"), "선물 필드 {tier,reply}")
+    check((c as Dictionary).has("tier") and (c as Dictionary).has("reply"), "선물 필드 {tier,reply}")
     tiers[String((c as Dictionary)["tier"])] = true
-  _check(tiers.has("match") and tiers.has("sion") and tiers.has("plain"),
+  check(tiers.has("match") and tiers.has("sion") and tiers.has("plain"),
     "선호 tier 3종(match/sion/plain) 존재")
 
   # icon 키가 팝업까지 전달돼야 함(없으면 텍스트만 fallback이지만, 현재 4종은 모두 슬롯 지정).
   for c in choices:
-    _check((c as Dictionary).has("icon"), "선물 선택지에 icon 키 전달")
-  _check(String((choices[0] as Dictionary)["icon"]) == "icon_gift_1", "첫 선물 아이콘 슬롯 = icon_gift_1")
+    check((c as Dictionary).has("icon"), "선물 선택지에 icon 키 전달")
+  check(String((choices[0] as Dictionary)["icon"]) == "icon_gift_1", "첫 선물 아이콘 슬롯 = icon_gift_1")
 
   # 존댓말(손님·단골) vs 반말(편해진 사이~) 프롬프트가 달라야 함. 단골은 존댓말이라 손님과 동일.
   var pg := Dialogue.gift_prompt("guest")
   var p_regular := Dialogue.gift_prompt("regular")
   var p_comfy := Dialogue.gift_prompt("comfy")
-  _check(pg == p_regular, "선물 프롬프트: 단골(regular)은 존댓말이라 손님과 동일")
-  _check(pg != p_comfy, "선물 프롬프트 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
+  check(pg == p_regular, "선물 프롬프트: 단골(regular)은 존댓말이라 손님과 동일")
+  check(pg != p_comfy, "선물 프롬프트 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
 
   # reply 도 단계별 분기 — 존댓말(guest) ≠ 반말(comfy). 첫 선물 기준.
   var r_guest := String((Dialogue.gift_choices("guest", "지은")[0] as Dictionary)["reply"])
   var r_regular := String((Dialogue.gift_choices("regular", "지은")[0] as Dictionary)["reply"])
   var r_comfy := String((Dialogue.gift_choices("comfy", "지은")[0] as Dictionary)["reply"])
-  _check(r_guest == r_regular, "선물 반응: 단골(regular)은 존댓말이라 손님과 동일")
-  _check(r_guest != r_comfy, "선물 반응 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
+  check(r_guest == r_regular, "선물 반응: 단골(regular)은 존댓말이라 손님과 동일")
+  check(r_guest != r_comfy, "선물 반응 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
 
 
 # ── tier → 호감도 매핑 (Balance 게이트웨이 검증) ─────────────
 # tier→수치는 Balance.aff_talk/aff_gift (data/balance.json 단일 출처) — 서열 일관성을 본다.
 
 func _test_tier_affinity() -> void:
-  _check(Balance.aff_talk("good") > Balance.aff_talk("plain"), "대화 good > plain 호감")
-  _check(Balance.aff_gift("sion") > Balance.aff_gift("match"), "선물 sion > match 호감")
-  _check(Balance.aff_gift("match") > Balance.aff_gift("plain"), "선물 match > plain 호감")
+  check(Balance.aff_talk("good") > Balance.aff_talk("plain"), "대화 good > plain 호감")
+  check(Balance.aff_gift("sion") > Balance.aff_gift("match"), "선물 sion > match 호감")
+  check(Balance.aff_gift("match") > Balance.aff_gift("plain"), "선물 match > plain 호감")
   # 반말 전환(편해진 사이, REL_COMFY) 경계 로직 — 시드 매직넘버가 아니라 임계값에서 파생.
   # comfy 직전(−가장 작은 대화)은 아직 단골, 거기에 가장 작은 대화 한 번이면 comfy 도달.
   var edge := Balance.REL_COMFY - Balance.aff_talk("plain")
-  _check(Balance.relationship_stage(edge) == "regular", "comfy 직전(−plain)은 아직 단골(regular)")
-  _check(Balance.relationship_stage(edge + Balance.aff_talk("plain")) == "comfy",
+  check(Balance.relationship_stage(edge) == "regular", "comfy 직전(−plain)은 아직 단골(regular)")
+  check(Balance.relationship_stage(edge + Balance.aff_talk("plain")) == "comfy",
     "가장 작은 대화 한 번으로 반말 전환(comfy) 도달")
 
 
@@ -161,100 +155,43 @@ func _test_tier_affinity() -> void:
 func _test_build_state() -> void:
   # 빈 opts → 기본 세이브와 동치
   var base := SaveManager.build_state({})
-  _check(base["okja"]["affinity_total"] == 0 and base["flags"]["announced_stage"] == "guest",
+  check(base["okja"]["affinity_total"] == 0 and base["flags"]["announced_stage"] == "guest",
     "build_state({}) = 기본 세이브")
 
   # 단계 지정 → 해당 임계값으로 매핑(매직넘버 없이 의미 단위)
   var reg := SaveManager.build_state({"okja_stage": "regular"})
-  _check(int(reg["okja"]["affinity_total"]) == Balance.REL_REGULAR,
+  check(int(reg["okja"]["affinity_total"]) == Balance.REL_REGULAR,
     "okja_stage=regular → REL_REGULAR")
-  _check(Balance.relationship_stage(int(reg["okja"]["affinity_total"])) == "regular",
+  check(Balance.relationship_stage(int(reg["okja"]["affinity_total"])) == "regular",
     "okja_stage=regular 상태가 실제 regular 로 판정")
 
   # 정확값(okja_affinity) 이 단계보다 우선
   var exact := SaveManager.build_state({"okja_stage": "regular", "okja_affinity": Balance.REL_COMFY - 1})
-  _check(int(exact["okja"]["affinity_total"]) == Balance.REL_COMFY - 1,
+  check(int(exact["okja"]["affinity_total"]) == Balance.REL_COMFY - 1,
     "okja_affinity 가 okja_stage 보다 우선")
 
   # 지정 안 한 키는 기본값 보존
   var named := SaveManager.build_state({"nickname": "지은", "onboarded": true})
-  _check(String(named["player"]["nickname"]) == "지은" and bool(named["flags"]["onboarded"]),
+  check(String(named["player"]["nickname"]) == "지은" and bool(named["flags"]["onboarded"]),
     "nickname/onboarded 반영")
-  _check(int(named["okja"]["affinity_total"]) == 0, "미지정 키(호감도)는 기본값 보존")
+  check(int(named["okja"]["affinity_total"]) == 0, "미지정 키(호감도)는 기본값 보존")
 
 
 # ── 첫 체키 닉 스냅샷 (T06b 온보딩→첫 체키 무결성) ──────────
 # 온보딩이 닉을 저장한 "직후" 첫 체키를 grant 하므로, grant 는 그 닉을 표지 헌사로
 # 박아야 한다(cheki.gd:91). 순서가 뒤집히면 헌사가 "손님"으로 비어 무결성이 깨진다.
 func _test_first_cheki_nickname() -> void:
-  _wipe()
+  wipe()
   SaveManager.set_value("player.nickname", "지은")
   Cheki.grant(Events.OKJA, Events.FIRST_GIFT_EVENT)  # 첫 지뢰계 체키
   var rec := Cheki.record(Events.OKJA, Events.FIRST_GIFT_EVENT)
-  _check(String(rec["nickname"]) == "지은", "첫 체키 헌사 = 획득 시점 닉 스냅샷")
+  check(String(rec["nickname"]) == "지은", "첫 체키 헌사 = 획득 시점 닉 스냅샷")
 
   # 헌사는 첫 획득 시점 고정 — 이후 닉이 바뀌고 중복 획득(나비 조각)해도 안 변한다.
   SaveManager.set_value("player.nickname", "다른닉")
   Cheki.grant(Events.OKJA, Events.FIRST_GIFT_EVENT)  # 중복 → 조각, 헌사 불변
   var rec2 := Cheki.record(Events.OKJA, Events.FIRST_GIFT_EVENT)
-  _check(String(rec2["nickname"]) == "지은", "헌사는 첫 획득 닉으로 고정(이후 닉 변경 무관)")
-
-
-# ── 미터 출석 마일스톤 (T14) ──────────────────────────────
-
-func _test_meters_milestone() -> void:
-  # 3일째 도달: 어제 방문 + 누적 streak 2 → 오늘 begin_session 으로 3 → 마일스톤
-  _wipe()
-  Cheki.grant(Events.OKJA, "mine")  # 보상 적립할 일반 칸 확보
-  var yesterday := _yesterday_str()
-  SaveManager.set_value("attendance.last_date", yesterday)
-  SaveManager.set_value("attendance.streak", 2)
-
-  var m := Meters.new()
-  m.begin_session()
-  _check(not m.pending_milestone.is_empty(), "3일 연속 → 마일스톤 발생")
-  if not m.pending_milestone.is_empty():
-    _check(int(m.pending_milestone["streak"]) == 3, "마일스톤 streak == 3")
-    _check(m.pending_milestone.has("reward"), "마일스톤 reward 동봉")
-  m.free()
-
-  # 비마일스톤 날(2일째): 어제 방문 + streak 1 → 오늘 2 → 마일스톤 아님
-  _wipe()
-  Cheki.grant(Events.OKJA, "mine")
-  SaveManager.set_value("attendance.last_date", _yesterday_str())
-  SaveManager.set_value("attendance.streak", 1)
-  var m2 := Meters.new()
-  m2.begin_session()
-  _check(m2.pending_milestone.is_empty(), "2일째는 마일스톤 아님")
-  m2.free()
-
-
-# ── 출석 진행 표시 (T14 컬렉션북/HUD) ─────────────────────
-
-func _test_attendance_status() -> void:
-  _wipe()
-  # streak 1 → 다음 마일스톤 3, 2일 남음
-  SaveManager.set_value("attendance.streak", 1)
-  var s1 := Meters.attendance_status()
-  _check(int(s1["next"]) == 3, "streak 1 → 다음 마일스톤 3 (got %d)" % int(s1["next"]))
-  _check(int(s1["remaining"]) == 2, "streak 1 → 2일 남음 (got %d)" % int(s1["remaining"]))
-
-  # streak 3(3일 받은 직후) → 다음은 7, 4일 남음
-  SaveManager.set_value("attendance.streak", 3)
-  var s3 := Meters.attendance_status()
-  _check(int(s3["next"]) == 7, "streak 3 → 다음 마일스톤 7")
-  _check(int(s3["remaining"]) == 4, "streak 3 → 7일까지 4일 남음 (got %d)" % int(s3["remaining"]))
-
-  # streak 7+ → 더 이상 마일스톤 없음(next 0)
-  SaveManager.set_value("attendance.streak", 9)
-  var s9 := Meters.attendance_status()
-  _check(int(s9["next"]) == 0, "streak 9 → 남은 마일스톤 없음(next 0)")
-  _check(int(s9["streak"]) == 9, "streak 값 그대로 노출")
-
-
-func _yesterday_str() -> String:
-  var now := int(Time.get_unix_time_from_system())
-  return Time.get_datetime_string_from_unix_time(now - 86400).split("T")[0]
+  check(String(rec2["nickname"]) == "지은", "헌사는 첫 획득 닉으로 고정(이후 닉 변경 무관)")
 
 
 # ── 컬렉션북 인스턴스화 스모크 (출석 스트립 빌드 포함) ──────────
@@ -262,7 +199,7 @@ func _yesterday_str() -> String:
 ## streak 별로 next>0(핍+남은일) / next==0(다 모음) 두 분기를 모두 태운다.
 
 func _test_book_smoke() -> void:
-  _wipe()
+  wipe()
   Cheki.grant(Events.OKJA, "mine")
 
   for streak in [1, 9]:
@@ -270,11 +207,11 @@ func _test_book_smoke() -> void:
     var book := CollectionBook.new()
     add_child(book)            # _ready() 동기 실행 → 빌드 크래시 시 콘솔 에러
     var built := is_instance_valid(book) and book.get_child_count() > 0
-    _check(built, "컬렉션북 빌드 OK (streak=%d)" % streak)
+    check(built, "컬렉션북 빌드 OK (streak=%d)" % streak)
     book.free()
 
   # 책이 열린 채 체키가 지급되면(디버그 키 4 — 리빌이 책 위에 뜸) refresh() 로 즉시 반영돼야 함.
-  _wipe()
+  wipe()
   var ev := Cheki.pick_today(Events.OKJA)
   var b2 := CollectionBook.new()
   add_child(b2)                # 미보유 상태로 슬롯 빌드
@@ -284,7 +221,7 @@ func _test_book_smoke() -> void:
   for s in b2._slots:
     if s.character == Events.OKJA and s.event == ev and s.is_owned():
       owned_after = true
-  _check(owned_after, "책 열린 채 지급 → refresh() 로 '%s' 칸 반영" % ev)
+  check(owned_after, "책 열린 채 지급 → refresh() 로 '%s' 칸 반영" % ev)
   b2.free()
 
 
@@ -292,7 +229,7 @@ func _test_book_smoke() -> void:
 ## 잠긴 탭 활성화 → 확장 슬라이드 발화, 옥자 그리드 끝 "한정" 슬롯 존재·탭 비모달.
 
 func _test_t21_expansion() -> void:
-  _wipe()
+  wipe()
   var book := CollectionBook.new()
   add_child(book)  # _ready 동기 빌드(okja 그리드 = 이벤트 + 한정 슬롯)
 
@@ -301,60 +238,76 @@ func _test_t21_expansion() -> void:
   for s in book._slots:
     if s.is_limited():
       limited_count += 1
-  _check(limited_count == 1, "옥자 그리드에 한정 슬롯 1칸 (got %d)" % limited_count)
+  check(limited_count == 1, "옥자 그리드에 한정 슬롯 1칸 (got %d)" % limited_count)
   var expected := Events.events_for(Events.OKJA).size() + 1
-  _check(book._slots.size() == expected,
+  check(book._slots.size() == expected,
     "옥자 슬롯 = 이벤트 %d + 한정 1 = %d (got %d)" % [expected - 1, expected, book._slots.size()])
 
   # 잠긴 탭(바나=index 2) 활성화 → 확장 슬라이드 발화.
-  _check(book._slide == null, "초기엔 슬라이드 없음")
+  check(book._slide == null, "초기엔 슬라이드 없음")
   book._on_tab(2)
-  _check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
-  _check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
+  check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
+  check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
   # 슬라이드 떠 있으면 셸 입력이 슬라이드로 위임됨(CANCEL 닫기 경로) — 크래시 없이 호출되는지.
   book.handle_shell_action(&"cancel")
-  _check(true, "슬라이드 열린 채 CANCEL 위임 크래시 0")
+  check(true, "슬라이드 열린 채 CANCEL 위임 크래시 0")
   book.free()
 
   # 한정 슬롯 단독 빌드 — STATE_LIMITED 렌더 + 비보유.
   var slot := ChekiSlot.new()
   slot.setup_limited()
   add_child(slot)
-  _check(slot.is_limited() and not slot.is_owned(), "한정 슬롯: is_limited & 비보유")
-  _check(slot.state == ChekiSlot.STATE_LIMITED, "한정 슬롯 상태 = limited")
+  check(slot.is_limited() and not slot.is_owned(), "한정 슬롯: is_limited & 비보유")
+  check(slot.state == ChekiSlot.STATE_LIMITED, "한정 슬롯 상태 = limited")
   slot.free()
+
+
+# ── 공유 합성/저장 스모크 (② 부분 방어선) ──────────────────
+## 공유 이미지 합성(SubViewport)→네이티브 저장(user://shares PNG) 경로가 크래시 없이 도는지.
+## 웹 분기(JavaScriptBridge Web Share/다운로드)는 헤드리스 검증 불가 → 실기기 디바이스 세션 몫.
+## 헤드리스에서 렌더가 비는 경우(더미 렌더러)엔 파일 단언을 건너뛰고 무크래시만 본다(거짓 실패 방지).
+func _test_share_smoke() -> void:
+  wipe()
+  SaveManager.set_value("player.nickname", "지은")
+  var dir := "user://shares"
+  var card := ShareCard.new()
+  card.setup(Events.OKJA, Events.FIRST_GIFT_EVENT, false, "지은", Clock.now())
+  add_child(card)                       # _ready → _compose_async(코루틴) 시작
+  # 합성 코루틴(프레임 렌더 대기)이 끝나도록 몇 프레임 흘린다.
+  for _i in range(6):
+    await get_tree().process_frame
+  check(is_instance_valid(card), "ShareCard 합성까지 크래시 0")
+
+  if card._image != null:
+    card._save()                        # 비웹 경로: user://shares/*.png 저장
+    var found := false
+    var d := DirAccess.open(dir)
+    if d:
+      for f in d.get_files():
+        if f.ends_with(".png"):
+          found = true
+          d.remove(f)                   # 테스트 산출물 정리
+      DirAccess.remove_absolute(ProjectSettings.globalize_path(dir))
+    check(found, "공유 합성 이미지 → user://shares PNG 저장")
+  else:
+    print("    · (헤드리스 렌더 없음 — 공유 PNG 저장은 실기기/로컬 GUI 에서 확인)")
+  card.free()
 
 
 ## HUD 출석 라인이 빌드되고 streak 별로 올바른 문구를 만드는지(빌드 크래시 0 + 텍스트 분기).
 func _test_hud_attendance() -> void:
-  _wipe()
+  wipe()
   var hud := Hud.new()
   add_child(hud)              # _ready() 동기 실행
 
   SaveManager.set_value("attendance.streak", 1)
   hud.refresh()
   # streak 1 → 3일 마일스톤까지 2일 남음
-  _check(hud._attend.text.contains("출석 1일") and hud._attend.text.contains("2일"),
+  check(hud._attend.text.contains("출석 1일") and hud._attend.text.contains("2일"),
     "HUD 출석 라인: streak 1 → 다음 보상까지 2일 (got '%s')" % hud._attend.text)
 
   SaveManager.set_value("attendance.streak", 9)
   hud.refresh()
-  _check(hud._attend.text.contains("다 모음"),
+  check(hud._attend.text.contains("다 모음"),
     "HUD 출석 라인: streak 9 → 보상 다 모음 (got '%s')" % hud._attend.text)
   hud.free()
-
-
-# ── 헬퍼 ─────────────────────────────────────────────────
-
-## 세이브를 기본값으로 비운다(테스트 격리).
-func _wipe() -> void:
-  SaveManager.data = SaveManager.default_save()
-
-
-func _check(cond: bool, name: String) -> void:
-  if cond:
-    _pass += 1
-    print("  ✓ ", name)
-  else:
-    _fail += 1
-    print("  ✗ 실패: ", name)

@@ -103,7 +103,7 @@ func load_game() -> void:
 ## 세이브 저장. JSON 으로 직렬화해 user:// 에 기록한다(웹은 IndexedDB 자동 영속).
 ## 반환값: 성공 여부.
 func save_game() -> bool:
-  data["last_saved_unix"] = int(Time.get_unix_time_from_system())
+  data["last_saved_unix"] = Clock.now()  # Clock seam: 테스트가 방치 경과시간을 제어할 수 있게
 
   var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
   if f == null:
@@ -173,6 +173,15 @@ func apply_dev_preset(preset: String) -> void:
         "onboarded": true,
         "announced_stage": "regular",
         "okja_affinity": Balance.REL_COMFY - 1,
+      }
+    "regular_edge":
+      # 단골(REL_REGULAR) 직전 — 한 번의 교감으로 단골 등극, 다음 입장에 단골 인사 비트가 터지게.
+      # announced=guest 라 손님→단골 알림이 살아있다(comfy_edge 와 대칭인 '단골 직전' 데모/픽스처).
+      opts = {
+        "nickname": "지은",
+        "onboarded": true,
+        "announced_stage": "guest",
+        "okja_affinity": Balance.REL_REGULAR - 1,
       }
     _:
       push_warning("[Save] 알 수 없는 dev preset: %s → 기본값" % preset)

@@ -4,11 +4,12 @@ extends Node
 ## release 웹 export(데모 배포)에선 생성되지 않으므로 일반 플레이어에겐 노출 0.
 ##
 ##   1 = 완전 초기화(세이브 삭제) → 온보딩부터 (fresh new game)
-##   2 = 개발 프리셋(반말 전환 직전 · 온보딩 스킵) → 바로 교감 화면 (apply_dev_preset)
+##   2 = 개발 프리셋: 반말 전환 직전(comfy_edge) · 온보딩 스킵 → 바로 교감 화면
 ##   3 = 현재 씬 리로드(세이브 유지) — 입장 연출/하루치 다시 보기
 ##   4 = 옥자 "오늘의 체키" 즉시 획득(게이지 풀 → 획득 리빌) — 컬렉션북(T16) 전 카드 확인용
 ##   5 = 연속출석 마일스톤(3일) 나비 조각 보상 리빌 — T14 확인용(3일 접속 없이 즉시)
 ##   6 = 시온이 "오늘의 체키" 즉시 획득(게이지 풀 → 획득 리빌) — 시온이 카드 확인용
+##   7 = 개발 프리셋: 단골 등극 직전(regular_edge) · 온보딩 스킵 → 단골 인사 비트 시연
 ##
 ## (숫자열 키 — 노트북 Fn 조합 불필요. F5/Ctrl+R 같은 웹 새로고침과도 충돌 없음.)
 ## 셸(shell.gd)은 자기 KEYMAP(TAB/방향/스페이스/ESC 등)만 가로채므로 1~6 은 여기로 온다.
@@ -20,6 +21,7 @@ const KEYS := {
   KEY_4: "cheki",
   KEY_5: "milestone",
   KEY_6: "cheki_sion",
+  KEY_7: "dev_preset_regular",
 }
 
 
@@ -31,7 +33,10 @@ func _unhandled_input(event: InputEvent) -> void:
       SaveManager.wipe()  # 파일 삭제 + 메모리 default → onboarded=false
       _reload()
     "dev_preset":
-      SaveManager.apply_dev_preset("comfy_edge")  # 개발 프리셋(반말 전환 직전, onboarded=true)
+      SaveManager.apply_dev_preset("comfy_edge")  # 반말 전환 직전(onboarded=true)
+      _reload()
+    "dev_preset_regular":
+      SaveManager.apply_dev_preset("regular_edge")  # 단골 등극 직전(onboarded=true)
       _reload()
     "reload":
       _reload()
