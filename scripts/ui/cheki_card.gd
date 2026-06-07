@@ -69,7 +69,7 @@ func setup(character: String, event: String, butterfly: bool, nickname: String, 
     _costume.texture = null
     _costume.visible = false
   else:
-    _bg.texture = _tex(Events.cheki_bg_path(event))
+    _bg.texture = _tex(Events.cheki_bg_path(character, event))
     _costume.visible = true
     _costume.texture = _tex(Events.cheki_costume_path(character, event))
   _frame.texture = _tex(Events.cheki_frame_path(event, butterfly))

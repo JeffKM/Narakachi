@@ -2,7 +2,7 @@
 
 > 워크플로우 B: **AI는 형태·색감만, 규격은 `tools/dotify.py`가 강제.** (→ [tools/README.md](../tools/README.md))
 > ADR 0001 파이프라인 = **실물 사진 → AI 도트화**. 상상 생성이 아니라 **사진 변환(img2img)**이 기본이다 — 인물 고증·일관성을 위해.
-> 이 파일은 **캐릭터에 종속되지 않는 공용 에셋**(체키 합성 조각·프레임·배경·UI·셸·디오라마)을 모은다. 캐릭터별 스탠딩·의상은 분리 파일 참조:
+> 이 파일은 **공용 에셋·베이스 프롬프트**(체키 합성 조각·프레임·UI·셸·디오라마)를 모은다. 프레임은 이벤트 데이 공통이라 여기 산다. **체키 사진 배경은 캐릭터×이벤트별**(개정 2026-06-07 → ADR 0003)이라 여기 있는 건 **옥자 버전 겸 베이스**이고, 다른 멤버 변주는 각 캐릭터 파일에 둔다. 캐릭터별 스탠딩·의상도 분리 파일 참조:
 > [옥자](./gemini-prompts-okja.md) · [시온이](./gemini-prompts-sion.md) · [미호](./gemini-prompts-miho.md) · (허브: [gemini-prompts.md](./gemini-prompts.md))
 
 ## 핵심 원칙 (왜 이렇게 쓰나)
@@ -111,7 +111,7 @@ no rounded corners cut off, no off-center window, no asymmetry.
 
 ### 뒷면 사진 프레임 — 지뢰계 테마 (`frame_jirai`, 나비체키용)
 
-> 표준 프레임(`frame_standard`)과 **골격·규격·누끼 방식 동일** — 테두리 데코만 갈아끼운 변형. 사진 창은 여전히 **순수 크로마 그린**(배경은 `bg_cheki_jirai`가 별도 레이어로 책임지고, 의상 누끼가 그 위에 합성됨). **배경(시부야풍 네온 밤거리)과 같은 네온 야경 팔레트로 통일** — 양피지/세피아가 아니라 **네이비·블랙 베이스 + 네온 핑크·퍼플 튜브 글로우**. 밤거리 사진 위에 **네온 사인틀**을 두른 느낌이라 의상·배경과 한 세트로 붙는다(지뢰계 디테일=글로우 하트·별·리본·십자가·은 체인).
+> 표준 프레임(`frame_standard`)과 **골격·규격·누끼 방식 동일** — 테두리 데코만 갈아끼운 변형. 사진 창은 여전히 **순수 크로마 그린**(배경은 `bg_cheki_{char}_jirai`가 별도 레이어로 책임지고, 의상 누끼가 그 위에 합성됨). **배경(시부야풍 네온 밤거리)과 같은 네온 야경 팔레트로 통일** — 양피지/세피아가 아니라 **네이비·블랙 베이스 + 네온 핑크·퍼플 튜브 글로우**. 밤거리 사진 위에 **네온 사인틀**을 두른 느낌이라 의상·배경과 한 세트로 붙는다(지뢰계 디테일=글로우 하트·별·리본·십자가·은 체인).
 > **🔑 규격(표준과 동일)**: 카드 `120×180`, 얇은 균일 테두리 `~6px` + 사진 창 `~108×162`(카드의 ~90%). 사진 창만 크로마 그린, 테두리만 불투명. 캡션 스트립 없음(데이 라벨은 런타임 오버레이). 로고·워드마크·QR 없음(표지로 갔다).
 > **🔑 글로우 도트 주의**: 네온 글로우는 **소프트 블러가 아니라 2~3단 계단형 플랫 픽셀 헤일로**로(→ ADR 0001 Nearest·노 그라데이션). 그라데이션·번짐 금지.
 
@@ -146,9 +146,9 @@ no rounded corners cut off, no off-center window, no asymmetry.
 
 > ⚠️ **검수 포인트**: ① 사진 창이 **순수 크로마 그린 한 덩어리**(표준과 같은 `~108×162`)인지 ② 테두리가 **네온 야경 톤**(네이비·블랙 + 네온 핑크·퍼플 튜브 글로우 + 글로우 하트·별·리본·십자가·체인)이라 **배경 밤거리와 한 세트**로 붙는지 — 세피아 양피지로 새지 않았는지 ③ 글로우가 **소프트 블러가 아니라 계단형 플랫 도트**인지 ④ 로고·QR·캡션 스트립이 없는지 ⑤ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/frame_jirai.png`.
 
-### 체키 사진 배경 — 지뢰계 (`bg_cheki_jirai`, 의상 종속 레이어)
+### 체키 사진 배경 — 지뢰계 (`bg_cheki_okja_jirai`, 캐릭터×이벤트별 · 옥자 버전 겸 베이스)
 
-> **왜 별도 레이어인가**: 캐릭터 의상 아트(`okja_jirai` · `miho_jirai` 등)는 **누끼(투명 배경)** 라 사진 창에 그대로 얹으면 뒤가 빈다. 그래서 사진 면은 `[배경 레이어] + [의상 누끼] + [사진 프레임 테두리]` **3겹 합성**(→ ADR 0003)이고, 이 배경은 **의상(이벤트)에 종속** — 지뢰계 캐릭터 뒤엔 지뢰계 풍경. 등급이 프레임을 표준↔테마로 스왑해도 배경은 항상 유지된다. **같은 지뢰계 배경을 캐릭터들이 공유**(옥자·미호 모두 이 밤거리 앞에서 찍은 한 컷).
+> **왜 별도 레이어인가**: 캐릭터 의상 아트(`okja_jirai` · `miho_jirai` 등)는 **누끼(투명 배경)** 라 사진 창에 그대로 얹으면 뒤가 빈다. 그래서 사진 면은 `[배경 레이어] + [의상 누끼] + [사진 프레임 테두리]` **3겹 합성**(→ ADR 0003)이고, 이 배경은 **캐릭터×이벤트별**(개정 2026-06-07) — 멤버마다 자기 지뢰계 의상에 맞춘 배경을 따로 둔다(`bg_cheki_{char}_jirai`). 등급이 프레임을 표준↔테마로 스왑해도 배경은 항상 유지된다. **아래 프롬프트는 옥자 버전(`bg_cheki_okja_jirai`)이자 다른 멤버가 재테마할 베이스** — 멤버별로 **장면·스팟은 달리하되, 공통 프레임(`frame_jirai`)과 짝이라 네온 야경 팔레트(네이비·블랙 + 네온 핑크·퍼플)는 유지**한다.
 > **🔑 무드(풍경)**: 평면 패턴 벽이 아니라 **실제 장소감 있는 풍경** — 지뢰계 정체성에 맞는 **시부야풍 네온 밤거리**. 캐릭터가 "그 앞에서 찍은 스냅샷"처럼 보여야 해서, **중앙은 흐릿한 보케/심플**(누끼 캐릭터 상반신이 그 앞에 서니 가독성 확보)하고 네온사인·간판 디테일은 위·옆으로 민다.
 > **🔑 규격**: **카드 풀사이즈 `120×180` 불투명**(누끼 X, 크로마 X). 프레임 테두리(불투명)가 바깥을 덮으니 실제로 보이는 건 사진 창(`~108×162`) 영역. 네온 글로우로 가장자리를 채우되 중앙 하단(발치)은 비교적 비운다.
 
@@ -178,8 +178,8 @@ no busy/cluttered center, no large object in the middle blocking the character,
 no smooth gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
 ```
 
-> ⚠️ **검수 포인트**: ① **완전 불투명**인지(투명·크로마 그린이 한 픽셀도 없어야 — 누끼 캐릭터를 받쳐야 함) ② **풍경(장소감)**인지 — 평면 패턴 벽으로 새지 않았는지 ③ **중앙(특히 하단 발치)이 비교적 비어** 캐릭터가 읽히는지 ④ 간판 글자가 **읽히는 실제 글자가 아닌** 추상 네온인지(저작권·가독 방해 회피) ⑤ 네온 핑크/퍼플 야경이 마스터 팔레트(~32색)에 인덱싱되는지. 저장: `assets/sprites/bg_cheki_jirai.png`.
-> 💡 **다른 의상도 같은 풍경 레이어** — 유치원=햇살 놀이터, 힙합=그래피티 골목/도시, 집사=앤틱 저택 홀, 크리스마스=눈 내리는 거리로 **장소만 갈아끼운다**(아래 4종 참조).
+> ⚠️ **검수 포인트**: ① **완전 불투명**인지(투명·크로마 그린이 한 픽셀도 없어야 — 누끼 캐릭터를 받쳐야 함) ② **풍경(장소감)**인지 — 평면 패턴 벽으로 새지 않았는지 ③ **중앙(특히 하단 발치)이 비교적 비어** 캐릭터가 읽히는지 ④ 간판 글자가 **읽히는 실제 글자가 아닌** 추상 네온인지(저작권·가독 방해 회피) ⑤ 네온 핑크/퍼플 야경이 마스터 팔레트(~32색)에 인덱싱되는지. 저장: `assets/sprites/bg_cheki_okja_jirai.png`(옥자). 멤버별은 `bg_cheki_{char}_jirai`.
+> 💡 **이벤트마다 장소 테마**(유치원=햇살 놀이터, 힙합=그래피티 골목/도시, 집사=앤틱 저택 홀, 크리스마스=눈 내리는 거리, 아래 4종 참조), 그리고 **그 안에서 멤버마다 스팟·연출을 달리**해 자기 의상에 맞춘다(공통 프레임과 짝이라 이벤트 팔레트는 유지). 캐릭터 고유 배경 변주는 각 캐릭터 프롬프트 파일 참조(예: [미호](./gemini-prompts-miho.md)).
 
 ---
 
@@ -254,11 +254,12 @@ Composition: one BIG centered photo window framed by a holly wreath + symmetric 
 
 ---
 
-## 체키 사진 배경 4종 (유치원·힙합·집사·크리스마스)
+## 체키 사진 배경 4종 — 옥자 (유치원·힙합·집사·크리스마스)
 
 > **베이스 = 위 "체키 사진 배경 — 지뢰계" 프롬프트.** 규격(`120×180` **완전 불투명**, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케) 그대로 두고 **장소(Scene)만** 교체. 짝 프레임과 같은 팔레트. 배경은 **완전 불투명**이라 원래도 크로마가 없다 — 크리스마스 배경도 마젠타 걱정 없이 `--size 120x180`으로 뽑는다.
+> 📌 **파일명은 `bg_cheki_okja_{slug}`**(이 4종은 옥자 버전 — 개정 2026-06-07). 다른 멤버는 같은 이벤트 팔레트·규격을 유지하되 **스팟·연출을 자기 의상에 맞춰** `bg_cheki_{char}_{slug}`로 따로 뽑는다.
 
-**`bg_cheki_kinder` (유치원)**
+**`bg_cheki_okja_kinder` (유치원)**
 ```
 Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a sunny KINDERGARTEN PLAYGROUND.
 NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
@@ -272,7 +273,7 @@ FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywher
 Color mood: bright sunny day — sky blue, sunny yellow, grass green, candy red, white.
 ```
 
-**`bg_cheki_hiphop` (힙합)**
+**`bg_cheki_okja_hiphop` (힙합)**
 ```
 Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a GRAFFITI ALLEY / city street at dusk.
 NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
@@ -286,7 +287,7 @@ FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywher
 Color mood: urban dusk — concrete gray, brick red, vivid spray-paint green / magenta / blue, warm lamp amber.
 ```
 
-**`bg_cheki_butler` (집사)**
+**`bg_cheki_okja_butler` (집사)**
 ```
 Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — an ANTIQUE MANSION HALL.
 NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
@@ -300,7 +301,7 @@ FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywher
 Color mood: refined antique — deep wine walls, antique gold, warm candle glow, ivory marble.
 ```
 
-**`bg_cheki_xmas` (크리스마스)**
+**`bg_cheki_okja_xmas` (크리스마스)**
 ```
 Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a SNOWY NIGHT STREET.
 NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
@@ -668,9 +669,9 @@ tools/.venv/bin/python tools/dotify.py frame_standard_raw.png \
 # 지뢰계 테마 프레임 (표준 골격 + 테두리만 지뢰계 데코, 사진 창은 동일하게 크로마 그린)
 tools/.venv/bin/python tools/dotify.py frame_jirai_raw.png \
   --preset cheki --chroma 00ff00 --out assets/sprites/frame_jirai.png
-# 체키 사진 배경 — 지뢰계 (120×180 불투명, 누끼 X — 누끼 캐릭터 뒤에 깔리는 의상 종속 레이어)
-tools/.venv/bin/python tools/dotify.py bg_cheki_jirai_raw.png \
-  --size 120x180 --out assets/sprites/bg_cheki_jirai.png
+# 체키 사진 배경 — 지뢰계 옥자 (120×180 불투명, 누끼 X — 누끼 캐릭터 뒤에 깔리는 캐릭터×이벤트별 레이어)
+tools/.venv/bin/python tools/dotify.py bg_cheki_okja_jirai_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_okja_jirai.png
 
 # 체키 앞면 표지 — 파치먼트 배경 (120×180, 불투명 카드, 누끼 없음)
 tools/.venv/bin/python tools/dotify.py frame_cover_bg_raw.png \
@@ -694,15 +695,15 @@ tools/.venv/bin/python tools/dotify.py frame_butler_raw.png \
 tools/.venv/bin/python tools/dotify.py frame_xmas_raw.png \
   --preset cheki --chroma ff00ff --out assets/sprites/frame_xmas.png
 
-# ── 체키 사진 배경 4종 (120×180 불투명, 누끼 X — 의상 누끼를 받치는 풍경 레이어) ──
-tools/.venv/bin/python tools/dotify.py bg_cheki_kinder_raw.png \
-  --size 120x180 --out assets/sprites/bg_cheki_kinder.png
-tools/.venv/bin/python tools/dotify.py bg_cheki_hiphop_raw.png \
-  --size 120x180 --out assets/sprites/bg_cheki_hiphop.png
-tools/.venv/bin/python tools/dotify.py bg_cheki_butler_raw.png \
-  --size 120x180 --out assets/sprites/bg_cheki_butler.png
-tools/.venv/bin/python tools/dotify.py bg_cheki_xmas_raw.png \
-  --size 120x180 --out assets/sprites/bg_cheki_xmas.png
+# ── 체키 사진 배경 4종 — 옥자 (120×180 불투명, 누끼 X — 의상 누끼를 받치는 풍경 레이어) ──
+tools/.venv/bin/python tools/dotify.py bg_cheki_okja_kinder_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_okja_kinder.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_okja_hiphop_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_okja_hiphop.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_okja_butler_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_okja_butler.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_okja_xmas_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_okja_xmas.png
 
 # ── 무대·UI·셸 ──
 # 나라카 지옥 배경 v1 (333×480, 크로마키 없음 — 보관용, 현재는 bg_naraka v2 사용)

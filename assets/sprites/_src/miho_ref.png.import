@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dl4psqp60jmdu"
-path="res://.godot/imported/bg_cheki_kinder.png-993f50c70c167492da18e4fe8c676554.ctex"
+uid="uid://h8ud44c5dwtw"
+path="res://.godot/imported/miho_ref.png-0bdaa045e9bbabc70d8749a082d8d881.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/bg_cheki_kinder.png"
-dest_files=["res://.godot/imported/bg_cheki_kinder.png-993f50c70c167492da18e4fe8c676554.ctex"]
+source_file="res://assets/sprites/_src/miho_ref.png"
+dest_files=["res://.godot/imported/miho_ref.png-0bdaa045e9bbabc70d8749a082d8d881.ctex"]
 
 [params]
 

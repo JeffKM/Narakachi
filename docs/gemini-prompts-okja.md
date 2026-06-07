@@ -124,7 +124,7 @@ no plain flat shoes, no over-sexualized outfit (keep it cute girly-grunge, age-s
 > ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(옥자 정체성) 일관성 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 레오파드/데님/체인은 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/okja_jirai.png`.
 > 💡 신발 사진 첨부가 안 되면(2장만 지원), `Shoes:` 줄의 텍스트 묘사만으로도 충분하다 — 3번 이미지 참조 문구만 지운다.
 > 📌 **나머지 4종 의상(유치원·힙합·집사·크리스마스)도 같은 방식** — 모두 체키 카드용 정적 아트라 포즈·머리색 자유. 이 프롬프트를 베이스로 의상·신발 레퍼런스만 갈아끼우면 된다.
-> 🃏 **체키 합성 레이어**: 지뢰계 옥자 체키 = `okja_jirai`(누끼) + 공용 `bg_cheki_jirai` + 공용 `frame_jirai`(→ [공통 파일](./gemini-prompts-common.md)).
+> 🃏 **체키 합성 레이어**: 지뢰계 옥자 체키 = `okja_jirai`(누끼) + **옥자 배경 `bg_cheki_okja_jirai`**(캐릭터×이벤트별 → ADR 0003 개정 2026-06-07) + 이벤트 공통 `frame_jirai`(→ [공통 파일](./gemini-prompts-common.md)). 옥자 배경 4종(유치원·힙합·집사·크리스마스)도 모두 `bg_cheki_okja_{slug}`.
 
 ---
 

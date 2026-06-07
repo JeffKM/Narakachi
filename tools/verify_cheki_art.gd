@@ -19,7 +19,7 @@ func _initialize() -> void:
       if ResourceLoader.exists(baked):
         layers.append(["photo", baked])
       else:
-        layers.append(["bg", Events.cheki_bg_path(ev)])
+        layers.append(["bg", Events.cheki_bg_path(ch, ev)])
         layers.append(["costume", Events.cheki_costume_path(ch, ev)])
       # 프레임: 일반(표준) + 나비(테마) 둘 다 확인
       layers.append(["frame_std", Events.cheki_frame_path(ev, false)])

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://gtn6h6tbbywa"
-path="res://.godot/imported/bg_cheki_hiphop.png-0987bd3e15019a4a6f77be4c000c7705.ctex"
+uid="uid://brk3x1l48midv"
+path="res://.godot/imported/bg_cheki_okja_jirai.png-77c0698c5f586abfe2a1ccdef3bbc17a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/bg_cheki_hiphop.png"
-dest_files=["res://.godot/imported/bg_cheki_hiphop.png-0987bd3e15019a4a6f77be4c000c7705.ctex"]
+source_file="res://assets/sprites/bg_cheki_okja_jirai.png"
+dest_files=["res://.godot/imported/bg_cheki_okja_jirai.png-77c0698c5f586abfe2a1ccdef3bbc17a.ctex"]
 
 [params]
 

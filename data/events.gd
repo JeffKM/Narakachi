@@ -9,7 +9,7 @@ const OKJA := "okja"
 const SION := "sion"
 
 ## 이벤트 정의: id → { name(표시명), slug(에셋 파일 접미사), okja, sion, theme(나비 테마 프레임 메모) }
-## ⚠️ id 와 slug 는 다를 수 있다 — id="mine"(지뢰계)의 에셋 접미사는 "jirai"(okja_jirai/bg_cheki_jirai/frame_jirai).
+## ⚠️ id 와 slug 는 다를 수 있다 — id="mine"(지뢰계)의 에셋 접미사는 "jirai"(okja_jirai/bg_cheki_okja_jirai/frame_jirai).
 const LIST := {
   "mine":   {"name": "지뢰계", "slug": "jirai",  "okja": true,  "sion": true,  "theme": "메탈하트·리본"},
   "kinder": {"name": "유치원", "slug": "kinder", "okja": true,  "sion": false, "theme": "크레용·무지개"},
@@ -74,7 +74,7 @@ static func events_for(character: String) -> Array:
 
 
 # ── 체키 카드 합성 레이어 에셋 경로 (→ ADR 0003) ─────────────────
-# 사진 면 = [배경 bg_cheki_*] + [의상 누끼 {char}_{slug}] + [테마/표준 프레임]
+# 사진 면 = [배경 bg_cheki_{char}_{slug}] + [의상 누끼 {char}_{slug}] + [테마/표준 프레임]
 # 단, photo_{char}_{slug} 베이크 컷이 있으면 배경+의상을 그 한 장으로 대체한다(아래 참조).
 
 ## 사진 면을 단일 "베이크 컷"(배경+의상이 한 장에 그려진 풀신 사진)으로 쓸 경우의 경로.
@@ -90,9 +90,10 @@ static func cheki_costume_path(character: String, event: String) -> String:
   return "res://assets/sprites/%s_%s.png" % [character, event_slug(event)]
 
 
-## 사진 면 배경(불투명 풍경) 경로. 의상(이벤트)별.
-static func cheki_bg_path(event: String) -> String:
-  return "res://assets/sprites/bg_cheki_%s.png" % event_slug(event)
+## 사진 면 배경(불투명 풍경) 경로. 캐릭터×이벤트별 — 멤버마다 그 이벤트 데이 의상에 맞춘 배경.
+## (ADR 0003 개정 2026-06-07: 기존 "이벤트별 공유"에서 "캐릭터×이벤트"로 변경)
+static func cheki_bg_path(character: String, event: String) -> String:
+  return "res://assets/sprites/bg_cheki_%s_%s.png" % [character, event_slug(event)]
 
 
 ## 사진 면 테두리 프레임 경로. 나비 = 이벤트 테마 프레임, 일반 = 표준 프레임.

@@ -121,14 +121,14 @@
           "path": "assets/sprites/frame_jirai.png"
         },
         {
-          "id": "bg_cheki_jirai",
-          "label": "체키 사진 배경 — 지뢰계",
+          "id": "bg_cheki_okja_jirai",
+          "label": "체키 사진 배경 — 지뢰계 (옥자)",
           "size": [
             120,
             180
           ],
           "transparent": false,
-          "path": "assets/sprites/bg_cheki_jirai.png"
+          "path": "assets/sprites/bg_cheki_okja_jirai.png"
         }
       ]
     },
@@ -273,34 +273,34 @@
           "path": "assets/sprites/frame_butler.png"
         },
         {
-          "id": "bg_cheki_kinder",
-          "label": "체키 사진 배경 — 유치원",
+          "id": "bg_cheki_okja_kinder",
+          "label": "체키 사진 배경 — 유치원 (옥자)",
           "size": [
             120,
             180
           ],
           "transparent": false,
-          "path": "assets/sprites/bg_cheki_kinder.png"
+          "path": "assets/sprites/bg_cheki_okja_kinder.png"
         },
         {
-          "id": "bg_cheki_hiphop",
-          "label": "체키 사진 배경 — 힙합",
+          "id": "bg_cheki_okja_hiphop",
+          "label": "체키 사진 배경 — 힙합 (옥자)",
           "size": [
             120,
             180
           ],
           "transparent": false,
-          "path": "assets/sprites/bg_cheki_hiphop.png"
+          "path": "assets/sprites/bg_cheki_okja_hiphop.png"
         },
         {
-          "id": "bg_cheki_butler",
-          "label": "체키 사진 배경 — 집사",
+          "id": "bg_cheki_okja_butler",
+          "label": "체키 사진 배경 — 집사 (옥자)",
           "size": [
             120,
             180
           ],
           "transparent": false,
-          "path": "assets/sprites/bg_cheki_butler.png"
+          "path": "assets/sprites/bg_cheki_okja_butler.png"
         }
       ]
     },
@@ -331,14 +331,14 @@
           "path": "assets/sprites/frame_xmas.png"
         },
         {
-          "id": "bg_cheki_xmas",
-          "label": "체키 사진 배경 — 크리스마스",
+          "id": "bg_cheki_okja_xmas",
+          "label": "체키 사진 배경 — 크리스마스 (옥자)",
           "size": [
             120,
             180
           ],
           "transparent": false,
-          "path": "assets/sprites/bg_cheki_xmas.png"
+          "path": "assets/sprites/bg_cheki_okja_xmas.png"
         }
       ]
     },
@@ -563,6 +563,16 @@
           "label": "미호 인트로(지뢰계) 체키 의상",
           "preset": "okja",
           "path": "assets/sprites/miho_jirai.png"
+        },
+        {
+          "id": "bg_cheki_miho_jirai",
+          "label": "체키 사진 배경 — 지뢰계 (미호)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_miho_jirai.png"
         }
       ]
     },

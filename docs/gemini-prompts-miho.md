@@ -4,10 +4,10 @@
 > ADR 0001 파이프라인 = **실물 사진 → AI 도트화**(img2img). 공용 에셋·핵심 원칙·체키 합성 조각은 [공통 파일](./gemini-prompts-common.md) 참조. (허브: [gemini-prompts.md](./gemini-prompts.md))
 > **추적 이슈 [#1](https://github.com/JeffKM/Narakuchi/issues/1)** — 미호 슬라이스 첫 단(아트 선행). **확장 트랙 원칙상 아트가 항상 코드보다 먼저**다(→ 메모리 `character-expansion-plan`).
 
-> **미호 (Miho)**: 구미호 메이드. 반려묘 **규종이**(별 슬라이스 #6). 시그니처 음료 **미호 스파클링**. 로스터 accent색 **핑크**(→ ROADMAP T21). 옥자와 같은 **표정 스왑 SD 라이브**(ADR 0001) 규격.
+> **미호 (Miho)**: 구미호 메이드. 반려묘 **규종이**(별 슬라이스 #6). 시그니처 음료 **미호 스파클링**. 로스터 accent색 **노랑/골드**(→ ROADMAP T21 — 실물 레퍼 반영해 기존 핑크에서 변경). 옥자와 같은 **표정 스왑 SD 라이브**(ADR 0001) 규격.
 
-> **🔑 레퍼런스 첨부 필수**: 미호 실물/컨셉 사진을 `assets/sprites/_src/miho_ref.png`에 두고 첨부해 **img2img**로 뽑는다(옥자·시온이와 동일 — 텍스트만으론 얼굴이 매번 흔들린다). 표정 6종은 **첫 1장(`miho_idle`)을 확정**한 뒤 그 결과를 레퍼런스로 첨부하며 나머지를 뽑으면 일관성이 크게 오른다.
-> **🔑 정체성(고정)**: ① **여우 귀** + **크고 복슬복슬한 여우 꼬리**(가독성 위해 1~3개로 압축, "구미호"의 다꼬리는 암시만) ② **핑크 시그니처** — 부드러운 블러시/로즈/피치 톤이 의상·헤어 액센트 ③ 카페 통일감을 위해 **베이스는 다크 앤티크**(메이드룩) + 핑크 액센트 ④ 시크한 옥자와 대비되는 **포근·애교 무드**(여우의 영리함 + 사랑스러움).
+> **🔑 레퍼런스 첨부 필수**: 미호 실물 사진을 `assets/sprites/_src/miho_ref.png`(얼굴 선명·메인)에 두고 첨부해 **img2img**로 뽑는다(옥자·시온이와 동일 — 텍스트만으론 얼굴이 매번 흔들린다). 보조: `miho_ref_b.png`(전신·의상 각도), `miho_ref_chibi.png`(목표 SD 스타일 참고용 — img2img 입력 아님, 백·노랑 구미호+흰 꼬리+한복풍 룩의 도착점). 표정 6종은 **첫 1장(`miho_idle`)을 확정**한 뒤 그 결과를 레퍼런스로 첨부하며 나머지를 뽑으면 일관성이 크게 오른다.
+> **🔑 정체성(고정) — 실물 레퍼 기준**: ① **흰 여우 귀(안쪽 핑크)** + **크고 복슬복슬한 흰 여우 꼬리**(가독성 위해 1~3개로 압축, "구미호"의 다꼬리는 암시만) ② **여우 분장** — 양 볼 **수염 자국** + 눈밑 **붉은 아이메이크업** + 주홍 립 ③ **긴 검은 생머리** ④ **백·노랑 한국 전통 구미호룩** — 흰 한복풍 저고리(부드러운 프릴) + 노란 치마, 시그니처 액센트는 **노랑/골드** ⑤ 가끔 **파란 도깨비불(귀신불)** 이펙트로 구미호 분위기 ⑥ 시크한 옥자와 대비되는 **포근·애교 + 영리한 여우** 무드.
 
 ---
 
@@ -17,16 +17,19 @@
 
 ```
 Convert the attached photo into a CUTE CHIBI / SD pixel art sprite, full body, front-facing standing pose.
-Subject: "Miho", a nine-tailed fox (gumiho) MAID at a hell-themed maid cafe — clever, warm and affectionate, a little teasing.
+Subject: "Miho", a nine-tailed fox (gumiho) MAID at a hell-themed maid cafe — clever, warm and affectionate,
+         a little teasing. A Korean traditional fox-spirit look.
 Proportions: super-deformed, head-to-body ratio about 1:3 ~ 1:4 — BIG head, large expressive eyes,
-             short rounded body and short legs. Keep her recognizable fox-maid silhouette.
-Fox features (keep EXACT): pointed FOX EARS on top of the head, and ONE big FLUFFY FOX TAIL (or a few, 1-3)
-             with a soft cream/white tip — a gumiho fox-girl. The ears & tail are a clear silhouette point.
-Base outfit: a maid look in the cafe's dark-antique style, accented in soft PINK —
-             a dark dress + white apron/frills with ROSE / BLUSH-PINK ribbons and trim, a small maid headpiece between the fox ears.
+             short rounded body and short legs. Keep her recognizable fox-gumiho silhouette.
+Fox features (keep EXACT): pointed WHITE FOX EARS with PINK inner on top of the head, and ONE big FLUFFY
+             WHITE FOX TAIL (or a few, 1-3) — a gumiho fox-girl. The ears & tail are a clear silhouette point.
+Fox face makeup (keep): subtle WHISKER marks on both cheeks, a soft RED / blush accent under the eyes, vermilion lips.
+Hair: long, straight, BLACK hair.
+Base outfit: a Korean traditional gumiho look — a WHITE hanbok-style top (jeogori) with soft white frills
+             + a YELLOW skirt, a small maid headpiece tucked between the fox ears (a cafe touch).
 Style: 8-bit pixel sprite / dot art, limited palette, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
-Color mood: dark antique cafe base + her PINK signature — deep burgundy / ink black dress, blush pink & rose accents,
-            antique gold trim, cream/white apron and fluffy tail tip, candle-warm glow.
+Color mood: bright fox-spirit palette — clean WHITE top, warm YELLOW / gold skirt & accents, black hair,
+            vermilion lip accent; optional faint blue will-o'-wisp (dokkaebi-bul) spirit flames floating beside her.
 Framing: full body centered, big head near top, short legs near bottom, tall vertical 4:9 portrait ratio,
          even margins, consistent crop across all expressions.
          Lower body and short legs IDENTICAL across all expressions — only the FACE and ARM pose change.
@@ -38,9 +41,10 @@ Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow o
 ```
 no text, no watermark, no signature, no multiple characters, no cropped limbs, no cropped tail,
 no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
-no baby-only infantile style (keep her cute fox-maid charm),
+no baby-only infantile style (keep her cute fox-spirit charm),
 no human ears alongside the fox ears (fox ears only), no cat ears (these are FOX ears),
-no witch hat (that is Okja — Miho is a fox maid), no missing fox ears, no missing tail,
+no witch hat (that is Okja — Miho is a gumiho fox), no missing fox ears, no missing tail,
+no dark gothic maid dress (her look is a WHITE & YELLOW gumiho), no pink-dominant outfit, no blonde hair (hair is BLACK),
 no background scenery, no gradient background, no soft anti-aliased edges,
 no realistic photo finish, no 3D render.
 ```
@@ -52,10 +56,10 @@ no realistic photo finish, no 3D render.
 | 파일명 | 추가 문구 |
 |---|---|
 | `miho_idle`  | `Expression: calm, gentle, mouth closed. Arms: both hands clasped together in front (default). Tail relaxed.` |
-| `miho_smile` | `Expression: bright warm smile, eyes gently curved, affectionate. Arms: both hands clasped up near the chest, delighted. Tail perked up happily.` |
-| `miho_shy`   | `Expression: shy, blushing cheeks, eyes averted, one fox ear drooping. Arms: one hand raised, covering the mouth.` |
+| `miho_smile` | `Expression: bright warm smile, eyes gently curved, affectionate. Arms: both hands clasped up near the chest, delighted. Tail perked up happily, faint blue spirit flames around.` |
+| `miho_shy`   | `Expression: shy, blushing cheeks (over the red under-eye accent), eyes averted, one fox ear drooping. Arms: one hand raised, covering the mouth.` |
 | `miho_sad`   | `Expression: sulky / pouting, downturned mouth, ears lowered (NEVER crying). Arms: lowered and drooping limply. Tail drooping.` |
-| `miho_brew`  | `Expression: focused, cheerful "brewing". Arms: holding a sparkling PINK fizzy drink ("Miho Sparkling") in both hands — a tall glass with bubbles and a pink/peach hue.` |
+| `miho_brew`  | `Expression: focused, cheerful "brewing". Arms: holding a sparkling GOLDEN-YELLOW fizzy drink ("Miho Sparkling") in both hands — a tall glass with bubbles, a citrus / gold hue.` |
 | `miho_talk`  | `Expression: mouth slightly open, talking warmly. Arms: one hand raised in a gentle gesture.` |
 
 > ⚠️ **6종 전부 팔 자세가 다르다** (다리·하체·프레이밍·여우 귀·꼬리는 고정). 전환은 하드컷이라 팔 차이가 커도 OK. 기쁨 "폴짝" 같은 전신 포즈는 별도로 그리지 않고 `miho_smile`을 리워드 순간에 **코드 hop**으로 재사용한다. 슬픔은 **귀·꼬리 처짐 시무룩까지** — 우는 그림 금지(벌 없는 설계).
@@ -70,17 +74,19 @@ no realistic photo finish, no 3D render.
 
 ```
 Pixel art / dot art tiny SQUARE PORTRAIT bust (face + shoulders), front view, centered, BIG readable face.
-Subject: "Miho", a cute nine-tailed FOX MAID — pointed FOX EARS on top of the head, a small maid headpiece,
-         warm affectionate eyes, soft PINK / rose accents. Clearly a fox girl (NOT a cat, NOT a witch).
+Subject: "Miho", a cute nine-tailed FOX gumiho — pointed WHITE FOX EARS (pink inner) on top of the head,
+         long black hair, subtle fox whisker makeup with a soft RED under-eye accent, vermilion lips,
+         a small maid headpiece, white hanbok-style top with YELLOW / gold accents.
+         Clearly a fox spirit (NOT a cat, NOT a witch).
 Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
-Color mood: dark antique base + pink signature accents.
+Color mood: bright WHITE & YELLOW gumiho palette, black hair.
 Background: FLAT SOLID chroma green (#00ff00), nothing else.
 ```
 
 ```
 [네거티브] no full body, no tiny face, no text, no extra characters, no scenery,
-no cat ears (FOX ears), no witch hat, no chroma green on the subject,
-no gradient, no soft anti-aliased edges, no 3D render.
+no cat ears (FOX ears), no witch hat, no blonde hair (BLACK hair), no pink-dominant outfit,
+no chroma green on the subject, no gradient, no soft anti-aliased edges, no 3D render.
 ```
 
 ---
@@ -89,14 +95,15 @@ no gradient, no soft anti-aliased edges, no 3D render.
 
 > 미호 슬라이스의 **인트로 체키** — 온보딩에서 미호를 고르면 주는 첫 체키(→ 이슈 #5, `character-expansion-plan`). 옥자와 동일하게 **지뢰계 데이** 의상이 인트로 슬롯이다. **체키 카드용 정적 아트** — 교감화면 스킨 아님이라 포즈·머리색 자유(라이브 미호는 메이드룩 고정).
 > **🔑 워크플로우(옥자 지뢰계와 동일)**: **① 확정된 `miho_idle.png`(SD 도트 — 얼굴·여우 귀/꼬리·정체성·등신비 락) + ② 지뢰계 레퍼런스 사진(의상·머리색·포즈 락)**(+선택 ③ 신발 레퍼)을 첨부하고 "1번 캐릭터를 2번 코디로 다시 그려라". **여우 귀·꼬리는 의상이 바뀌어도 유지**(미호의 핵심 정체성).
-> **지뢰계 코디 가이드**: 지뢰계(landmine-girl) 무드 — 핑크/검정 girly-grunge. 미호의 핑크 시그니처와 자연스레 맞물린다. 베레모/리본/십자가/체인/플랫폼 슈즈 등은 옥자 지뢰계([옥자 파일](./gemini-prompts-okja.md))의 레퍼를 참고하되 **미호는 더 핑크 위주**로.
+> **지뢰계 코디 가이드**: 지뢰계(landmine-girl) 무드 — 핑크/검정 girly-grunge. **이건 미호의 평소 백·노랑 구미호룩과 대비되는 이벤트 코스튬**이라 핑크/검정을 써도 OK(시그니처 충돌 아님 — 의상 대비로 활용). 베레모/리본/십자가/체인/플랫폼 슈즈 등은 옥자 지뢰계([옥자 파일](./gemini-prompts-okja.md))의 레퍼를 참고. **여우 귀·꼬리·여우 분장은 의상이 바뀌어도 유지**(미호의 핵심 정체성).
 
 ```
 [Attach: 1 = miho_idle.png (confirmed SD dot, identity lock), 2 = jirai-kei outfit reference photo (+optional 3 = shoes reference)]
-Keep image 1's character IDENTITY: same face, same warm fox-maid look, same SD chibi proportions (head:body ≈ 1:3~1:4),
-and KEEP her FOX EARS and big FLUFFY FOX TAIL (these stay even in the new outfit).
-RESTYLE her as a cute JIRAI-KEI ("landmine girl") coordinate (image 2), pink-leaning girly-grunge:
-- Hair: long, styled (twin-tails work well), free color — a soft pink-blonde or pastel reads well for Miho.
+Keep image 1's character IDENTITY: same face, same warm gumiho fox look (WHITE fox ears, whisker makeup,
+red under-eye accent), same SD chibi proportions (head:body ≈ 1:3~1:4),
+and KEEP her WHITE FOX EARS and big FLUFFY WHITE FOX TAIL (these stay even in the new outfit).
+RESTYLE her as a cute JIRAI-KEI ("landmine girl") coordinate (image 2), pink/black girly-grunge (an event costume contrast):
+- Hair: long, styled (twin-tails work well), free color — her BLACK hair, or a soft pastel/pink as a costume look, both read fine.
 - Pose: a playful selfie / gyaru pose — head tilted, one hand raised beside the face with fingers spread, sassy but sweet.
 - Headwear: a beret / cap with ribbon (a small spot for the fox ears to peek through).
 - Top: a sheer blouse with a front ribbon lace-up over a lace camisole, a cross or heart ornament on the chest.
@@ -121,8 +128,29 @@ no over-sexualized outfit (keep it cute girly-grunge, age-safe brand).
 ```
 
 > ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(미호 정체성) + 여우 귀·꼬리 유지 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 핑크/체인/레이스는 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/miho_jirai.png`.
-> 🃏 **체키 합성 레이어**: 미호 지뢰계 체키 = `miho_jirai`(누끼) + 공용 `bg_cheki_jirai` + 공용 `frame_jirai`(→ [공통 파일](./gemini-prompts-common.md)). **배경·프레임은 옥자와 공유** — 미호 전용 베이크 배경은 필요 시에만(이슈 #1 "+필요 시 사진 배경"). 데모는 공용 레이어로 충분.
-> 📌 **이후 이벤트 의상(유치원·힙합·집사·크리스마스 등)은 별도 아트 트랙으로 점증** — 5벌 선결 금지(시온이 선례, → `character-expansion-plan` 슬라이스 DoD). 이 프롬프트를 베이스로 의상 레퍼만 갈아끼우면 된다.
+> 🃏 **체키 합성 레이어**: 미호 지뢰계 체키 = `miho_jirai`(누끼) + **미호 전용 배경 `bg_cheki_miho_jirai`**(아래 신설) + 이벤트 공통 `frame_jirai`(→ [공통 파일](./gemini-prompts-common.md)). **프레임은 이벤트 데이 공통, 배경은 멤버별**(ADR 0003 개정 2026-06-07) — 미호 배경도 네온 야경 팔레트는 유지하되(공통 프레임과 짝) 스팟·연출을 미호 의상에 맞춘다.
+> 📌 **이후 이벤트 의상(유치원·힙합·집사·크리스마스 등)은 별도 아트 트랙으로 점증** — 5벌 선결 금지(시온이 선례, → `character-expansion-plan` 슬라이스 DoD). 의상 + 짝 배경(`bg_cheki_miho_{slug}`)을 한 세트로 갈아끼우면 된다.
+
+---
+
+## 미호 지뢰계 체키 사진 배경 (`bg_cheki_miho_jirai`)
+
+> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경 — 지뢰계"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **이벤트 공통 `frame_jirai`(네이비·블랙 + 네온 핑크·퍼플)와 짝**이라 **네온 야경 팔레트는 유지**하고, 옥자(시부야 큰길)와 구분되게 **미호의 스팟 = 핑크 네온 퓨리쿠라(스티커 사진) 부스/골목**으로 달리한다. 미호 시그니처 노랑/골드는 **포인트 네온**으로만 살짝(팔레트 깨지 않게).
+
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a JIRAI-KEI ("landmine girl") PURIKURA photo-booth corner in a neon night arcade.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a cute neon photo-booth nook at night — glowing PINK and PURPLE NEON tube hearts and signs around a booth frame (abstract glyph-like glow, NOT real letters),
+      a sticker-photo (purikura) machine silhouette to the side, dangling fairy lights, a few warm GOLD accent lights; soft round BOKEH light orbs in the air.
+Depth: detailed neon hearts and signs along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of pink light so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just a glossy floor catching pink neon reflections.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: jirai-kei night, SAME neon palette as the shared jirai frame — deep navy/black, hot pink, magenta, electric purple, a small touch of warm GOLD accent.
+```
+
+> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 "지뢰계 배경 네거티브" 그대로. 저장: `assets/sprites/bg_cheki_miho_jirai.png`.
 
 ---
 
@@ -140,10 +168,14 @@ tools/.venv/bin/python tools/dotify.py miho_idle_raw.png \
 tools/.venv/bin/python tools/dotify.py miho_jirai_raw.png \
   --preset okja --chroma 00ff00 --out assets/sprites/miho_jirai.png
 
+# 미호 전용 지뢰계 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
+tools/.venv/bin/python tools/dotify.py bg_cheki_miho_jirai_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_miho_jirai.png
+
 # 미호 탭 미니 초상 (권장: miho_idle 얼굴 크롭본을 입력으로)
 tools/.venv/bin/python tools/dotify.py portrait_miho_raw.png \
   --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_miho.png
 ```
 
-> ⚠️ **이슈 #1 Acceptance criteria 대응**: ① 표정 6장 누끼·규격(~128×288)·마스터 팔레트 32색 인덱싱 → 위 6종 명령 + dotify 검수 리포트 ② `portrait_miho` 임포트·렌더 → 24×24 ③ 미호 지뢰계 체키 의상 레이어 합성 → `miho_jirai` + 공용 `bg_cheki_jirai`·`frame_jirai` ④ 팔레트 벗어난 픽셀 0 → dotify 인덱싱 통과.
+> ⚠️ **이슈 #1 Acceptance criteria 대응**: ① 표정 6장 누끼·규격(~128×288)·마스터 팔레트 32색 인덱싱 → 위 6종 명령 + dotify 검수 리포트 ② `portrait_miho` 임포트·렌더 → 24×24 ③ 미호 지뢰계 체키 의상 레이어 합성 → `miho_jirai` + **미호 배경 `bg_cheki_miho_jirai`** + 이벤트 공통 `frame_jirai` ④ 팔레트 벗어난 픽셀 0 → dotify 인덱싱 통과.
 > 검수·반복 루프는 [공통 파일](./gemini-prompts-common.md) 참조.

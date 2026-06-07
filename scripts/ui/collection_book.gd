@@ -59,7 +59,7 @@ const TABS := [
   {"id": "sion", "name": "시온이", "locked": false, "accent": Palette.GREY_300},
   {"id": "bana", "name": "바나", "locked": true, "accent": Palette.VIOLET},
   {"id": "mel",  "name": "멜",   "locked": true, "accent": Palette.TEAL},
-  {"id": "miho", "name": "미호", "locked": true, "accent": Palette.ACCENT_PINK},
+  {"id": "miho", "name": "미호", "locked": true, "accent": Palette.ACCENT_YELLOW}, # 백·노랑 구미호룩 반영(기존 핑크에서 변경)
 ]
 
 var _active_char: String = "okja"
