@@ -175,6 +175,7 @@ func _build() -> void:
   #     접지 그림자(바닥 고정) → 시온이 → 옥자보다 앞. bob 떠도 그림자가 바닥에 잡아준다.
   _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 58, 12)  # 96px 발바닥폭 ~58
   _sioni = SioniScript.new()
+  _sioni.sprite_prefix = "gyujong"  # ⚠️ 임시(검수): 규종이를 시온이 자리에 띄워 배치 확인. 복원 시 이 줄 삭제(#6 정식 배선 전까지).
   _sioni.position = SIONI_FEET
   _stage.add_child(_sioni)
 

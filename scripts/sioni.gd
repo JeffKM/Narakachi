@@ -8,13 +8,12 @@ extends Node2D
 ##
 ## 노드 원점 = **발밑(하단 중앙)** — 스케일/홉이 바닥에 붙어 보이게 피벗을 발에 둔다.
 
-const EXPRESSIONS := {
-  &"idle":  "res://assets/sprites/sioni_idle.png",
-  &"snack": "res://assets/sprites/sioni_snack.png",
-  &"play":  "res://assets/sprites/sioni_play.png",
-  &"pet":   "res://assets/sprites/sioni_pet.png",
-}
-const SPR_SIZE := Vector2(96, 96)  # 원본 텍스처 캔버스 크기(sioni_*.png — 제미나이→dotify 96px 도트)
+const REACTIONS := [&"idle", &"snack", &"play", &"pet"]
+const SPR_SIZE := Vector2(96, 96)  # 원본 텍스처 캔버스 크기(96px 도트 — 제미나이→dotify)
+
+## 펫 스프라이트 파일 접두어(`{prefix}_idle.png` …). 기본 = 시온이.
+## 규종이 등 다른 펫을 같은 자리에 띄워 배치 검수할 때 _ready(add_child) 전에 지정한다.
+var sprite_prefix: String = "sioni"
 
 var current: StringName = &"idle"
 
@@ -26,8 +25,11 @@ var _react: Tween                 # 정착/홉(일시 트윈) — 새로 시작 
 
 func _ready() -> void:
   # 96×96 도트를 그대로 표시(scale 1.0 = 옥자처럼 1텍셀=1픽셀 정수 격자). 줌(×2)도 정확한 정수배라 또렷.
-  for k in EXPRESSIONS:
-    _textures[k] = load(EXPRESSIONS[k])
+  # {prefix}_idle/snack/play/pet 4종을 접두어에서 파생해 로드. 아직 안 그린 반응(검수 단계)은 idle 로 폴백.
+  var idle_tex := _load_reaction(&"idle")
+  for k in REACTIONS:
+    var tex := _load_reaction(k)
+    _textures[k] = tex if tex != null else idle_tex
 
   _sprite = Sprite2D.new()
   _sprite.centered = false
@@ -39,6 +41,14 @@ func _ready() -> void:
   add_child(_sprite)
 
   _start_bob()
+
+
+## {prefix}_{react}.png 텍스처 — 없으면 null(호출부에서 idle 로 폴백). 접두어로 펫 교체.
+func _load_reaction(react: StringName) -> Texture2D:
+  var path := "res://assets/sprites/%s_%s.png" % [sprite_prefix, react]
+  if not ResourceLoader.exists(path):
+    return null
+  return load(path)
 
 
 ## 상시 둥실 흔들 (스프라이트만 위아래 ±1.5px 무한 루프 — 작은 몸이라 폭 줄임)
