@@ -1,8 +1,9 @@
 class_name Onboarding
 extends Node2D
-## 온보딩 (T06b) — 첫 접속 1회. (→ PRD §6, §4.5)
-##   1) 닉네임 입력 → 옥자가 그 이름을 불러줌(몰입)
-##   2) 옥자 존댓말 맞이 + 첫 방문 기념 지뢰계 일반체키 증정
+## 온보딩 (T06b + 로스터 #3) — 첫 접속 1회. (→ PRD §6, §4.5)
+##   1) 닉네임 입력 → 그 이름을 불러줌(몰입)
+##   2) 로스터 선택 — 함께할 메인 + 펫을 자유 조합으로 고른다(RosterScreen 재사용)
+##   3) 고른 메인의 존댓말 맞이 + 첫 방문 기념 인트로 체키 증정
 ## 끝나면 finished 신호 → Main 이 오버레이를 걷고 Cafe.start() 호출.
 ##
 ## flags.onboarded 로 1회만 뜬다(분기는 Main). 셸 OK 로도 진행 가능(터치 하이브리드).
@@ -20,7 +21,8 @@ const HEART_SCALE := 2.4  # 골드 하트 엠블럼 확대 배율 (맥동)
 const INPUT_W := 200
 const BTN_W := 160
 
-var _step := 0  # 0=닉네임 입력, 1=맞이/증정
+var _step := 0  # 0=닉네임 입력, 1=맞이/증정 (그 사이 로스터 선택이 오버레이로 낀다)
+var _roster: RosterScreen  # 로스터 선택 오버레이 — 떠 있으면 셸 입력을 여기로 위임
 var _submitting := false  # 제출 await 중 중복 진입 방지(엔터+버튼 동시)
 var _prompting := false  # 웹 prompt 재진입 가드 — 닫힐 때 큐에 남은 탭 이벤트의 재발화 차단
 var _title: Label
@@ -120,8 +122,11 @@ func _web_prompt_nickname() -> void:
   _prompting = false
 
 
-## 셸 OK → 진행 (SELECT/CANCEL 은 온보딩에선 무시).
+## 셸 3버튼 중계. 로스터가 떠 있으면 그쪽으로, 아니면 OK 로 진행(SELECT/CANCEL 무시).
 func handle_shell_action(action: StringName) -> void:
+  if _roster != null:
+    _roster.handle_shell_action(action)
+    return
   if action == &"ok":
     _advance()
 
@@ -139,7 +144,7 @@ func _advance() -> void:
     finished.emit()
 
 
-## 닉네임 확정 → 저장 + 첫 체키 증정 → 맞이 화면으로.
+## 닉네임 확정 → 저장 → 로스터 선택으로. (체키·맞이는 로스터 결정 후)
 func _submit_nickname() -> void:
   if _submitting:
     return
@@ -153,22 +158,48 @@ func _submit_nickname() -> void:
   if _nick.is_empty():
     _nick = NICK_DEFAULT
   SaveManager.set_value("player.nickname", _nick)
-  _grant_first_cheki()
+  SaveManager.save_game()  # 닉네임 먼저 커밋(로스터 도중 종료 대비)
+  _open_roster()
+
+
+## 닉네임 다음 단계 — 함께할 메인·펫을 고르는 로스터(온보딩 모드: 반드시 결정).
+func _open_roster() -> void:
+  _nick_edit.hide()
+  _confirm.hide()  # 결정은 로스터의 '시작' 버튼이 대신한다
+  _roster = RosterScreen.new()
+  _roster.setup(RosterScreen.MODE_ONBOARDING,
+    String(SaveManager.get_value("flags.active_main", Characters.default_main())),
+    String(SaveManager.get_value("flags.active_pet", Characters.default_pet())))
+  _roster.confirmed.connect(_on_roster_confirmed)
+  add_child(_roster)
+
+
+## 로스터 결정 → 활성 메인·펫 저장 + 고른 메인의 인트로 체키 증정 → 맞이 화면으로.
+## 체키 grant 는 닉을 막 저장한 뒤라 그 닉을 표지 헌사로 스냅샷한다.
+func _on_roster_confirmed(main_id: String, pet_id: String) -> void:
+  SaveManager.set_value("flags.active_main", main_id)
+  SaveManager.set_value("flags.active_pet", pet_id)
+  _grant_first_cheki(main_id)
   SaveManager.set_value("flags.onboarded", true)
   SaveManager.save_game()
+  if _roster != null:
+    _roster.queue_free()
+    _roster = null
+  _show_welcome(main_id)
 
-  # 입력 UI 숨기고 맞이 메시지로 전환
-  _nick_edit.hide()
+
+## 맞이 화면 — 고른 메인이 첫 방문 기념 체키를 건넨 결로 본문을 채운다.
+func _show_welcome(main_id: String) -> void:
   _step = 1
   _title.text = "어서 오세요,\n%s님" % _nick
-  _body.text = "첫 방문 기념이에요.\n지뢰계 체키를 드릴게요.\n\n(소중히 간직하세요)"
+  _body.text = "%s가 첫 방문 기념\n체키를 건넸어요.\n\n(소중히 간직하세요)" % Characters.display_name(main_id)
   _confirm.text = "시작하기"
+  _confirm.show()
 
 
-## 첫 방문 기념: 지뢰계(★히어로) 일반체키 1장. (체키 모델 T12 → Cheki.grant)
-## 닉네임을 막 저장한 직후 호출되므로 grant 가 그 닉을 표지 헌사로 스냅샷한다.
-func _grant_first_cheki() -> void:
-  Cheki.grant(Events.OKJA, Events.FIRST_GIFT_EVENT)
+## 첫 방문 기념: 고른 메인의 인트로 이벤트 일반체키 1장. (체키 모델 T12 → Cheki.grant)
+func _grant_first_cheki(main_id: String) -> void:
+  Cheki.grant(main_id, Characters.intro_event(main_id))
 
 
 ## 가운데 정렬 + 외곽선 라벨 헬퍼.

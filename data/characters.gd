@@ -12,10 +12,15 @@ const PET := "pet"
 #   kind            : main(교감·관계단계·기분) | pet(게이지만)
 #   dialogue/buttons: 보이스·버튼 데이터 키 (미호는 #4 전까지 옥자 템플릿 공유)
 #   intro_event     : 온보딩/인트로 체키 이벤트 id (→ Events)
+#   accent          : 로스터/잠긴멤버 등 UI 강조 색(Palette) — 캐릭터 시그니처 톤
+#   tag             : 로스터 카드 한 줄 소개(펫은 관계 단계가 없어 이 문구를 부제로 쓴다)
 const REGISTRY := {
-  "okja": {"name": "옥자",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine"},
-  "miho": {"name": "미호",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine"},
-  "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "intro_event": "mine"},
+  "okja": {"name": "옥자",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine",
+    "accent": Palette.VIOLET,      "tag": "지옥의 마녀"},
+  "miho": {"name": "미호",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine",
+    "accent": Palette.CANDLE,      "tag": "백·노랑 구미호"},
+  "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "intro_event": "mine",
+    "accent": Palette.ACCENT_PINK, "tag": "곁의 흰 고양이"},
 }
 
 # 라이브 스탠딩 표정 6종 (얼굴+팔 하드컷 스왑 → ADR 0001).
@@ -56,6 +61,21 @@ static func intro_event(id: String) -> String:
   return String(get_def(id).get("intro_event", Events.FIRST_GIFT_EVENT))
 
 
+## UI 강조 색(로스터 카드 테두리·실루엣 등). 정의에 없으면 중립 골드.
+static func accent(id: String) -> Color:
+  return get_def(id).get("accent", Palette.GOLD)
+
+
+## 로스터 카드 한 줄 소개(펫 부제 등). 없으면 빈 문자열.
+static func tag(id: String) -> String:
+  return String(get_def(id).get("tag", ""))
+
+
+## 24×24 도트 포트레이트 경로 — id 로 파생. (로스터/컬렉션 탭 공용)
+static func portrait(id: String) -> String:
+  return "res://assets/sprites/portrait_%s.png" % id
+
+
 ## kind 로 거른 id 목록(레지스트리 삽입 순서 유지).
 static func ids_of_kind(kind: String) -> Array:
   var out: Array = []
@@ -73,10 +93,16 @@ static func pets() -> Array:
   return ids_of_kind(PET)
 
 
-## 기본(첫) 메인 — 로스터 선택(#3) 전까지의 기본 active_main.
+## 기본(첫) 메인 — 로스터 선택 전까지의 기본 active_main.
 static func default_main() -> String:
   var m := mains()
   return String(m[0]) if not m.is_empty() else "okja"
+
+
+## 기본(첫) 펫 — 로스터 선택 전까지의 기본 active_pet.
+static func default_pet() -> String:
+  var p := pets()
+  return String(p[0]) if not p.is_empty() else "sion"
 
 
 ## 라이브 스탠딩 표정 6종 경로(누끼 PNG) — id 로 파생: "{id}_{key}.png".

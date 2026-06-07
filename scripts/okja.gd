@@ -54,6 +54,21 @@ func _start_bob() -> void:
     .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
+## 렌더 대상 메인 교체 (로스터 스왑) — 표정 6종을 새로 로드하고 idle 로 정착시킨다.
+## 이미 트리에 올라온 스탠딩을 그대로 두고 텍스처만 갈아 z-order·트윈(bob)을 보존한다.
+func set_character(id: String) -> void:
+  if id == character or not Characters.has(id):
+    return
+  character = id
+  _textures.clear()
+  var exprs := Characters.expressions(id)  # {idle: path, ...}
+  for k in exprs:
+    _textures[k] = load(exprs[k])
+  current = &"idle"
+  _sprite.texture = _textures[current]
+  _settle()  # 교체를 '반응'으로 가리는 짧은 스쿼시
+
+
 ## 표정 전환: 하드컷 교체 + 짧은 스쿼시 정착. (같은 표정이면 무시)
 func set_expression(name: StringName) -> void:
   if not _textures.has(name) or name == current:

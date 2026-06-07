@@ -57,6 +57,8 @@ var _reveal: ChekiReveal  # 체키 획득 리빌 오버레이 (열려 있으면 
 var _book: CollectionBook  # 컬렉션북 오버레이 (T16, 열려 있으면 셸 입력을 여기로)
 var _popup: ChoicePopup   # 대화/선물 2지선다 팝업 (T11, 열려 있으면 셸 입력을 여기로)
 var _cutin: StageCutin    # 단계 상승 컷인 (T11, 열려 있으면 셸 입력을 여기로)
+var _roster: RosterScreen # 로스터 선택 오버레이 (#3, 열려 있으면 셸 입력을 여기로 — active_main·active_pet 교체)
+var _roster_por: TextureRect  # 좌상단 진입 버튼의 활성 메인 포트레이트 (스왑 시 갱신)
 var _pending_cutin_stage := ""  # 도달 단계("regular"|"comfy") — 떠 있는 오버레이가 다 닫히면 컷인 발화(""=없음)
 
 
@@ -111,7 +113,10 @@ func _show_milestone_reward(ms: Dictionary) -> void:
 ## 셸 3버튼 중계 (Main → Cafe). 오버레이(리빌 → 컬렉션북)가 떠 있으면 그쪽이 먼저 먹는다.
 ## SELECT/OK 는 현재 모드의 액션 바로, CANCEL 은 "뒤로"(시온이 모드 → 옥자 복귀 / 옥자 모드 → 책).
 func handle_shell_action(action: StringName) -> void:
-  # 오버레이 우선순위: 리빌 > 컷인 > 팝업 > 컬렉션북 > 액션 바.
+  # 오버레이 우선순위: 로스터 > 리빌 > 컷인 > 팝업 > 컬렉션북 > 액션 바.
+  if _roster != null:
+    _roster.handle_shell_action(action)
+    return
   if _reveal != null:
     _reveal.handle_shell_action(action)
     return
@@ -189,6 +194,9 @@ func _build() -> void:
   _hud = Hud.new()
   add_child(_hud)
   _hud.set_focus(_active_main)
+
+  # 4b) 로스터 진입 버튼 (좌상단 모서리) — 활성 메인 포트레이트를 탭하면 친구 교체 화면.
+  _add_roster_button()
 
   # 5) 4버튼 액션 바 (T09 옥자 + T15 시온이) — 같은 자리, 모드에 따라 토글.
   _bar = ActionBar.new()
@@ -589,6 +597,91 @@ func _open_book() -> void:
 
 func _on_book_closed() -> void:
   _book = null
+
+
+# ── 로스터 (친구 교체, #3) ────────────────────────────────
+
+const ROSTER_BTN := Vector2(28, 28)  # 좌상단 진입 버튼(게이지 좌측 여백, HUD 와 안 겹침)
+
+## 좌상단 모서리에 활성 메인 포트레이트 미니 버튼 — 탭하면 로스터(친구 교체).
+## 디오라마(_stage)가 아니라 self 직속(줌·시온이 모드 영향 안 받게) + HUD 보다 위.
+func _add_roster_button() -> void:
+  var frame := Panel.new()
+  frame.position = Vector2(3, 3)
+  frame.size = ROSTER_BTN
+  frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  var sb := StyleBoxFlat.new()
+  sb.bg_color = Color(Palette.CHARCOAL.r, Palette.CHARCOAL.g, Palette.CHARCOAL.b, 0.9)
+  sb.set_corner_radius_all(6)
+  sb.set_border_width_all(1)
+  sb.border_color = Palette.GOLD
+  frame.add_theme_stylebox_override("panel", sb)
+  add_child(frame)
+
+  _roster_por = TextureRect.new()
+  _roster_por.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+  _roster_por.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+  _roster_por.position = Vector2(5, 5)
+  _roster_por.size = Vector2(24, 24)
+  _roster_por.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  _update_roster_portrait()
+  add_child(_roster_por)
+
+  var btn := _make_touch(Vector2(3, 3), ROSTER_BTN)
+  btn.pressed.connect(_open_roster)
+  add_child(btn)
+
+
+## 진입 버튼 포트레이트를 현재 활성 메인으로 갱신.
+func _update_roster_portrait() -> void:
+  if _roster_por == null:
+    return
+  var path := Characters.portrait(_active_main)
+  if ResourceLoader.exists(path):
+    _roster_por.texture = load(path)
+
+
+## 로스터 열기 — 다른 오버레이가 없을 때만(스왑 모드: 취소 가능). 열린 동안 셸 입력은 로스터로.
+func _open_roster() -> void:
+  if _reveal != null or _book != null or _popup != null or _cutin != null or _roster != null:
+    return
+  _roster = RosterScreen.new()
+  _roster.setup(RosterScreen.MODE_SWAP, _active_main,
+    String(SaveManager.get_value("flags.active_pet", Characters.default_pet())))
+  _roster.confirmed.connect(_on_roster_confirmed)
+  _roster.closed.connect(_on_roster_closed)
+  add_child(_roster)  # 맨 위(HUD·액션바 덮음)
+
+
+func _on_roster_closed() -> void:
+  _roster = null
+
+
+## 로스터 결정 → 활성 메인·펫 교체. (closed 도 뒤이어 와 _roster 를 정리)
+func _on_roster_confirmed(main_id: String, pet_id: String) -> void:
+  swap_active(main_id, pet_id)
+
+
+## 활성 메인·펫을 교체하고 화면을 새 메인으로 갈아끼운다. (저장 + 라이브 스탠딩 텍스처 스왑)
+## 시온이 교감 모드였으면 먼저 옥자 모드로 복귀해 줌·바·HUD 를 정돈한 뒤 교체한다.
+func swap_active(main_id: String, pet_id: String) -> void:
+  if _mode == MODE_SION:
+    _exit_sion_mode()
+  var changed := main_id != _active_main
+  _active_main = main_id
+  SaveManager.set_value("flags.active_main", main_id)
+  SaveManager.set_value("flags.active_pet", pet_id)
+  SaveManager.save_game()
+
+  _okja.set_character(main_id)  # 라이브 스탠딩 텍스처만 교체(트리/트윈 보존)
+  _update_roster_portrait()
+  _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
+  _hud.refresh()
+  if changed:
+    # 새 메인이 그 관계 단계에 맞춰 맞이한다(메인 바뀌면 인사도 바뀐 결).
+    Sfx.event(&"scene_enter")
+    _to_idle()
+    _ticker.show_line(Dialogue.okja_line("enter", meters.stage(), _nick()))
 
 
 ## 디버그 — 게이지를 즉시 채워 "오늘의 체키" 획득 리빌을 띄운다(컬렉션북 전 확인용).

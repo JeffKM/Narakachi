@@ -33,6 +33,8 @@ func run_suite() -> void:
   _test_progression_cadence()
   # F 캐릭터 레지스트리 + 미호 라이브 (T30 / 이슈 #2)
   _test_character_registry()
+  # G 로스터 선택 (#3) — active_pet 스키마 + 화면 결정 경로
+  await _test_roster_selection()
 
 
 # 새 미터를 만들어 프레임 안에서 1회 begin_session 한다(테스트 후 free).
@@ -372,6 +374,46 @@ func _test_character_registry() -> void:
   var res := Cheki.grant("miho", "mine")
   check(String(res.get("character", "")) == "miho" and Cheki.owned("miho", "mine"),
     "미호 지뢰계 체키 grant → 보유")
+
+
+# ════════════════════════════════════════════════════════════
+#  G. 로스터 선택 (#3) — active_pet 스키마 + RosterScreen 결정 경로
+# ════════════════════════════════════════════════════════════
+
+## 세이브 스키마(active_pet) + 레지스트리 파생 헬퍼 + 화면 결정이 고른 쌍을 방출하는지.
+func _test_roster_selection() -> void:
+  wipe()
+  # 스키마: 기본 active_pet = 시온이 + build_state 지원.
+  var d := SaveManager.default_save()
+  check(String(d["flags"]["active_pet"]) == "sion", "기본 active_pet = 시온이")
+  check(Characters.default_pet() == "sion", "Characters.default_pet() = 시온이")
+  var bs := SaveManager.build_state({"active_main": "miho", "active_pet": "sion"})
+  check(String(bs["flags"]["active_main"]) == "miho", "build_state active_main = 미호")
+  # 레지스트리 파생 헬퍼(카드 부제·포트레이트 경로).
+  check(Characters.tag("sion") != "", "펫 부제(tag) 존재")
+  check(Characters.portrait("miho") == "res://assets/sprites/portrait_miho.png",
+    "포트레이트 경로 파생")
+
+  # 화면 스모크: 미호 미리선택을 옥자로 바꿔 결정하면 confirmed(okja, sion) 1회.
+  var roster := RosterScreen.new()
+  roster.setup(RosterScreen.MODE_SWAP, "miho", "sion")
+  var got := {"main": "", "pet": "", "n": 0}
+  roster.confirmed.connect(func(m: String, p: String) -> void:
+    got["main"] = m
+    got["pet"] = p
+    got["n"] += 1)
+  add_child(roster)
+  await get_tree().process_frame
+  roster._select(Characters.MAIN, "okja")  # 그룹 단일 선택 변경
+  # 셸 커서를 결정 버튼까지 돌려 OK.
+  for _i in range(roster._focus_nodes.size()):
+    if String(roster._focus_nodes[roster._cursor]["kind"]) == "confirm":
+      break
+    roster.handle_shell_action(&"select")
+  roster.handle_shell_action(&"ok")
+  check(got["n"] == 1 and got["main"] == "okja" and got["pet"] == "sion",
+    "로스터: 옥자 재선택 → confirmed(okja, sion) 1회")
+  roster.queue_free()
 
 
 func _days_to_stage(target: String, high: bool) -> int:

@@ -53,8 +53,12 @@ func default_save() -> Dictionary:
     # 임의 플래그 (온보딩 완료, 튜토리얼 등)
     #   announced_stage = 마지막으로 '입장 연출'한 관계 단계. 단계 상승은 그 자리서 안 터지고
     #     다음 입장(Cafe.start)에 1회만 발화 — 이 값으로 재발화를 막는다. (guest/regular/comfy/close)
-    #   active_main = 현재 교감 중인 메인 id (로스터 선택 #3 전까지는 기본 메인). (T30/이슈 #2)
-    "flags": {"announced_stage": "guest", "sfx_on": true, "active_main": Characters.default_main()},
+    #   active_main = 현재 교감 중인 메인 id (로스터 선택으로 교체). (T30/이슈 #2)
+    #   active_pet  = 곁의 펫 id (로스터에서 메인과 자유 조합). 펫은 현재 시온이 1종.
+    "flags": {
+      "announced_stage": "guest", "sfx_on": true,
+      "active_main": Characters.default_main(), "active_pet": Characters.default_pet(),
+    },
     "last_saved_unix": 0,    # 마지막 저장 시각 (epoch sec) — 기분 경과시간 계산용
   }
   # 캐릭터별 상태(레지스트리 주도 — okja/sion/miho… 하드코딩 제거 → T30/이슈 #2).
@@ -125,7 +129,7 @@ func reset() -> void:
 ## 파라미터로 세이브 상태를 조립한다 — 테스트/개발 프리셋의 단일 상태 출처.
 ## default_save() 스키마 위에 주어진 키만 '의미 단위'로 덮어쓴다. 내러티브 시드(매직넘버)가
 ## 아니라 호출자가 의도를 명시한다. 게임 로직(relationship_stage/컷인)과 독립적으로 상태만 만든다.
-## 지원 키: nickname, coins, onboarded, announced_stage, active_main,
+## 지원 키: nickname, coins, onboarded, announced_stage, active_main, active_pet,
 ##   okja_affinity(정확값) | okja_stage(단계 임계값), okja_gauge, okja_mood,
 ##   miho_affinity, miho_gauge, miho_mood,
 ##   sion_affinity, sion_gauge, attendance_streak, attendance_last_date.
@@ -141,6 +145,8 @@ func build_state(opts: Dictionary = {}) -> Dictionary:
     d["flags"]["announced_stage"] = String(opts["announced_stage"])
   if opts.has("active_main"):
     d["flags"]["active_main"] = String(opts["active_main"])
+  if opts.has("active_pet"):
+    d["flags"]["active_pet"] = String(opts["active_pet"])
   # 옥자 호감도: 정확값(okja_affinity) 우선, 없으면 단계(okja_stage)의 임계값.
   if opts.has("okja_affinity"):
     d["okja"]["affinity_total"] = int(opts["okja_affinity"])

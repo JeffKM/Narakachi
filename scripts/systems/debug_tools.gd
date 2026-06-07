@@ -72,14 +72,20 @@ func _grant_milestone() -> void:
     cafe.debug_milestone()
 
 
-## active_main 을 메인끼리 순환 토글(옥자 ↔ 미호 ↔ …) 후 리로드 — 로스터 선택(#3) 전 미호 라이브 확인용.
+## active_main 을 메인끼리 순환 토글(옥자 ↔ 미호 ↔ …) — 미호 라이브 빠른 확인용.
+## 카페가 떠 있으면 로스터와 같은 라이브 경로(swap_active)로 갈아끼우고(리로드 없음),
+## 아니면(스플래시/온보딩 중) 세이브만 바꾸고 리로드한다.
 func _swap_active_main() -> void:
   var mains := Characters.mains()
   if mains.size() < 2:
     return
   var cur := String(SaveManager.get_value("flags.active_main", Characters.default_main()))
-  var idx := mains.find(cur)
-  var nxt := String(mains[(idx + 1) % mains.size()])
-  SaveManager.set_value("flags.active_main", nxt)
-  SaveManager.save_game()
-  _reload()
+  var nxt := String(mains[(mains.find(cur) + 1) % mains.size()])
+  var pet := String(SaveManager.get_value("flags.active_pet", Characters.default_pet()))
+  var cafe := get_tree().get_first_node_in_group(&"cafe")
+  if cafe and cafe.has_method("swap_active"):
+    cafe.swap_active(nxt, pet)
+  else:
+    SaveManager.set_value("flags.active_main", nxt)
+    SaveManager.save_game()
+    _reload()
