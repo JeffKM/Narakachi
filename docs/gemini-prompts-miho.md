@@ -9,34 +9,41 @@
 > **🔑 레퍼런스 첨부 필수**: 미호 실물 사진을 `assets/sprites/_src/miho_ref.png`(얼굴 선명·메인)에 두고 첨부해 **img2img**로 뽑는다(옥자·시온이와 동일 — 텍스트만으론 얼굴이 매번 흔들린다). 보조: `miho_ref_b.png`(전신·의상 각도), `miho_ref_chibi.png`(목표 SD 스타일 참고용 — img2img 입력 아님, 백·노랑 구미호+흰 꼬리+한복풍 룩의 도착점). 표정 6종은 **첫 1장(`miho_idle`)을 확정**한 뒤 그 결과를 레퍼런스로 첨부하며 나머지를 뽑으면 일관성이 크게 오른다.
 > **🔑 정체성(고정) — 실물 레퍼 기준**: ① **흰 여우 귀(안쪽 핑크)** + **크고 복슬복슬한 흰 여우 꼬리**(가독성 위해 1~3개로 압축, "구미호"의 다꼬리는 암시만) ② **여우 분장** — 양 볼 **수염 자국** + 눈밑 **붉은 아이메이크업** + 주홍 립 ③ **긴 검은 생머리** ④ **백·노랑 한국 전통 구미호룩** — 흰 한복풍 저고리(부드러운 프릴) + 노란 치마, 시그니처 액센트는 **노랑/골드** ⑤ 가끔 **파란 도깨비불(귀신불)** 이펙트로 구미호 분위기 ⑥ 시크한 옥자와 대비되는 **포근·애교 + 영리한 여우** 무드.
 
+> **🔑 SD·셰이딩 락(생성 교훈 — 두 번 빗나감)**: 미호는 ① `flat shading` 문구 탓에 **납작·밋밋**, ② `SLIM` 과강조 탓에 **머리 작고 다리 긴 일반 등신비(SD 아님)** 로 나왔다. 수정: ① `flat shading` 제거 → **"색마다 2~3톤 도트 셰이딩"**, ② `SLIM` 제거 → **옥자급 SD(머리 ≈ 전체 높이의 1/3, 다리 짧게)** 로 못박음.
+> **🔑 결정적 해법 = 옥자 idle을 앵커로 첨부**: 실물 사진만 img2img하면 **무조건 일반 등신비**로 나온다(머리 작고 다리 김). **반드시 `assets/sprites/okja_idle.png`(확정 SD)를 1번 이미지(비율·도트 스타일 앵커)로, 미호 실물을 2번(얼굴·정체성)으로 첨부**하고 "얼굴·여우 정체성은 2번에서, 등신비·도트 스타일은 1번(옥자)과 똑같이"라고 지시한다. 텍스트만으론 SD·셰이딩 둘 다 또 빗나간다.
+
 ---
 
 ## 공통 베이스 (미호 SD) ★라이브 스탠딩용
 
-> 옥자와 동일하게 **SD(1:3~1:4)** 로 간다 — 다마고치 LCD에서 표정 6종이 읽히려면 머리를 키워야 한다(→ 옥자 SD 근거). 여우 귀·꼬리는 SD에서 실루엣 포인트가 되니 **또렷하고 크게**.
-> **🔑 프레임 충전 = 옥자와 동일 스케일(중요)**: 라이브 스탠딩은 **머리가 상단 가장자리, 발이 하단 가장자리에 닿게 프레임을 꽉 채워야** 교감화면에서 옥자와 크기가 맞는다(옥자 idle = 높이 충전 ~96%, 발 바닥여백 0). 1차 생성본은 충전 59%·발이 53px 떠서 옥자보다 작게 나왔다 — 재생성 시 이 점을 사수한다.
-> **🔑 img2img 팁**: 출력 프레이밍은 **레퍼런스 프레이밍을 따라간다.** `miho_ref.png` 를 **머리끝~발끝이 세로로 꽉 차게 미리 크롭**해서 첨부하면 출력도 꽉 찬다(여백 많은 원본 그대로 넣으면 또 작게 나옴). 텍스트 지시만으론 약하니 레퍼 크롭이 가장 확실한 레버다.
-> **🔑 검수**: 생성 후 `tools/.venv/bin/python -c "from PIL import Image; a=Image.open('assets/sprites/miho_idle.png').split()[3].getbbox(); print('충전', (a[3]-a[1])/288*100, '바닥여백', 288-a[3])"` 로 **높이 충전 ~95%↑ · 바닥여백 0~수px** 확인. 미달이면 레퍼를 더 꽉 크롭해 재생성.
+> 옥자와 동일하게 **SD 치비(머리 ≈ 전체 높이의 1/3, 1:2.5~3)** 로 간다 — 다마고치 LCD에서 표정 6종이 읽히려면 머리를 키워야 한다(→ 옥자 SD 근거). 여우 귀·꼬리는 SD에서 실루엣 포인트가 되니 **또렷하고 크게**. **머리 크기·다리 짧음은 옥자 idle 첨부로 강제**(위 SD 락 참조).
+> **🔑 프레임 충전 = 옥자와 동일 스케일(중요)**: 라이브 스탠딩은 **머리가 상단, 발이 하단에 닿게 프레임을 꽉 채워야** 교감화면에서 옥자와 크기가 맞는다(옥자 idle = 높이 충전 ~96%, 발 바닥여백 0).
+> **🔑 충전은 이제 `dotify`가 자동(2026-06-07)**: `--preset okja`(캐릭터)는 **콘텐츠 bbox 크롭 → 높이 충전 → 하단 정렬**을 자동 적용한다(`FILL_PRESETS`). 여백 많은 원본을 넣어도 발이 바닥에 붙는다 — 레퍼를 꽉 크롭할 부담이 줄었다. 끄려면 `--no-fill`.
+> **⚠️ 단 폭이 관건**: 충전은 **높이 우선이되 폭이 캔버스(128)를 넘으면 폭 기준으로 제한**(팔·꼬리 잘림 방지)되어 **높이가 덜 찬다.** SD라 머리는 커도 되지만(옥자도 SD인데 96% 충전), **여우 꼬리·도깨비불이 양옆으로 퍼지면 폭을 먹어** 높이가 손해다. 그래서 **① 꼬리는 몸 옆/뒤로 모아 실루엣을 좁게 ② 도깨비불은 몸 가까이 작게**. (예: idle에 도깨비불이 양옆으로 들어가 폭 제한 → 70%, 꼬리 펼쳐짐 → 85%.)
+> **🔑 검수**: dotify가 출력 후 **높이충전·바닥여백을 자동 리포트**한다(`높이충전 ≥90%`, `바닥여백 ≤4px`). ❌ 뜨면 위 ①②를 손봐 재생성.
 
 ```
-Convert the attached photo into a CUTE CHIBI / SD pixel art sprite, full body, front-facing standing pose.
-Subject: "Miho", a nine-tailed fox (gumiho) MAID at a hell-themed maid cafe — clever, warm and affectionate,
-         a little teasing. A Korean traditional fox-spirit look.
-Proportions: super-deformed, head-to-body ratio about 1:3 ~ 1:4 — BIG head, large expressive eyes,
-             short rounded body and short legs. Keep her recognizable fox-gumiho silhouette.
-Fox features (keep EXACT): pointed WHITE FOX EARS with PINK inner on top of the head, and ONE big FLUFFY
-             WHITE FOX TAIL (or a few, 1-3) — a gumiho fox-girl. The ears & tail are a clear silhouette point.
+[Attach: 1 = okja_idle.png — the SD PROPORTION & DOT-STYLE ANCHOR (copy its build), 2 = Miho's real photo — her FACE & identity]
+
+Draw a CUTE SD / CHIBI pixel-art sprite of "Miho", full body, front-facing standing pose.
+Take her FACE and IDENTITY from image 2, but COPY the SUPER-DEFORMED body proportions and dot-art style of image 1 (Okja).
+Subject: "Miho", a nine-tailed fox (gumiho) MAID at a hell-themed maid cafe — clever, warm and affectionate, a little teasing.
+Proportions (MUST MATCH IMAGE 1, the Okja sprite): SUPER-DEFORMED chibi — a BIG ROUND head about ONE THIRD of the
+         total height, large expressive eyes, a small compact body and SHORT STUBBY legs. NOT a tall or realistic
+         figure, NOT long legs, NOT a normal 5-6-heads-tall girl. Same SD build and on-screen scale as Okja.
+Fox features (keep EXACT, from image 2): pointed WHITE FOX EARS with PINK inner on top of the head, and ONE big FLUFFY
+         WHITE FOX TAIL (or a few, 1-3) — a gumiho fox-girl. The ears & tail are a clear silhouette point.
 Fox face makeup (keep): subtle WHISKER marks on both cheeks, a soft RED / blush accent under the eyes, vermilion lips.
 Hair: long, straight, BLACK hair.
-Base outfit: a Korean traditional gumiho look — a WHITE hanbok-style top (jeogori) with soft white frills
-             + a YELLOW skirt, a small maid headpiece tucked between the fox ears (a cafe touch).
-Style: 8-bit pixel sprite / dot art, limited palette, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Outfit: a Korean traditional gumiho look — a WHITE hanbok-style top (jeogori) with soft white frills
+         + a YELLOW skirt, a small maid headpiece tucked between the fox ears (a cafe touch).
+Style (MATCH IMAGE 1): 8-bit pixel sprite / dot art, limited palette, hard pixel edges, NO anti-aliasing, NO gradients,
+         dot-art shading with 2-3 tones per color (highlight, midtone, shadow) — NOT flat single-tone fills.
 Color mood: bright fox-spirit palette — clean WHITE top, warm YELLOW / gold skirt & accents, black hair,
-            vermilion lip accent; optional faint blue will-o'-wisp (dokkaebi-bul) spirit flames floating beside her.
-Framing: full body centered, FILL THE FRAME — the character spans the FULL height, top of the HEAD near the TOP edge
-         and the FEET resting on the very BOTTOM edge (only a thin even margin left & right, NO large empty space
-         above the head or below the feet — she must NOT float). Aim for ~95% vertical fill, the SAME on-screen scale
-         as a tall standing okja. Tall vertical 4:9 portrait ratio, consistent crop across all expressions.
+         vermilion lip accent; optional faint blue will-o'-wisp (dokkaebi-bul) spirit flames — keep them SMALL and
+         CLOSE to her body (NOT spread out wide to the sides — a narrow silhouette).
+Framing: full body centered, head near the TOP edge and feet near the BOTTOM edge, NOT floating; tall vertical 4:9
+         portrait ratio, consistent crop across all expressions.
          Lower body and short legs IDENTICAL across all expressions — only the FACE and ARM pose change.
 Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
 ```
@@ -45,13 +52,17 @@ Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow o
 
 ```
 no text, no watermark, no signature, no multiple characters, no cropped limbs, no cropped tail,
-no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
+no realistic / normal body proportions, no long legs, no adult tall figure, no 5-6-heads-tall girl,
+no small head (the head MUST be ~1/3 of the total height like the Okja anchor), no tiny face,
 no baby-only infantile style (keep her cute fox-spirit charm),
 no small figure with large empty margins, no floating character above the bottom edge,
 no excessive headroom or footroom (head near top, feet on the bottom edge — fill the frame),
 no human ears alongside the fox ears (fox ears only), no cat ears (these are FOX ears),
 no witch hat (that is Okja — Miho is a gumiho fox), no missing fox ears, no missing tail,
 no dark gothic maid dress (her look is a WHITE & YELLOW gumiho), no pink-dominant outfit, no blonde hair (hair is BLACK),
+no flat single-tone coloring, no flat shading (must have highlight+midtone+shadow per color),
+no smooth vector / cartoon / anime illustration look, no soft airbrushed or blurred cheeks,
+no oversimplified low-detail sprite (it must be as detailed and shaded as the Okja sprite),
 no background scenery, no gradient background, no soft anti-aliased edges,
 no realistic photo finish, no 3D render.
 ```
@@ -59,10 +70,11 @@ no realistic photo finish, no 3D render.
 ### 표정 6종 — 베이스에 한 줄만 추가
 
 **다리·하체·프레이밍·여우 귀/꼬리는 고정**하고, **얼굴 표정 + 팔 자세**만 바꾼다(팔도 그림에 박는다 — 리깅 아님). 꼬리는 감정에 살짝 반응해도 되지만(기쁨=바짝 섬, 시무룩=축 처짐) 위치·개수는 유지. 표정별 사진이 있으면 각각 변환이 더 정확.
+> **셰이딩은 6종 전부 베이스 그대로** — 아래 행은 표정·팔만 추가하고, 도트 셰이딩(색마다 2~3톤, flat 금지)·픽셀 규격은 위 공통 베이스를 그대로 따른다. idle만 셰이딩 박고 나머지를 밋밋하게 뽑지 말 것(생성 시 idle 결과를 레퍼로 첨부하면 5종도 톤이 맞는다).
 
 | 파일명 | 추가 문구 |
 |---|---|
-| `miho_idle`  | `Expression: calm, gentle, mouth closed. Arms: both hands clasped together in front (default). Tail relaxed.` |
+| `miho_idle`  | `Expression: calm, gentle, mouth closed. Arms: both hands clasped together in front (default). Tail relaxed. NO spirit flames (idle is calm — keep silhouette narrow).` |
 | `miho_smile` | `Expression: bright warm smile, eyes gently curved, affectionate. Arms: both hands clasped up near the chest, delighted. Tail perked up happily, faint blue spirit flames around.` |
 | `miho_shy`   | `Expression: shy, blushing cheeks (over the red under-eye accent), eyes averted, one fox ear drooping. Arms: one hand raised, covering the mouth.` |
 | `miho_sad`   | `Expression: sulky / pouting, downturned mouth, ears lowered (NEVER crying). Arms: lowered and drooping limply. Tail drooping.` |
@@ -85,8 +97,10 @@ Subject: "Miho", a cute nine-tailed FOX gumiho — pointed WHITE FOX EARS (pink 
          long black hair, subtle fox whisker makeup with a soft RED under-eye accent, vermilion lips,
          a small maid headpiece, white hanbok-style top with YELLOW / gold accents.
          Clearly a fox spirit (NOT a cat, NOT a witch).
-Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
-Color mood: bright WHITE & YELLOW gumiho palette, black hair.
+Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients.
+       Use rich dot-art shading — 2-3 tones per color (highlight, midtone, shadow), NOT flat single-tone fills.
+       True pixel art, NOT a smooth vector / cartoon look. Match the Okja portrait's shading depth.
+Color mood: bright WHITE & YELLOW gumiho palette (shaded, not flat), black hair.
 Background: FLAT SOLID chroma green (#00ff00), nothing else.
 ```
 
@@ -121,7 +135,10 @@ RESTYLE her into her JIRAI-DAY coordinate (image 2) — a LEOPARD-print street G
 - Shoes: chunky platform sneakers or boots (feet not in the ref — keep them simple).
 - Pose (KEEP from image 2): a sassy GYARU SELFIE — head slightly tilted, one (or both) hand(s) raised beside the face
   making a finger-gun / V sign near the eye, big eyes, cool-cute confident look.
-Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients.
+       Use rich dot-art shading — 2-3 tones per color (highlight, midtone, shadow) on hair, skin, leopard print,
+       skirt and tail; NOT flat single-tone fills. True pixel art, NOT a smooth vector / cartoon look.
+       Match the Okja sprite's shading depth and pixel crispness.
        Keep her clearly the SAME Miho (fox ears + tail intact), leopard street-gyaru mood, age-safe.
 Framing: FULL body centered (head to shoes all visible, tail not cropped), big head near top, feet near bottom,
          tall vertical 4:9 portrait, even margins.
@@ -135,6 +152,8 @@ no different face, no extra characters, no cropped feet, no cropped or hidden ta
 no cat ears, no witch hat, no original maid dress (it is fully replaced by the jirai-day outfit),
 no twin-tails (hair worn DOWN), no beret/cap (sunglasses rest on top of the head instead),
 no sunglasses over the eyes (they sit on top of the head), no pink lace girly blouse (this is a leopard street look),
+no flat single-tone coloring, no flat shading, no smooth vector / cartoon / anime look, no soft airbrushed cheeks,
+no oversimplified low-detail sprite (match the Okja sprite's shading & detail),
 no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
 no over-sexualized outfit (keep it cute street-gyaru, age-safe brand).
 ```
