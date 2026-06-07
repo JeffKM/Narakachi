@@ -163,25 +163,37 @@ func consume_gauge_okja() -> void:
   consume_gauge_main("okja")
 
 
-## 시온이 호감도 획득(간식/놀기/쓰담/체키). 시온이는 펫이라 기분·관계 단계 없음(게이지만).
+## 펫 호감도 획득(간식/놀기/쓰담/체키). 펫은 기분·관계 단계 없이 게이지만(벌 없는 설계).
+## 모든 펫(시온이·규종이…)이 공유하는 제네릭 경로(이슈 #6). 게이지 풀은 Characters 단일 출처.
 ## 반환값: 실제로 더해진 호감도(연출용).
-func add_affinity_sion(base: int) -> int:
-  var total := int(SaveManager.get_value("sion.affinity_total", 0)) + base
-  var gauge := int(SaveManager.get_value("sion.gauge", 0)) + base
-  SaveManager.set_value("sion.affinity_total", total)
-  SaveManager.set_value("sion.gauge", mini(gauge, Balance.GAUGE_SION))
-  if gauge >= Balance.GAUGE_SION:
-    gauge_full.emit(Events.SION)
+func add_affinity_pet(character: String, base: int) -> int:
+  var full := Characters.gauge_full(character)
+  var total := int(SaveManager.get_value("%s.affinity_total" % character, 0)) + base
+  var gauge := int(SaveManager.get_value("%s.gauge" % character, 0)) + base
+  SaveManager.set_value("%s.affinity_total" % character, total)
+  SaveManager.set_value("%s.gauge" % character, mini(gauge, full))
+  if gauge >= full:
+    gauge_full.emit(character)
   SaveManager.save_game()
   changed.emit()
   return base
 
 
-## 시온이 게이지를 비운다(0). "오늘의 체키"(시온이) 획득 후 호출.
-func consume_gauge_sion() -> void:
-  SaveManager.set_value("sion.gauge", 0)
+## 시온이 호감도 획득 — 백호환 래퍼(테스트/기존 호출부). 제네릭 펫 경로로 위임.
+func add_affinity_sion(base: int) -> int:
+  return add_affinity_pet(Events.SION, base)
+
+
+## 펫 게이지를 비운다(0). "오늘의 체키"(펫) 획득 후 호출.
+func consume_gauge_pet(character: String) -> void:
+  SaveManager.set_value("%s.gauge" % character, 0)
   SaveManager.save_game()
   changed.emit()
+
+
+## 시온이 게이지 비우기 — 백호환 래퍼.
+func consume_gauge_sion() -> void:
+  consume_gauge_pet(Events.SION)
 
 
 ## active_main 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환. (기분 회복은 없음 — 터치는 가벼운 교감)

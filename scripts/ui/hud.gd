@@ -22,7 +22,7 @@ var _gauge_fill: ColorRect
 var _gauge_text: Label
 var _info: Label  # 기분 · 기력 · 코인 한 줄
 var _attend: Label  # 출석 진행 한 줄 (T14 — 캐릭터 무관, 항상 표시)
-var _focus: String = "okja"  # 현재 게이지 표시 대상 (okja | sion). T15 시온이 모드에서 전환.
+var _focus: String = "okja"  # 현재 게이지 표시 대상 (active_main | active_pet). 펫 모드에서 전환.
 
 
 func _ready() -> void:
@@ -68,7 +68,7 @@ func _ready() -> void:
   add_child(_attend)
 
 
-## 게이지 표시 대상을 바꾼다(okja | sion). T15 시온이 모드 전환에서 호출.
+## 게이지 표시 대상을 바꾼다(active_main | active_pet). 펫 모드 전환에서 호출.
 func set_focus(character: String) -> void:
   _focus = character
   refresh()
@@ -82,12 +82,13 @@ func refresh() -> void:
   # 출석 진행 — 캐릭터 무관, 옥자/시온이 모드 공통. (컬렉션북 푸터와 같은 Meters 헬퍼)
   _refresh_attendance()
 
-  if _focus == "sion":
-    # 시온이: 게이지만(펫이라 기분·관계 단계 없음)
-    var sg := int(SaveManager.get_value("sion.gauge", 0))
-    var sr := clampf(float(sg) / float(Balance.GAUGE_SION), 0.0, 1.0)
-    _gauge_fill.size.x = round(GAUGE_W * sr)
-    _gauge_text.text = "시온이 호감도 %d/%d" % [sg, Balance.GAUGE_SION]
+  if not Characters.is_main(_focus):
+    # 펫(시온이·규종이…): 게이지만(펫이라 기분·관계 단계 없음). 풀은 Characters 단일 출처.
+    var pf := Characters.gauge_full(_focus)
+    var pg := int(SaveManager.get_value("%s.gauge" % _focus, 0))
+    var pr := clampf(float(pg) / float(pf), 0.0, 1.0)
+    _gauge_fill.size.x = round(GAUGE_W * pr)
+    _gauge_text.text = "%s 호감도 %d/%d" % [Characters.display_name(_focus), pg, pf]
     _info.text = "기력 %d/%d   코인 %d" % [stamina, Balance.STAMINA_MAX, coins]
     return
 

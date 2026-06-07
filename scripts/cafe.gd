@@ -41,6 +41,7 @@ const MODE_SION := "sion"
 
 var meters: Meters
 var _active_main: String = "okja"  # 현재 교감 중인 메인 id (flags.active_main — 로스터 선택 #3 전까지 기본). T30
+var _active_pet: String = "sion"   # 곁의 펫 id (flags.active_pet — 시온이/규종이…). 라이브 스왑·게이지·체키 대상. 이슈 #6
 var _stage: Node2D        # 줌 대상 디오라마 컨테이너(배경+메인+시온이+가구/터치). HUD·바·티커는 바깥 고정. (T26/T27)
 var _zoom_tw: Tween       # 시온이 줌 푸시/복귀 트윈(중복 시 이전 것 취소)
 var _okja: Okja           # 라이브 메인 스탠딩(active_main 을 렌더 — 옥자/미호…). 변수명은 역사적.
@@ -153,6 +154,8 @@ func _active_bar() -> ActionBar:
 func _build() -> void:
   # 현재 교감 중인 메인 (로스터 선택 #3 전까지 기본 메인). 라이브 스탠딩·HUD·호감도의 대상.
   _active_main = String(SaveManager.get_value("flags.active_main", Characters.default_main()))
+  # 곁의 펫 (로스터에서 메인과 자유 조합). 라이브 시온이 노드가 이 펫의 스프라이트로 렌더된다. 이슈 #6
+  _active_pet = String(SaveManager.get_value("flags.active_pet", Characters.default_pet()))
 
   # 0) 줌 대상 디오라마 컨테이너 (배경+메인+시온이+가구/터치). HUD·바·티커는 self 직속(줌 제외). (T26)
   _stage = Node2D.new()
@@ -175,7 +178,7 @@ func _build() -> void:
   #     접지 그림자(바닥 고정) → 시온이 → 옥자보다 앞. bob 떠도 그림자가 바닥에 잡아준다.
   _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 58, 12)  # 96px 발바닥폭 ~58
   _sioni = SioniScript.new()
-  _sioni.sprite_prefix = "gyujong"  # ⚠️ 임시(검수): 규종이를 시온이 자리에 띄워 배치 확인. 복원 시 이 줄 삭제(#6 정식 배선 전까지).
+  _sioni.sprite_prefix = _active_pet  # 곁의 펫(active_pet)으로 렌더 — 트리 진입 전 지정(이슈 #6 정식 배선)
   _sioni.position = SIONI_FEET
   _stage.add_child(_sioni)
 
@@ -328,10 +331,10 @@ func _on_sion_action(id: String, can: bool) -> void:
   if can:
     # affinity: "cheki" → aff("cheki"), 그 외("sion") → aff("sion") (호감도 종류는 데이터에서)
     var gain := Balance.aff("cheki") if String(def.get("affinity", "sion")) == "cheki" else Balance.aff("sion")
-    meters.add_affinity_sion(gain)
-  # 버튼별 감정 반응(항상) + 버튼별 티커 풀
+    meters.add_affinity_pet(_active_pet, gain)
+  # 버튼별 감정 반응(항상) + 버튼별 티커 풀(활성 펫 전용 풀)
   _react_sion(StringName(def.get("emotion", "play")))
-  _ticker.show_line(Dialogue.sion_line(String(def.get("ticker", id))))
+  _ticker.show_line(Dialogue.pet_line(_pet_dialogue_key(), String(def.get("ticker", id))))
 
 
 ## 시온이 버튼 정의 한 건을 id 로 찾는다(없으면 빈 사전). (buttons.json sion.actions)
@@ -345,6 +348,11 @@ func _sion_action_def(id: String) -> Dictionary:
 ## 현재 메인의 대사 데이터 키(Characters.dialogue_key) — 티커·대화·선물·컷인 풀 선택. (T31/이슈 #4)
 func _dialogue_key() -> String:
   return Characters.dialogue_key(_active_main)
+
+
+## 현재 펫의 티커 데이터 키(Characters.dialogue_key) — 펫 버튼/획득/터치 티커 풀 선택. (이슈 #6)
+func _pet_dialogue_key() -> String:
+  return Characters.dialogue_key(_active_pet)
 
 
 ## 옥자 버튼/터치 감정값 — buttons.json okja.emotion[key], 없으면 fallback. (StringName 정규화)
@@ -494,7 +502,7 @@ func _on_sioni_touch() -> void:
     _enter_sion_mode()
     return
   _react_sion(&"pet" if (randi() % 2 == 0) else &"play")
-  _ticker.show_line(Dialogue.sion_line())
+  _ticker.show_line(Dialogue.pet_line(_pet_dialogue_key()))
 
 
 ## 시온이 교감 모드 진입 — 액션 바 교체 + HUD 게이지를 시온이로.
@@ -504,10 +512,10 @@ func _enter_sion_mode() -> void:
   _mode = MODE_SION
   _bar.visible = false
   _bar_sion.visible = true
-  _hud.set_focus(MODE_SION)
-  _focus_stage(SION_FOCUS_LOCAL, ZOOM_SION, SION_FOCUS_SCREEN)  # 시온이로 2배 푸시 줌 (T27)
+  _hud.set_focus(_active_pet)  # 게이지를 활성 펫으로 (이슈 #6)
+  _focus_stage(SION_FOCUS_LOCAL, ZOOM_SION, SION_FOCUS_SCREEN)  # 펫으로 2배 푸시 줌 (T27)
   _react_sion(&"play")
-  _ticker.show_line("시온이가 다가왔다. (옥자를 누르면 돌아가요)")
+  _ticker.show_line("%s가 다가왔어요. (옥자를 누르면 돌아가요)" % Characters.display_name(_active_pet))
 
 
 ## 옥자 교감 모드 복귀 — 액션 바·HUD 원복.
@@ -563,10 +571,11 @@ func _on_gauge_full(character: String) -> void:
   var event := Cheki.pick_today(character)
   var result := Cheki.grant(character, event)
 
-  if character == Events.SION:
-    meters.consume_gauge_sion()
+  if not Characters.is_main(character):
+    # 펫(시온이·규종이…): 게이지만 — 폴짝 + 펫 전용 티커
+    meters.consume_gauge_pet(character)
     _sioni.hop()
-    _ticker.show_line(Dialogue.sion_line())
+    _ticker.show_line(Dialogue.pet_line(Characters.dialogue_key(character)))
   else:
     meters.consume_gauge_main(character)
     _okja.hop()  # smile 재사용 폴짝 (리워드 순간 → ADR 0001/T07)
@@ -674,12 +683,16 @@ func swap_active(main_id: String, pet_id: String) -> void:
   if _mode == MODE_SION:
     _exit_sion_mode()
   var changed := main_id != _active_main
+  var pet_changed := pet_id != _active_pet
   _active_main = main_id
+  _active_pet = pet_id
   SaveManager.set_value("flags.active_main", main_id)
   SaveManager.set_value("flags.active_pet", pet_id)
   SaveManager.save_game()
 
   _okja.set_character(main_id)  # 라이브 스탠딩 텍스처만 교체(트리/트윈 보존)
+  if pet_changed:
+    _sioni.set_prefix(pet_id)   # 곁의 펫 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6
   _update_roster_portrait()
   _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
   _hud.refresh()
@@ -695,11 +708,9 @@ func swap_active(main_id: String, pet_id: String) -> void:
 func debug_grant_cheki(character := Events.OKJA) -> void:
   if _reveal != null:
     return
-  if character == Events.SION:
-    SaveManager.set_value("sion.gauge", Balance.GAUGE_SION)  # 게이지 풀(연출·HUD 일관성)
-  else:
-    character = _active_main  # 메인 키 4 = 현재 교감 중인 메인
-    SaveManager.set_value("%s.gauge" % character, Characters.gauge_full(character))
+  # 키 6(펫) = 현재 곁의 펫 / 키 4(메인) = 현재 교감 중인 메인. 게이지 풀로 채워 정규 경로를 탄다.
+  character = _active_pet if not Characters.is_main(character) else _active_main
+  SaveManager.set_value("%s.gauge" % character, Characters.gauge_full(character))
   _hud.refresh()
   _on_gauge_full(character)  # 정규 획득 경로 그대로 — 그랜트 + 소진 + 리빌
 

@@ -54,15 +54,18 @@ const PIP_GAP := 9.0
 
 # 캐릭터 탭: id + 표시명 + locked + accent(잠긴 멤버 실루엣 구분색).
 # 잠긴 멤버(바나·멜)는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21)
-# 순서: 잠금 해제된 실 캐릭터(메인 옥자·미호 → 펫 시온이) 먼저, 잠긴 예고 멤버는 뒤로. (→ 이슈 #5)
-# 미호는 #5에서 실루엣 → 잠금 해제(실제 그리드). accent 는 locked 멤버 실루엣 색이라 미호엔 미사용.
+# 순서/섹션: 메인(옥자·미호) → 펫(시온이·규종이) → 잠긴 예고 멤버(바나·멜). 섹션 경계엔 시각 갭. (→ 이슈 #5/#6)
+# 미호는 #5에서, 규종이는 #6에서 잠금 해제(실제 그리드). accent 는 locked 멤버 실루엣 색이라 해제 멤버엔 미사용.
+# section: "main"|"pet"|"locked" — _build_tabs 가 섹션이 바뀌는 자리에 SECTION_GAP 을 끼워 메인/펫 묶음을 시각 분리.
 const TABS := [
-  {"id": "okja", "name": "옥자", "locked": false, "accent": Palette.BURGUNDY},
-  {"id": "miho", "name": "미호", "locked": false, "accent": Palette.ACCENT_YELLOW},
-  {"id": "sion", "name": "시온이", "locked": false, "accent": Palette.GREY_300},
-  {"id": "bana", "name": "바나", "locked": true, "accent": Palette.VIOLET},
-  {"id": "mel",  "name": "멜",   "locked": true, "accent": Palette.TEAL},
+  {"id": "okja", "name": "옥자", "locked": false, "section": "main", "accent": Palette.BURGUNDY},
+  {"id": "miho", "name": "미호", "locked": false, "section": "main", "accent": Palette.ACCENT_YELLOW},
+  {"id": "sion", "name": "시온이", "locked": false, "section": "pet", "accent": Palette.GREY_300},
+  {"id": "gyujong", "name": "규종이", "locked": false, "section": "pet", "accent": Palette.ACCENT_PINK},
+  {"id": "bana", "name": "바나", "locked": true, "section": "locked", "accent": Palette.VIOLET},
+  {"id": "mel",  "name": "멜",   "locked": true, "section": "locked", "accent": Palette.TEAL},
 ]
+const SECTION_GAP := 9.0  # 메인/펫/잠금 섹션 사이 추가 간격(탭 묶음 시각 분리, 이슈 #6)
 
 var _active_char: String = "okja"
 var _tabs: Array = []            # CharacterTab (TABS 순서)
@@ -231,10 +234,16 @@ func _build_header() -> void:
 
 
 func _build_tabs() -> void:
-  # 그리드 좌단(GRID_X=50)에 정렬 — 탭과 카드 열이 한 수직선에서 시작.
+  # 그리드 좌단(GRID_X)에 정렬 — 탭과 카드 열이 한 수직선에서 시작.
+  # 섹션(메인/펫/잠금)이 바뀌는 자리에 SECTION_GAP 을 끼워 메인/펫 묶음을 시각 분리(이슈 #6).
   var x := float(GRID_X)
+  var prev_section := ""
   for i in TABS.size():
     var t: Dictionary = TABS[i]
+    var section := String(t.get("section", ""))
+    if prev_section != "" and section != prev_section:
+      x += SECTION_GAP
+    prev_section = section
     var tab := CharacterTab.new()
     tab.setup(String(t["id"]), String(t["name"]), bool(t["locked"]),
       Color(t.get("accent", Palette.GREY_500)))

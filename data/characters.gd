@@ -21,6 +21,8 @@ const REGISTRY := {
     "accent": Palette.CANDLE,      "tag": "백·노랑 구미호"},
   "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "intro_event": "mine",
     "accent": Palette.ACCENT_PINK, "tag": "곁의 흰 고양이"},
+  "gyujong": {"name": "규종이", "kind": PET, "dialogue": "gyujong", "buttons": "sion", "intro_event": "mine",
+    "accent": Palette.ACCENT_PINK, "tag": "미호의 까만 고양이"},
 }
 
 # 라이브 스탠딩 표정 6종 (얼굴+팔 하드컷 스왑 → ADR 0001).
@@ -124,4 +126,5 @@ static func gauge_full(id: String) -> int:
     "okja": return Balance.GAUGE_OKJA
     "miho": return Balance.GAUGE_MIHO
     "sion": return Balance.GAUGE_SION
+    "gyujong": return Balance.GAUGE_GYUJONG
   return Balance.GAUGE_OKJA

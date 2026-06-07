@@ -58,14 +58,19 @@ static func cutin(key: String, stage: String, nick: String) -> Dictionary:
   }
 
 
-## 시온이 티커 한 줄 랜덤 — 버튼 id 별 풀에서 고른다(없으면 idle 폴백). (펫 — 단계 구분 없음)
-## action: 버튼 id("cheki"|"snack"|"play"|"pet") 또는 "idle"(터치·획득·평소).
-static func sion_line(action: String = "idle") -> String:
-  var sion: Dictionary = GameData.ticker().get("sion", {})
-  var pool: Array = sion.get(action, sion.get("idle", []))
+## 펫 티커 한 줄 랜덤 — dialogue_key(펫) 풀에서 버튼 id 별로 고른다(없으면 idle 폴백). (펫 — 단계 구분 없음)
+## key 는 Characters.dialogue_key("sion"|"gyujong"…), action 은 버튼 id 또는 "idle". 미정의 키는 sion 폴백.
+static func pet_line(key: String, action: String = "idle") -> String:
+  var pet: Dictionary = GameData.ticker().get(key, GameData.ticker().get("sion", {}))
+  var pool: Array = pet.get(action, pet.get("idle", []))
   if pool.is_empty():
     return ""
   return pool[randi() % pool.size()]
+
+
+## 시온이 티커 — 백호환 래퍼(기존 호출부). 제네릭 펫 경로로 위임.
+static func sion_line(action: String = "idle") -> String:
+  return pet_line("sion", action)
 
 
 ## 단계에 맞는 대화 토막 하나를 랜덤으로 골라 {nick} 치환해 반환. (대화 팝업)

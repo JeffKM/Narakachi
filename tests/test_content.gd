@@ -21,6 +21,7 @@ func run_suite() -> void:
   _test_first_cheki_nickname()
   _test_book_smoke()
   _test_miho_book_tab()
+  _test_gyujong_pet_content()
   _test_t21_expansion()
   _test_hud_attendance()
   _test_sound_binding()
@@ -341,6 +342,67 @@ func _test_miho_book_tab() -> void:
       owned = true
   check(owned, "미호 지뢰계 체키 보유 → owned 칸")
   b2.free()
+
+
+# ── 규종이 펫 콘텐츠 — 전용 티커 + 컬렉션북 펫 탭 (이슈 #6) ──
+## 규종이가 시온이 미러로 ① 전용 티커 풀(시온이와 분리) ② 펫 섹션 탭(잠금 해제, 펫 그리드)을
+## 갖추는지. 시온이/미호 회귀는 _test_book_smoke·_test_miho_book_tab 가 별도 방어.
+func _test_gyujong_pet_content() -> void:
+  # ① 펫 티커: 규종이 전용 풀(시온이 풀과 교집합 없음) + 버튼 id 별 분기 + idle 폴백.
+  var gyu_snack := Dialogue.pet_line("gyujong", "snack")
+  check(gyu_snack.contains("규종이"), "규종이 티커 = 규종이 보이스 (got: %s)" % gyu_snack)
+  var sion_pool := _pet_pool("sion", "snack")
+  check(not sion_pool.has(gyu_snack), "규종이 snack 풀 = 시온이 풀과 분리")
+  # sion_line 백호환 래퍼는 여전히 시온이 풀(회귀 없음).
+  for _i in range(8):
+    check(Dialogue.sion_line("snack").contains("시온이"), "sion_line 회귀: 시온이 보이스")
+  # 미정의 펫 키 → 시온이 폴백(빈 문자열 아님 = 안전).
+  check(Dialogue.pet_line("zzz_none", "snack") != "", "미정의 펫 키 → 시온이 폴백(무손상)")
+
+  # ② 컬렉션북: 규종이 탭 잠금 해제 + 펫 섹션 + 펫 그리드(지뢰계).
+  var meta := {}
+  for t in CollectionBook.TABS:
+    meta[String(t["id"])] = t
+  check(meta.has("gyujong"), "규종이 탭 존재")
+  check(bool(meta["gyujong"]["locked"]) == false, "규종이 탭 잠금 해제(locked=false)")
+  check(String(meta["gyujong"]["section"]) == "pet", "규종이 = 펫 섹션")
+  check(String(meta["sion"]["section"]) == "pet" and String(meta["okja"]["section"]) == "main",
+    "섹션 그룹핑: 옥자=메인 / 시온이=펫")
+
+  var gyu_i := -1
+  for i in CollectionBook.TABS.size():
+    if String(CollectionBook.TABS[i]["id"]) == "gyujong":
+      gyu_i = i
+  wipe()
+  var book := CollectionBook.new()
+  add_child(book)  # 기본 active=옥자
+  book._on_tab(gyu_i)
+  check(book._active_char == "gyujong", "규종이 탭 전환 → active_char=gyujong")
+  var gyu_evs := Events.events_for("gyujong")
+  check(book._slots.size() == gyu_evs.size(),
+    "규종이 그리드 = 참여 이벤트 %d칸(한정 슬롯 없음, got %d)" % [gyu_evs.size(), book._slots.size()])
+  book.free()
+
+  # 보유 시 owned 칸으로 렌더(규종이 체키 grant → 새 책에서 확인).
+  Cheki.grant("gyujong", "mine")
+  var b2 := CollectionBook.new()
+  add_child(b2)
+  b2._on_tab(gyu_i)
+  var owned := false
+  for s in b2._slots:
+    if s.event == "mine" and s.is_owned():
+      owned = true
+  check(owned, "규종이 지뢰계 체키 보유 → owned 칸")
+  b2.free()
+
+
+## 펫 티커 풀 한 묶음(규종이/시온이 풀 비교용).
+func _pet_pool(key: String, action: String) -> Array:
+  var pet: Dictionary = GameData.ticker().get(key, {})
+  var out: Array = []
+  for ln in pet.get(action, []):
+    out.append(String(ln))
+  return out
 
 
 # ── 잠긴 멤버 + 한정 슬롯 + 확장 슬라이드 (T21) ────────────

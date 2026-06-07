@@ -25,6 +25,7 @@ const _AFF_GIFT_DEFAULT := {"match": 20, "sion": 25, "plain": 10}
 const GAUGE_OKJA := 300          # 옥자 호감도 게이지 풀 = 체키 1장
 const GAUGE_MIHO := 300          # 미호 게이지 풀 = 체키 1장 (메인, T30)
 const GAUGE_SION := 200          # 시온이 게이지 풀 = 체키 1장
+const GAUGE_GYUJONG := 200       # 규종이 게이지 풀 = 체키 1장 (펫, 이슈 #6 — 시온이 미러)
 
 # ── 관계 단계 (누적 옥자 호감도) ────────────────
 const REL_GUEST := 0             # 손님: 존댓말 + "{닉}님"

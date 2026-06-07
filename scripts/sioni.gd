@@ -43,6 +43,20 @@ func _ready() -> void:
   _start_bob()
 
 
+## 펫 스프라이트 접두어를 런타임에 교체한다(로스터 펫 스왑 — 이슈 #6). 4종 다시 로드 + 현재 표정 갱신.
+## _ready 전 호출은 sprite_prefix 직접 지정으로 충분하므로, 이미 트리에 올라간 경우만 다룬다.
+func set_prefix(prefix: String) -> void:
+  if prefix == sprite_prefix:
+    return
+  sprite_prefix = prefix
+  var idle_tex := _load_reaction(&"idle")
+  for k in REACTIONS:
+    var tex := _load_reaction(k)
+    _textures[k] = tex if tex != null else idle_tex
+  if _sprite != null:
+    _sprite.texture = _textures[current]
+
+
 ## {prefix}_{react}.png 텍스처 — 없으면 null(호출부에서 idle 로 폴백). 접두어로 펫 교체.
 func _load_reaction(react: StringName) -> Texture2D:
   var path := "res://assets/sprites/%s_%s.png" % [sprite_prefix, react]

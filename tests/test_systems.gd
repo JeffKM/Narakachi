@@ -35,6 +35,8 @@ func run_suite() -> void:
   _test_character_registry()
   # G 로스터 선택 (#3) — active_pet 스키마 + 화면 결정 경로
   await _test_roster_selection()
+  # H 규종이 펫 슬라이스 (이슈 #6) — 제네릭 펫 미터/체키 경로(시온이 미러)
+  _test_gyujong_pet()
 
 
 # 새 미터를 만들어 프레임 안에서 1회 begin_session 한다(테스트 후 free).
@@ -337,9 +339,9 @@ func _test_progression_cadence() -> void:
 
 ## 레지스트리 구성 + 미호가 제네릭 미터/체키 경로를 그대로 타는지(옥자와 격리).
 func _test_character_registry() -> void:
-  # 레지스트리: 메인 2(옥자·미호) + 펫 1(시온이). 게이지 풀은 Balance 단일 출처.
+  # 레지스트리: 메인 2(옥자·미호) + 펫 2(시온이·규종이). 게이지 풀은 Balance 단일 출처.
   check(Characters.mains() == ["okja", "miho"], "메인 = 옥자·미호")
-  check(Characters.pets() == ["sion"], "펫 = 시온이")
+  check(Characters.pets() == ["sion", "gyujong"], "펫 = 시온이·규종이")
   check(Characters.has_mood("miho") and not Characters.has_mood("sion"),
     "메인만 기분 보유(미호 O, 시온이 X)")
   check(Characters.gauge_full("miho") == Balance.GAUGE_MIHO, "미호 게이지 풀 = Balance.GAUGE_MIHO")
@@ -414,6 +416,57 @@ func _test_roster_selection() -> void:
   check(got["n"] == 1 and got["main"] == "okja" and got["pet"] == "sion",
     "로스터: 옥자 재선택 → confirmed(okja, sion) 1회")
   roster.queue_free()
+
+
+# ════════════════════════════════════════════════════════════
+#  H. 규종이 펫 슬라이스 (이슈 #6) — 제네릭 펫 경로(시온이 미러)
+# ════════════════════════════════════════════════════════════
+
+## 규종이가 시온이와 같은 제네릭 펫 미터/체키 경로를 그대로 타는지(시온이와 격리·회귀 없음).
+func _test_gyujong_pet() -> void:
+  # 레지스트리: 펫(게이지만, 기분 없음) + 게이지 풀 Balance 단일 출처.
+  check("gyujong" in Characters.pets(), "규종이 = 펫 로스터 포함")
+  check(not Characters.is_main("gyujong") and not Characters.has_mood("gyujong"),
+    "규종이는 펫(기분·관계 단계 없음)")
+  check(Characters.gauge_full("gyujong") == Balance.GAUGE_GYUJONG,
+    "규종이 게이지 풀 = Balance.GAUGE_GYUJONG")
+  check(Characters.dialogue_key("gyujong") == "gyujong", "규종이 전용 티커 키")
+
+  # 세이브 스키마: 규종이 블록(기분 없음) — 레지스트리 주도로 자동 생성.
+  wipe()
+  var d := SaveManager.default_save()
+  check(d.has("gyujong") and not d["gyujong"].has("mood"),
+    "default_save 에 규종이 블록(펫 — 기분 없음)")
+
+  # 제네릭 펫 미터: 규종이 게이지 풀 → gauge_full("gyujong"). 시온이와 격리.
+  wipe()
+  var m := Meters.new()
+  var emitted := {"id": ""}
+  m.gauge_full.connect(func(c: String) -> void: emitted["id"] = c)
+  m.add_affinity_pet("gyujong", Balance.GAUGE_GYUJONG)
+  check(emitted["id"] == "gyujong", "규종이 게이지 풀 → gauge_full(\"gyujong\")")
+  check(int(SaveManager.get_value("gyujong.gauge", -1)) == Balance.GAUGE_GYUJONG,
+    "규종이 게이지 = 풀값")
+  check(int(SaveManager.get_value("sion.gauge", -1)) == 0, "시온이 게이지 불변(펫 격리)")
+  m.consume_gauge_pet("gyujong")
+  check(int(SaveManager.get_value("gyujong.gauge", -1)) == 0, "규종이 게이지 소진 → 0")
+  m.free()
+
+  # 시온이 백호환 래퍼는 여전히 sion 으로 적립(회귀 없음).
+  wipe()
+  var m2 := Meters.new()
+  m2.add_affinity_sion(10)
+  check(int(SaveManager.get_value("sion.gauge", -1)) == 10, "add_affinity_sion 회귀: sion 적립")
+  check(int(SaveManager.get_value("gyujong.gauge", -1)) == 0, "시온이 적립이 규종이로 새지 않음")
+  m2.free()
+
+  # 체키: 규종이 오늘 체키 = 지뢰계(아트 준비됨), grant 가 규종이 슬롯에 적립.
+  wipe()
+  check(Events.events_for("gyujong") == ["mine"], "규종이 보유 이벤트 = 지뢰계(아트 준비분)")
+  check(Cheki.pick_today("gyujong") == "mine", "규종이 오늘의 체키 = 지뢰계(mine)")
+  var res := Cheki.grant("gyujong", "mine")
+  check(String(res.get("character", "")) == "gyujong" and Cheki.owned("gyujong", "mine"),
+    "규종이 지뢰계 체키 grant → 보유")
 
 
 func _days_to_stage(target: String, high: bool) -> int:
