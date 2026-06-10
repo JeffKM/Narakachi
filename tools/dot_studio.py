@@ -125,7 +125,8 @@ def save_palette(hexes):
     f.write("\n".join(clean) + "\n")
 
   names = existing_gpl_names()
-  lines = ["GIMP Palette", "Name: Narakuchi Master 32", "Columns: 8", "#"]
+  # 이름은 실제 색 개수에 맞춰 동적으로 — 하드코딩 시 램프 추가 때마다 역행한다.
+  lines = ["GIMP Palette", f"Name: Narakuchi Master {len(clean)}", "Columns: 8", "#"]
   for i, h in enumerate(clean):
     r, g, b = rgbs[i]
     name = names.get(h) or f"COLOR_{i + 1:02d}"  # 색 동일 시 기존 이름 보존
