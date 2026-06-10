@@ -19,6 +19,8 @@ const MODE_SWAP := "swap"
 
 const CARD := Vector2(96, 128)
 const CARD_GAP := 14
+const SCROLL_BAR_H := 6       # 가로 스크롤바 두께
+const ROW_H := 128 + 4 + SCROLL_BAR_H  # 카드 + 여백 + 바 (바가 카드 아래에 앉도록)
 const POR_PX := 24          # 포트레이트 원본(도트)
 const POR_VIEW := 72        # 카드 안 표시 크기(정수 ×3 → Nearest 또렷)
 
@@ -29,6 +31,8 @@ var _closing := false
 
 var _main_cards := {}  # id → Button(카드)
 var _pet_cards := {}   # id → Button(카드)
+var _main_scroll: ScrollContainer  # 메인 카드 줄(인원 ↑ 시 가로 스크롤)
+var _pet_scroll: ScrollContainer   # 펫 카드 줄(가로 스크롤)
 var _confirm: Button
 var _heart: HeartCursor
 var _focus_nodes: Array = []  # 셸 커서 순환 대상: [{kind, group, id, node}] (카드들 + 결정 버튼)
@@ -64,13 +68,13 @@ func _ready() -> void:
   title.size = Vector2(LCD.x, 28)
   add_child(title)
 
-  # 3) 메인 섹션 — 카드 가로 정렬(가운데).
+  # 3) 메인 섹션 — 카드 가로 줄(인원이 폭을 넘으면 가로 스크롤).
   _add_section_label("메인", 56)
-  _build_card_row(Characters.mains(), _main_cards, Characters.MAIN, 74)
+  _main_scroll = _build_card_row(Characters.mains(), _main_cards, Characters.MAIN, 74)
 
-  # 4) 펫 섹션
-  _add_section_label("펫", 214)
-  _build_card_row(Characters.pets(), _pet_cards, Characters.PET, 232)
+  # 4) 펫 섹션 (메인 줄이 바 자리만큼 길어져 살짝 내려 배치)
+  _add_section_label("펫", 220)
+  _pet_scroll = _build_card_row(Characters.pets(), _pet_cards, Characters.PET, 238)
 
   # 5) 결정 버튼
   _confirm = Button.new()
@@ -167,19 +171,35 @@ func _add_section_label(text: String, y: int) -> void:
   add_child(lb)
 
 
-## id 목록을 카드로 가로 가운데 정렬해 깐다(카드 수에 따라 폭 자동).
-func _build_card_row(ids: Array, store: Dictionary, group: String, y: int) -> void:
+## id 목록을 가로 줄로 깐다 — 카드가 폭을 넘으면 가로 스크롤(터치 드래그 + 커서 자동 스크롤).
+## 폭 안에 들면 가운데 정렬, 넘치면 8px 여백만 두고 스크롤. 신규 캐릭터가 늘어도 잘리지 않는다.
+func _build_card_row(ids: Array, store: Dictionary, group: String, y: int) -> ScrollContainer:
+  var scroll := ScrollContainer.new()
+  scroll.position = Vector2(0, y)
+  scroll.size = Vector2(LCD.x, ROW_H)  # 카드 + 바 자리(바가 카드 아래에 앉음)
+  scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO   # 넘칠 때만 가로 바
+  scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+  add_child(scroll)
+  UiTheme.style_h_scrollbar(scroll.get_h_scroll_bar(), SCROLL_BAR_H)  # LCD 톤 얇은 캡슐 바
+
   var n := ids.size()
   if n == 0:
-    return
-  var row_w := n * CARD.x + (n - 1) * CARD_GAP
-  var x0 := (LCD.x - row_w) / 2.0
+    return scroll
+  # 내용이 폭에 들면 가운데, 넘치면 8px 양옆 여백. 카드는 plain Control 위에 절대배치(레이아웃 지연 없음).
+  var content_w := n * CARD.x + (n - 1) * CARD_GAP
+  var pad: float = maxf(8.0, (LCD.x - content_w) / 2.0)
+  var inner := Control.new()
+  inner.custom_minimum_size = Vector2(content_w + pad * 2.0, CARD.y)
+  inner.mouse_filter = Control.MOUSE_FILTER_IGNORE  # 빈 영역 드래그는 스크롤로, 카드는 그대로 클릭
+  scroll.add_child(inner)
+
   for i in range(n):
     var id := String(ids[i])
     var card := _make_card(group, id)
-    card.position = Vector2(x0 + i * (CARD.x + CARD_GAP), y)
-    add_child(card)
+    card.position = Vector2(pad + i * (CARD.x + CARD_GAP), 0)
+    inner.add_child(card)
     store[id] = card
+  return scroll
 
 
 ## 카드 = 포트레이트 + 이름을 담은 버튼(스타일박스로 패널처럼). 클릭=그 그룹 선택.
@@ -255,10 +275,19 @@ func _style_card(card: Button, selected: bool, accent: Color) -> void:
 
 
 ## 포커스 표시 — 커서가 가리키는 대상 위에 골드 하트. 결정 버튼은 강조 틀까지.
+## 카드는 스크롤 안에 있으니 ① 화면 밖이면 자동 스크롤 ② 하트는 스크롤 오프셋을 반영한 self 좌표로.
 func _update_cursor() -> void:
-  UiTheme.set_button_focused(_confirm, _focus_nodes[_cursor]["kind"] == "confirm")
-  var node: Control = _focus_nodes[_cursor]["node"]
-  _heart.position = node.position + Vector2(node.size.x / 2.0, -6)
+  var item: Dictionary = _focus_nodes[_cursor]
+  UiTheme.set_button_focused(_confirm, item["kind"] == "confirm")
+  var node: Control = item["node"]
+  if item["kind"] == "card":
+    var scroll: ScrollContainer = _main_scroll if String(item["group"]) == Characters.MAIN else _pet_scroll
+    scroll.ensure_control_visible(node)  # 커서 카드가 줄 밖이면 끌어와 보이게
+    var hx := scroll.position.x + node.position.x - scroll.scroll_horizontal + node.size.x / 2.0
+    var hy := scroll.position.y + node.position.y - 6.0
+    _heart.position = Vector2(hx, hy)
+  else:
+    _heart.position = node.position + Vector2(node.size.x / 2.0, -6)
 
 
 func _close() -> void:

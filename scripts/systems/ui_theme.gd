@@ -56,6 +56,44 @@ static func input_box(focused: bool) -> StyleBoxFlat:
   return sb
 
 
+## 가로 스크롤바를 LCD 톤으로 — 얇은 트랙(어둑) + 골드 그래버(라운드), 양끝 화살표 숨김.
+## 로스터처럼 카드가 폭을 넘쳐 가로 스크롤이 생기는 곳에서 기본 테마가 튀지 않게 한 톤으로 묶는다.
+static func style_h_scrollbar(bar: HScrollBar, thickness := 6) -> void:
+  if bar == null:
+    return
+  bar.custom_minimum_size = Vector2(0, thickness)
+  # 트랙(바탕) — 반투명 어둑 회색, 두께 절반 라운드.
+  var track := StyleBoxFlat.new()
+  track.bg_color = Color(Palette.GREY_900.r, Palette.GREY_900.g, Palette.GREY_900.b, 0.6)
+  track.set_corner_radius_all(int(thickness / 2.0))
+  bar.add_theme_stylebox_override("scroll", track)
+  bar.add_theme_stylebox_override("scroll_focus", track)
+  # 그래버 — 평소 골드다크, hover 골드, pressed 캔들.
+  bar.add_theme_stylebox_override("grabber", _grabber_box(Palette.GOLD_DARK, thickness))
+  bar.add_theme_stylebox_override("grabber_highlight", _grabber_box(Palette.GOLD, thickness))
+  bar.add_theme_stylebox_override("grabber_pressed", _grabber_box(Palette.CANDLE, thickness))
+  # 양끝 증감 화살표 버튼은 안 보이게(깔끔한 캡슐 바).
+  var blank := _blank_icon()
+  for ic in ["increment", "increment_highlight", "increment_pressed",
+      "decrement", "decrement_highlight", "decrement_pressed"]:
+    bar.add_theme_icon_override(ic, blank)
+
+
+## 스크롤 그래버 스타일박스(라운드 캡슐).
+static func _grabber_box(c: Color, thickness: int) -> StyleBoxFlat:
+  var sb := StyleBoxFlat.new()
+  sb.bg_color = c
+  sb.set_corner_radius_all(int(thickness / 2.0))
+  return sb
+
+
+## 1×1 투명 텍스처(스크롤 화살표 숨김용) — 매번 새로 만들어 공유 부작용 없게.
+static func _blank_icon() -> ImageTexture:
+  var img := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+  img.fill(Color(0, 0, 0, 0))
+  return ImageTexture.create_from_image(img)
+
+
 ## LineEdit 에 공용 지옥풍 입력칸 테마(글자색·플레이스홀더·캐럿·상태별 스타일박스).
 static func style_input(edit: LineEdit) -> void:
   edit.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
