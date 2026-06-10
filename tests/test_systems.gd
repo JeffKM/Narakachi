@@ -339,9 +339,9 @@ func _test_progression_cadence() -> void:
 
 ## 레지스트리 구성 + 미호가 제네릭 미터/체키 경로를 그대로 타는지(옥자와 격리).
 func _test_character_registry() -> void:
-  # 레지스트리: 메인 2(옥자·미호) + 펫 2(시온이·규종이). 게이지 풀은 Balance 단일 출처.
-  check(Characters.mains() == ["okja", "miho"], "메인 = 옥자·미호")
-  check(Characters.pets() == ["sion", "gyujong"], "펫 = 시온이·규종이")
+  # 레지스트리: 메인 3(옥자·미호·바나) + 펫 3(시온이·규종이·코코). 게이지 풀은 Balance 단일 출처.
+  check(Characters.mains() == ["okja", "miho", "bana"], "메인 = 옥자·미호·바나")
+  check(Characters.pets() == ["sion", "gyujong", "coco"], "펫 = 시온이·규종이·코코")
   check(Characters.has_mood("miho") and not Characters.has_mood("sion"),
     "메인만 기분 보유(미호 O, 시온이 X)")
   check(Characters.gauge_full("miho") == Balance.GAUGE_MIHO, "미호 게이지 풀 = Balance.GAUGE_MIHO")

@@ -297,16 +297,18 @@ func _test_book_smoke() -> void:
 
 # ── 미호 컬렉션북 탭 잠금 해제 (이슈 #5) ───────────────────
 ## 미호 탭이 실루엣 → 잠금 해제되어 실제 그리드(지뢰계)를 보여주고, 미보유 칸은 예고형 빈칸,
-## 보유 시 owned 칸으로 렌더되는지. 바나·멜은 여전히 잠겨 예고로 남는다(옥자·시온이 회귀는 _test_book_smoke).
+## 보유 시 owned 칸으로 렌더되는지. 멜만 잠겨 예고로 남는다(바나=#10·코코=#11 해제, 옥자·시온이 회귀는 _test_book_smoke).
 func _test_miho_book_tab() -> void:
   wipe()
-  # TABS 계약: 미호 잠금 해제 + 바나·멜은 잠금 유지.
+  # TABS 계약: 미호·바나·코코 잠금 해제 + 멜은 잠금 유지(예고).
   var locks := {}
   for t in CollectionBook.TABS:
     locks[String(t["id"])] = bool(t["locked"])
   check(locks.get("miho", true) == false, "미호 탭 잠금 해제(locked=false)")
-  check(bool(locks.get("bana", false)) and bool(locks.get("mel", false)),
-    "바나·멜은 여전히 잠금(예고로 유지)")
+  check(locks.get("bana", true) == false, "바나 탭 잠금 해제(locked=false, #10)")
+  check(locks.get("coco", true) == false, "코코 탭 잠금 해제(locked=false, #11)")
+  check(bool(locks.get("mel", false)),
+    "멜은 여전히 잠금(예고로 유지)")
 
   var miho_i := -1
   for i in CollectionBook.TABS.size():

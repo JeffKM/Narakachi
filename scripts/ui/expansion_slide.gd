@@ -11,9 +11,9 @@ signal closed
 
 const LCD := Vector2(333, 480)
 const CARD := Vector2(220, 280)
-# 펫 확장은 슬라이드 문구로만 예고(탭 없음). 코코=고양이, 선아·수아=강아지 → 중립 표현.
-# (규종이는 #6에서 펫 탭으로 합류 → 예고 목록에서 제외. → CONTEXT.md 펫 로스터 / T21 합의)
-const PET_LINE := "그리고 곁을 지킬 친구들 — 코코·선아·수아"
+# 펫 확장은 슬라이드 문구로만 예고(탭 없음). 선아·수아=강아지 → 중립 표현.
+# (규종이는 #6, 코코는 #11에서 펫 탭으로 합류 → 예고 목록에서 제외. → CONTEXT.md 펫 로스터 / T21 합의)
+const PET_LINE := "그리고 곁을 지킬 친구들 — 선아·수아"
 
 var _name: String = ""
 var _accent: Color = Palette.VIOLET

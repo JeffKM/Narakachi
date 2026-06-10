@@ -53,16 +53,17 @@ const PIP := Vector2(7, 10)
 const PIP_GAP := 9.0
 
 # 캐릭터 탭: id + 표시명 + locked + accent(잠긴 멤버 실루엣 구분색).
-# 잠긴 멤버(바나·멜)는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21)
-# 순서/섹션: 메인(옥자·미호) → 펫(시온이·규종이) → 잠긴 예고 멤버(바나·멜). 섹션 경계엔 시각 갭. (→ 이슈 #5/#6)
-# 미호는 #5에서, 규종이는 #6에서 잠금 해제(실제 그리드). accent 는 locked 멤버 실루엣 색이라 해제 멤버엔 미사용.
+# 잠긴 멤버(멜)는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21)
+# 순서/섹션: 메인(옥자·미호·바나) → 펫(시온이·규종이·코코) → 잠긴 예고 멤버(멜). 섹션 경계엔 시각 갭. (→ 이슈 #5/#6/#10/#11)
+# 미호는 #5, 규종이는 #6, 바나는 #10, 코코는 #11에서 잠금 해제(실제 그리드). accent 는 locked 멤버 실루엣 색이라 해제 멤버엔 미사용.
 # section: "main"|"pet"|"locked" — _build_tabs 가 섹션이 바뀌는 자리에 SECTION_GAP 을 끼워 메인/펫 묶음을 시각 분리.
 const TABS := [
   {"id": "okja", "name": "옥자", "locked": false, "section": "main", "accent": Palette.BURGUNDY},
   {"id": "miho", "name": "미호", "locked": false, "section": "main", "accent": Palette.ACCENT_YELLOW},
+  {"id": "bana", "name": "바나", "locked": false, "section": "main", "accent": Palette.VIOLET},
   {"id": "sion", "name": "시온이", "locked": false, "section": "pet", "accent": Palette.GREY_300},
   {"id": "gyujong", "name": "규종이", "locked": false, "section": "pet", "accent": Palette.ACCENT_PINK},
-  {"id": "bana", "name": "바나", "locked": true, "section": "locked", "accent": Palette.VIOLET},
+  {"id": "coco", "name": "코코", "locked": false, "section": "pet", "accent": Palette.PURPLE},
   {"id": "mel",  "name": "멜",   "locked": true, "section": "locked", "accent": Palette.TEAL},
 ]
 const SECTION_GAP := 9.0  # 메인/펫/잠금 섹션 사이 추가 간격(탭 묶음 시각 분리, 이슈 #6)
