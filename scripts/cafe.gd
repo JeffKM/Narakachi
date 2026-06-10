@@ -106,7 +106,7 @@ func _show_milestone_reward(ms: Dictionary) -> void:
   var streak := int(ms.get("streak", 0))
   var reward: Dictionary = ms.get("reward", {})
   _reveal = ChekiReveal.new()
-  _reveal.setup(reward, "✦ %d일 연속 출석! ✦" % streak)
+  _reveal.setup(reward, "★ %d일 연속 출석! ★" % streak)
   _reveal.closed.connect(_on_reveal_closed)
   add_child(_reveal)  # 맨 위(HUD·액션바 덮음)
 
