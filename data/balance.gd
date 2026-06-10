@@ -14,8 +14,8 @@ extends RefCounted
 #   · 한 캐릭터 체키를 나비까지 다 모으면 안내 티커, 9명 전원 완성 시 1회 축하 배너.
 # 정식 게임 흐름(게이지 풀 → 자동 체키)으로 되돌리려면 false 한 줄.
 const DEMO := true
-const DEMO_CHARACTER_DONE_LINE := "체키는 전부 모았어요 ✦"  # 그 캐릭터 체키 완료(나비까지) 안내 티커(공용)
-const DEMO_ALL_COMPLETE_LINE := "✦ 모든 체키 완성! ✦"      # 9명 전원 완성 1회 축하 배너(리빌 headline)
+const DEMO_CHARACTER_DONE_LINE := "체키는 전부 모았어요"     # 그 캐릭터 체키 완료(나비까지) 안내 티커(공용)
+const DEMO_ALL_COMPLETE_LINE := "★ 모든 체키 완성! ★"      # 9명 전원 완성 1회 축하 배너(리빌 headline) — ★는 갈무리 지원 글자
 
 # ── 스태미나 (세션 길이) ───────────────────────
 const STAMINA_MAX := 30          # 최대치 (매일 접속 시 풀 충전)
