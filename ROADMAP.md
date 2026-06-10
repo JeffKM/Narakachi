@@ -135,7 +135,7 @@
 
 > 아래 T-태스크는 *레이어형 묶음*이고, 실제 작업은 GitHub 이슈에서 *수직 슬라이스*로 재편됐다. 상세(수용 기준·차단)는 이슈 본문 참조: `gh issue view <번호>`.
 
-부모 추적: **[#7](https://github.com/JeffKM/Narakuchi/issues/7)** (`gh issue view 7`)
+부모 추적: **[#7](https://github.com/JeffKM/Narakuchi/issues/7)** ✅ 완료 (`gh issue view 7`)
 
 | 이슈 | 슬라이스 | 타입 | 차단 | 상태 |
 |---|---|---|---|---|
@@ -145,6 +145,18 @@
 | [#4](https://github.com/JeffKM/Narakuchi/issues/4) | 💬 미호 완전 교감 파리티 + 반말 컷인 | AFK | #2, #1 | ✅ 완료 (T33) |
 | [#5](https://github.com/JeffKM/Narakuchi/issues/5) | 📸 미호 인트로 체키 + 컬렉션북 탭 | AFK | #2, #1 | ✅ 완료 (T34) |
 | [#6](https://github.com/JeffKM/Narakuchi/issues/6) | 🐈‍⬛ 펫 규종이 슬라이스 | AFK | #2, #3 + 규종이 아트 | ✅ 완료 (T35) |
+
+**📍 추적 이슈 — 바나 슬라이스 (미호 미러, 토대 재사용으로 축약)**
+
+> 토대(레지스트리·`Meters` 제네릭·로스터·컬렉션 섹션·제네릭 펫 경로)는 미호/규종이에서 확립됨 → 바나는 **데이터 1항 + 에셋 + 대사 추가** 위주. 미호의 트레이서(#2)·로스터(#3) 불필요.
+
+부모 추적: **[#8](https://github.com/JeffKM/Narakuchi/issues/8)** (`gh issue view 8`)
+
+| 이슈 | 슬라이스 | 타입 | 차단 | 상태 |
+|---|---|---|---|---|
+| [#9](https://github.com/JeffKM/Narakuchi/issues/9) | 🎨 바나·코코 아트 에셋 생산 | HITL | — | ⏳ 대기 |
+| [#10](https://github.com/JeffKM/Narakuchi/issues/10) | 🦇 바나 메인 배선 (라이브·교감·반말 컷인·체키·탭) | AFK | #9 | ⏳ 대기 |
+| [#11](https://github.com/JeffKM/Narakuchi/issues/11) | 🐈‍⬛ 펫 코코 슬라이스 (시온이/규종이 미러) | AFK | #9, #10 | ⏳ 대기 |
 
 **🧩 코드 트랙 (슬라이스마다 반복, 패턴은 첫 슬라이스에서 확립)**
 
