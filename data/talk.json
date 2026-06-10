@@ -269,5 +269,138 @@
         ]
       }
     ]
+  },
+  "_bana_doc": "바나 대화 토픽 — 미호와 같은 guest/regular 틀(prompt + choices[label/reply/tier/expr]).",
+  "bana": {
+    "guest": [
+      {
+        "prompt": "오늘은 무슨 바람이 불어 절 찾아오셨어요?",
+        "choices": [
+          {
+            "label": "바나님 보고 싶어서요",
+            "reply": "어머… 영원을 산 저도 그런 말엔 약하네요. 후훗.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "블러디 미드나잇 마시러요",
+            "reply": "역시 제 칵테일이 그렇게 좋으세요? 뿌듯한걸요.",
+            "tier": "plain",
+            "expr": "smile"
+          },
+          {
+            "label": "그냥 지나가다가요",
+            "reply": "흐응, 그런 걸로 해드릴게요.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "제 손, 차갑죠? 뱀파이어라 그래요. 잡아보실래요?",
+        "choices": [
+          {
+            "label": "시원해서 좋은데요",
+            "reply": "……그렇게 말해주는 분은 처음이에요. 고마워요.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "몇 살이세요?",
+            "reply": "숙녀한테 나이라뇨. 영원이라고 해두죠. 후훗.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "코코가 {nick}님을 빤히 보네요. 마음에 들었나 봐요.",
+        "choices": [
+          {
+            "label": "고양이도 주인 닮아 멋지네요",
+            "reply": "어머, 우리 코코 칭찬은 제 칭찬이나 마찬가지예요. 후훗.",
+            "tier": "good",
+            "expr": "smile"
+          },
+          {
+            "label": "말랐네요",
+            "reply": "날렵한 거예요. ……잘 챙겨 먹이고는 있어요.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      }
+    ],
+    "regular": [
+      {
+        "prompt": "{nick}, 오늘 좀 보고 싶었는데. ……뱀파이어가 이런 말 잘 안 하거든?",
+        "choices": [
+          {
+            "label": "나도 보고 싶었어",
+            "reply": "헤헤… 솔직하긴. 그래서 좋아.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "방금 뭐랬어?",
+            "reply": "흥, 못 들었으면 말고~",
+            "tier": "plain",
+            "expr": "talk"
+          },
+          {
+            "label": "뱀파이어도 부끄럼 타?",
+            "reply": "야! 놀리지 마, 망토 뒤집어쓴다.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "나 관 색 바꿔볼까 하는데… 검정이랑 보라 중에 뭐가 나아?",
+        "choices": [
+          {
+            "label": "넌 무슨 색이든 멋져",
+            "reply": "또, 또 홀리는 소리! ……그래도 기분은 좋다.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "내가 골라줄까?",
+            "reply": "오, 그럼 {nick}이 정해줘. 믿어볼게.",
+            "tier": "plain",
+            "expr": "smile"
+          },
+          {
+            "label": "지금이 제일이야",
+            "reply": "그치? 이 보랏빛이 내 트레이드마크니까.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "설마 또 코코 간식만 사 온 거 아니지?",
+        "choices": [
+          {
+            "label": "아니, 이건 너 주려고 산 거야",
+            "reply": "어……? 내 거였어? 헤헤, 잘 받을게!",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "코코가 좋아하길래",
+            "reply": "우리 코코 또 까칠해질라. ……뭐, 좋아하면 됐지.",
+            "tier": "plain",
+            "expr": "talk"
+          },
+          {
+            "label": "둘 다 사 왔지",
+            "reply": "역시 {nick}이 최고야~ 박쥐 날아오를 뻔.",
+            "tier": "plain",
+            "expr": "smile"
+          }
+        ]
+      }
+    ]
   }
 }
