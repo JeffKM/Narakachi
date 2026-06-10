@@ -154,9 +154,9 @@
 
 | 이슈 | 슬라이스 | 타입 | 차단 | 상태 |
 |---|---|---|---|---|
-| [#9](https://github.com/JeffKM/Narakuchi/issues/9) | 🎨 바나·코코 아트 에셋 생산 | HITL | — | ⏳ 대기 |
-| [#10](https://github.com/JeffKM/Narakuchi/issues/10) | 🦇 바나 메인 배선 (라이브·교감·반말 컷인·체키·탭) | AFK | #9 | ⏳ 대기 |
-| [#11](https://github.com/JeffKM/Narakuchi/issues/11) | 🐈‍⬛ 펫 코코 슬라이스 (시온이/규종이 미러) | AFK | #9, #10 | ⏳ 대기 |
+| [#9](https://github.com/JeffKM/Narakuchi/issues/9) | 🎨 바나·코코 아트 에셋 생산 | HITL | — | ✅ 완료 (규격·팔레트·알파 감사 88/88) |
+| [#10](https://github.com/JeffKM/Narakuchi/issues/10) | 🦇 바나 메인 배선 (라이브·교감·반말 컷인·체키·탭) | AFK | #9 | ✅ 완료 (T36) |
+| [#11](https://github.com/JeffKM/Narakuchi/issues/11) | 🐈‍⬛ 펫 코코 슬라이스 (시온이/규종이 미러) | AFK | #9, #10 | ✅ 완료 (T37) |
 
 **🧩 코드 트랙 (슬라이스마다 반복, 패턴은 첫 슬라이스에서 확립)**
 
@@ -165,13 +165,15 @@
 - [~] **T32** 컬렉션북 탭 일반화 `(미호 탭=#5 ✅ · 펫 섹션=#6 ✅)` — 메인 4 + 펫 5 = 9탭 "메인/펫" 섹션 그룹핑. **메인/펫 섹션 그룹핑은 #6에서 도입**(`TABS` 항목에 `section` 메타[main/pet/locked] + `_build_tabs` 가 섹션 경계에 `SECTION_GAP` 삽입). 남은 분: 캐릭터 전수 확장(9탭)·잠긴 탭 **3-상태 수명**(미빌드 실루엣 → 빌드+무료 → 빌드+♡게이트).
 - [x] **T34** 미호 인트로 체키 + 컬렉션북 탭 `(미호=#5)` — **완료**: 미호 체키 파리티를 관통. ① **컬렉션북 미호 탭 잠금 해제**(`collection_book.gd` `TABS` 미호 `locked:true→false` + 메인(옥자·미호)→펫(시온이)→잠긴 예고(바나·멜) 순으로 재배치) — 실루엣 → 실제 그리드. 미호 참여 이벤트만(`events_for("miho")`=지뢰계) **비대칭 그리드 정상**(시온이 선례, DoD-B 5벌 선결 금지), 미보유=예고형 빈칸(`STATE_EMPTY`)·보유=`owned` 칸 → 확대 모달(`CardDetail`)·공유(`ShareCard`)는 캐릭터 무관 `ChekiCard` 합성(`bg_cheki_miho_jirai`+`miho_jirai`+표준/지뢰계 프레임)으로 그대로 동작. ② **마일스톤 보상 파리티**(`cheki.gd grant_milestone_shards` `[okja,sion]` 하드코딩 → `Characters.all_ids()` 전수) — 미호 메인 플레이어도 출석 나비 조각이 닿게(누락 버그 차단). 인트로 체키·게이지 풀 자동 획득은 이미 T31/T30·`cafe._on_gauge_full(character)`·`onboarding._grant_first_cheki(main_id)`로 일반화돼 회귀 없음. `Characters.all_ids()` 헬퍼 신설. **검수**: 콘텐츠 228(미호 탭 9·마일스톤 파리티 3 신규)·시스템 95·컷인 17 통과, 옥자·시온이·T21 회귀 없음(잠긴 탭 테스트 동적 인덱스화).
 - [x] **T35** 펫 규종이 슬라이스 — 정식 배선 `(규종이=#6)` — **완료**: f9ff7c7 임시 검수 코드(`_sioni.sprite_prefix = "gyujong"` 하드코딩)를 **active_pet 기반 정식 배선**으로 교체. 시온이 하드코딩을 **제네릭 펫 경로**로 끌어올려 규종이를 시온이 미러로 합류. ① **시스템 일반화**: `Meters` `add_affinity_sion`/`consume_gauge_sion` → `add_affinity_pet`/`consume_gauge_pet(character)`(게이지 풀=`Characters.gauge_full` 단일 출처, 기존 `*_sion`은 백호환 래퍼), `Dialogue.sion_line` → `pet_line(key, action)`(dialogue_key 로 티커 풀 분기·sion 폴백), `Hud` 펫 게이지 표시 `_focus=="sion"` → `not Characters.is_main` 일반 분기, `Sioni.set_prefix()` 런타임 스프라이트 교체(로스터 펫 스왑). ② **cafe 배선**: `_active_pet` 변수 + 게이지 적립/소진·교감모드 진입·`swap_active`(펫 라이브 스왑)·`debug_grant_cheki` 전부 활성 펫 기준. ③ **데이터**: `characters.gd` 규종이 레지스트리(PET·`buttons:sion` 공유·`dialogue:gyujong` 전용)·`gauge_full` 매치, `balance.gd` `GAUGE_GYUJONG`, `events.gd` `GYUJONG`+지뢰계 참여, `ticker.json` 규종이 전용 풀(까만 턱시도·초록 눈). ④ **컬렉션북**: 규종이 펫 탭 + `section` 메타로 메인/펫 섹션 그룹핑(→ T32). 규종이 해금으로 `ExpansionSlide` 예고 목록에서 제외. **검수**: 시스템·콘텐츠 테스트 전수 녹색(규종이 펫 미터·체키·탭 미러 신규 + 시온이/미호/옥자 회귀 가드). 세이브·로스터·체키는 레지스트리 주도라 코드 무수정 자동 확장.
-- [x] **T33+** 슬라이스 #1 미호 배선 `(라이브=#2 ✅ · 교감=#4 ✅ · 체키=#5 ✅ · 펫 규종이=#6 ✅)` → 이후 바나 → 멜(펫 2마리) — 각자 레지스트리 1항 + 에셋 + 대사 파일. **교감 파리티(#4) 완료**: `data/dialogue.gd` 캐릭터별 일반화(폴백 방식 — ticker 키 직접 / talk·gifts `_section` 폴백으로 옥자 평면 legacy 유지 → content_studio 무손상), 미호 전용 대사(`ticker.json` `miho`+`miho_cutin` / `talk.json` `miho` / `gifts.json` `miho`, 톤=포근·애교·영리한 여우 + 시그니처 '미호 스파클링'), 미호 600 도달 **전용 반말 컷인**(`stage_cutin` character 렌더 + `cutin(key)`), `cafe`(`_dialogue_key`)·`splash`(`_main_id` — 재방문 맞이도 active_main)·`characters`(미호 `dialogue:miho`) 배선. `is_casual` 은 stage 만 받아 character-agnostic(옥자/미호 말투 누설 없음 — 테스트 못박음). `docs/script-miho.md` 신설. **체키 파리티(#5) 완료**: 미호 탭 잠금 해제·마일스톤 전수(→ T34). **펫 규종이(#6) 완료**(→ T35, active_pet 정식 배선) — 미호 슬라이스(라이브·교감·체키·펫) 전부 완료.
+- [x] **T36** 바나 메인 배선 `(바나=#10)` — **완료**: 미호 미러(토대 재사용). 데이터(레지스트리·`GAUGE_BANA`·`events.mine` 참여·티커/talk/gifts/`bana_cutin` 뱀파이어 톤)는 선행 커밋(40a93f4), 이번에 **잔여 마감**: 컬렉션북 바나 탭 메인 섹션 `locked:false`(실루엣→실제 지뢰계 그리드)·`docs/script-bana.md` 톤 가이드 신설·낡은 로스터/잠금 단언 갱신(메인=옥자·미호·바나). 라이브 표정 6·초상·체키 3겹(`bg_cheki_bana_jirai`+`bana_jirai`+표준/지뢰계 프레임) 헤드리스 로드 검증. 시그니처=블러디 미드나잇(brew 공유). 600 반말 컷인 독립(말투 누설 0).
+- [x] **T37** 펫 코코 슬라이스 `(코코=#11)` — **완료**: 시온이/규종이 제네릭 펫 경로 미러. 데이터(레지스트리 PET·`GAUGE_COCO`·`events.mine`·`coco` 티커 풀)는 선행 커밋, 이번에 **잔여 마감**: 컬렉션북 코코 펫 탭 추가(펫 섹션)·`ExpansionSlide` 예고 목록에서 코코 제외(선아·수아만 남김). 라이브 반응 4컷(idle/간식/놀기/쓰담 96×96)·초상·지뢰계 베이크컷(`photo_coco_jirai`) 헤드리스 로드 검증. 게이지만(관계단계·기분 없음). `verify_cheki_art` 전 캐릭터 순회로 확장(옥자·시온이 하드코딩 → `Characters.all_ids()`). **부수**: `dotify.audit` 색 개수 한계 32→`len(pal)`(팔레트 44색 추종) + 규종이 초상 알파 회귀 정리. **검수**: 헤드리스 374통과(109+248+17)·audit 88/88·체키 40레이어 로드.
+- [x] **T33+** 슬라이스 #1 미호 배선 `(라이브=#2 ✅ · 교감=#4 ✅ · 체키=#5 ✅ · 펫 규종이=#6 ✅)` → **바나(#10 ✅ T36) → 코코(#11 ✅ T37)** → 이후 멜(펫 2마리) — 각자 레지스트리 1항 + 에셋 + 대사 파일. **교감 파리티(#4) 완료**: `data/dialogue.gd` 캐릭터별 일반화(폴백 방식 — ticker 키 직접 / talk·gifts `_section` 폴백으로 옥자 평면 legacy 유지 → content_studio 무손상), 미호 전용 대사(`ticker.json` `miho`+`miho_cutin` / `talk.json` `miho` / `gifts.json` `miho`, 톤=포근·애교·영리한 여우 + 시그니처 '미호 스파클링'), 미호 600 도달 **전용 반말 컷인**(`stage_cutin` character 렌더 + `cutin(key)`), `cafe`(`_dialogue_key`)·`splash`(`_main_id` — 재방문 맞이도 active_main)·`characters`(미호 `dialogue:miho`) 배선. `is_casual` 은 stage 만 받아 character-agnostic(옥자/미호 말투 누설 없음 — 테스트 못박음). `docs/script-miho.md` 신설. **체키 파리티(#5) 완료**: 미호 탭 잠금 해제·마일스톤 전수(→ T34). **펫 규종이(#6) 완료**(→ T35, active_pet 정식 배선) — 미호 슬라이스(라이브·교감·체키·펫) 전부 완료.
 - [ ] **T39(최후)** 해금 경제 — ♡ 화폐(데일리 교감 적립·HUD·세이브 필드) + 상점에서 확정 해금(펫 저렴). 잠긴 탭을 ♡게이트로 전환. *(이슈 미발행 — 전 캐릭터 추가 후)*
 
 **🎨 아트 트랙 (코드보다 항상 선행)**
 
-- [~] 신규 메인 1명당: 표정 6장(idle/smile/shy/sad/brew/talk) + 초상 + 인트로(지뢰계) 체키 의상 1벌 → 이벤트 의상 점증 `(미호=#1)` — **미호 ✅ 완료**(표정6·초상·지뢰계 의상·체키 배경, SD 재수정), 바나·멜 대기
-- [~] 신규 펫 1마리당: 반응 4컷(idle/간식/놀기/쓰담) + 초상 + 인트로 체키 베이크컷 `(규종이=#6)` — **규종이 ✅ 완료**(반응 4컷·초상·지뢰계 베이크컷, b98fc44 — 까만 턱시도·흰 블레이즈·초록 눈, 마이멜로디풍 핑크 체키), 코코·선아·수아 대기
+- [~] 신규 메인 1명당: 표정 6장(idle/smile/shy/sad/brew/talk) + 초상 + 인트로(지뢰계) 체키 의상 1벌 → 이벤트 의상 점증 `(미호=#1)` — **미호·바나 ✅ 완료**(바나=뱀파이어 메이드 표정6·초상·지뢰계 의상 `bana_jirai`·체키 배경 `bg_cheki_bana_jirai`, 퍼플/네이비 램프), 멜 대기
+- [~] 신규 펫 1마리당: 반응 4컷(idle/간식/놀기/쓰담) + 초상 + 인트로 체키 베이크컷 `(규종이=#6)` — **규종이·코코 ✅ 완료**(코코=바나의 까맣고 마른 고양이, 반응 4컷 96×96·초상·지뢰계 베이크컷 `photo_coco_jirai`), 선아·수아 대기
 - [ ] 시그니처 음료 연출 컷(블러디 미드나잇·청운 에이드·미호 스파클링) `(미호 스파클링=#1)`
 
 ---

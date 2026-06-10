@@ -11,7 +11,6 @@
 
 > **🔑 SD·셰이딩 락(미호 교훈 그대로 — 두 번 빗나간 함정)**: ① `flat shading` 문구는 **납작·밋밋**을 부르니 쓰지 말고 → **"색마다 2~3톤 도트 셰이딩"**, ② `SLIM`·"늘씬" 과강조는 **머리 작고 다리 긴 일반 등신비(SD 아님)** 를 부르니 쓰지 말고 → **옥자급 SD(머리 ≈ 전체 높이의 1/3, 다리 짧게)** 로 못박는다.
 > **🔑 결정적 해법 = 옥자 idle을 앵커로 첨부**: 실물 사진만 img2img하면 **무조건 일반 등신비**로 나온다(머리 작고 다리 김). **반드시 `assets/sprites/okja_idle.png`(확정 SD)를 1번 이미지(비율·도트 스타일 앵커)로, 바나 실물을 2번(얼굴·정체성)으로 첨부**하고 "얼굴·뱀파이어 정체성은 2번에서, 등신비·도트 스타일은 1번(옥자)과 똑같이"라고 지시한다. 텍스트만으론 SD·셰이딩 둘 다 또 빗나간다.
-> **⚠️ 단 앵커의 '색'은 가져오지 말 것(버건디 함정)**: 옥자 idle은 **버건디/와인** 의상이라, 앵커로 쓰면 바나 드레스까지 **버건디로 번진다**(실제 발생). 1번에선 **비율·도트 스타일만**, 색은 2번 + 텍스트 기준 — **바나 드레스 = 블랙 + 퍼플/바이올렛(amethyst), 버건디 금지**(블러드레드는 작은 액센트만). 팔레트도 퍼플 램프(`341d4e`·`5b3d7a`·`7a4cae`·`9a6fd0`)를 보강해 진보라가 회보라·버건디로 뭉개지지 않게 했다.
 
 ---
 
@@ -26,8 +25,7 @@
 [Attach: 1 = okja_idle.png — the SD PROPORTION & DOT-STYLE ANCHOR (copy its build), 2 = Bana's real photo — her FACE & identity]
 
 Draw a CUTE SD / CHIBI pixel-art sprite of "Bana", full body, front-facing standing pose.
-Take her FACE and IDENTITY from image 2, but COPY ONLY the SUPER-DEFORMED body proportions and dot-art STYLE of image 1 (Okja)
-         — do NOT copy image 1's BURGUNDY / WINE colors. Bana's dress is BLACK & PURPLE / violet, NOT red/burgundy like Okja.
+Take her FACE and IDENTITY from image 2, but COPY the SUPER-DEFORMED body proportions and dot-art style of image 1 (Okja).
 Subject: "Bana", a VAMPIRE MAID at a hell-themed maid cafe — elegant, coquettish yet sweet, a touch haughty.
 Proportions (MUST MATCH IMAGE 1, the Okja sprite): SUPER-DEFORMED chibi — a BIG ROUND head about ONE THIRD of the
          total height, large expressive eyes, a small compact body and SHORT STUBBY legs. NOT a tall or realistic
@@ -35,12 +33,11 @@ Proportions (MUST MATCH IMAGE 1, the Okja sprite): SUPER-DEFORMED chibi — a BI
 Vampire features (keep EXACT, from image 2): PALE porcelain SKIN, RUBY / wine-RED eyes, tiny cute FANGS just peeking
          when the mouth opens. A small BAT motif accent (a little bat hairpin or a bat-wing charm on the choker) — keep it SMALL.
 Hair: long, PLATINUM / BEIGE BLONDE hair with soft waves, loosely gathered (twin-gathered look is fine), with a maid headdress on top.
-Outfit: a BLACK & PURPLE gothic-lolita MAID look — a black bodice with clearly PURPLE / VIOLET SATIN ribbons & frills
-         (a saturated amethyst purple, NOT burgundy/wine/red) + WHITE LACE frills,
-         a maid headdress, and a CHOKER with a ribbon / heart pendant at the neck. Signature accents = PURPLE / violet (blood-red ONLY as a tiny accent).
+Outfit: a BLACK & PURPLE gothic-lolita MAID look — a black bodice with PURPLE SATIN ribbons & frills + WHITE LACE frills,
+         a maid headdress, and a CHOKER with a ribbon / heart pendant at the neck. Signature accents = PURPLE / violet + blood-red.
 Style (MATCH IMAGE 1): 8-bit pixel sprite / dot art, limited palette, hard pixel edges, NO anti-aliasing, NO gradients,
          dot-art shading with 2-3 tones per color (highlight, midtone, shadow) — NOT flat single-tone fills.
-Color mood: gothic vampire palette — INK BLACK & deep PURPLE / VIOLET dress (amethyst purple, NOT burgundy/wine/red), WHITE lace, platinum-blonde hair, pale skin,
+Color mood: gothic vampire palette — INK BLACK & deep PURPLE dress, WHITE lace, platinum-blonde hair, pale skin,
          ruby-red eyes & blood-red accents; keep a NARROW COLUMNAR silhouette — skirt slim and NOT flared, arms & bat wings close to the body, NOT spread to the side edges.
 Framing: full body centered, head near the TOP edge and feet near the BOTTOM edge, NOT floating; tall vertical 4:9
          portrait ratio, consistent crop across all expressions.
@@ -59,7 +56,6 @@ no small figure with large empty margins, no floating character above the bottom
 no excessive headroom or footroom (head near top, feet on the bottom edge — fill the frame),
 no witch hat (that is Okja — Bana is a vampire maid), no fox ears, no cat ears, no animal ears (she is human-shaped),
 no dark gothic witch dress identical to Okja (Bana's look is BLACK & PURPLE gothic-lolita MAID), no black hair, no brown hair (hair is PLATINUM BLONDE),
-no BURGUNDY / WINE / RED dress, no maroon frills (the dress is PURPLE / violet amethyst — do NOT copy Okja's burgundy from the anchor image; blood-red is a TINY accent only),
 no wide flared skirt, no spread arms, no huge spread bat wings — the silhouette must NOT fill the full frame width (keep clear side margins like Okja), no big visible fangs / monster mouth (fangs are tiny and cute),
 no flat single-tone coloring, no flat shading (must have highlight+midtone+shadow per color),
 no smooth vector / cartoon / anime illustration look, no soft airbrushed or blurred cheeks,
@@ -117,29 +113,29 @@ no chroma green on the subject, no gradient, no soft anti-aliased edges, no 3D r
 
 > 바나 슬라이스의 **인트로 체키** — 온보딩에서 바나를 고르면 주는 첫 체키(미호 선례). 옥자·미호와 동일하게 **지뢰계 데이** 의상이 인트로 슬롯이다. **체키 카드용 정적 아트** — 교감화면 스킨 아님이라 포즈·헤어 변주 자유(라이브 바나는 메이드룩 고정).
 > **🔑 워크플로우(옥자·미호 지뢰계와 동일)**: **① 확정된 `bana_idle.png`(SD 도트 — 얼굴·뱀파이어 정체성·등신비 락) + ② 지뢰계 레퍼런스 사진(의상·헤어·포즈 락)**(+선택 ③ 신발 레퍼)을 첨부하고 "1번 캐릭터를 2번 코디로 다시 그려라". **창백한 피부·루비 눈·작은 송곳니는 의상이 바뀌어도 유지**(바나의 핵심 정체성).
-> **🔑 지뢰계 코디 가이드(★실물 레퍼 `bana_jirai_ref.png` 기준 확정)**: 바나만의 톤 = **"다크 그런지 뱀파이어 지뢰계"** — 옥자(핑크 레이스)·미호(레오파드 갸루)·규종이(파스텔 마이멜로디풍)와 구분된다. 실물 코디 = **① 블랙 니트 베레모 + 메탈 아일렛(그로멧 링) 스터드 ② 블랙 디스트레스드/립트(구멍 뚫린) 오버사이즈 그런지 니트 스웨터(긴소매·살짝 오프숄더) ③ 레오파드(치타) 프린트 미니 스커트 ④ 가느다란 실버 체인 네크리스**. 헤어는 **플래티넘 블론드 다운 + 시스루 앞머리**(트윈테일 아님). 메이크업 = **와인/다크로즈 립·스모키**. 포즈는 **한 손을 턱·얼굴 옆으로 들어올린 셀카 무드**(살짝 고개 기울임). **창백한 피부·루비 눈·작은 송곳니는 의상이 바뀌어도 유지**(바나 핵심 정체성 — 실물 눈색은 무시하고 루비로).
-> ✅ **지뢰계 레퍼 사진 확보됨** — `assets/sprites/_src/bana_jirai_ref.png`(의상·헤어·포즈 락). 위 코디는 이 사진 기준으로 확정한 것이니 생성 시 반드시 첨부한다.
+> **🔑 지뢰계 코디 가이드(권장 — 바나 결로)**: 옥자(핑크 레이스)·미호(레오파드 갸루)·규종이(파스텔 마이멜로디풍)와 확실히 구분되는 **바나만의 톤 = "다크 뱀파이어 지뢰계"** — **블랙·퍼플 베이스의 메탈하트 지뢰계 갸루룩**(블랙 미니 원피스/오프숄더 + 퍼플 체크 스커트, 메탈 하트·십자가·체인 액세서리, 박쥐·관 모티프 미니백, 트윈테일 또는 양갈래 다운). 헤어는 **블론드 유지하되 퍼플 인너/그라데이션** OK. 포즈는 **핑거하트/V 지뢰계 셀카**. **창백한 피부·루비 눈·작은 송곳니·박쥐 소품은 유지**.
+> ⚠️ **지뢰계 레퍼 사진 준비 필요** — `assets/sprites/_src/bana_jirai_ref.png`(의상·포즈 락). 없으면 위 코디 가이드 텍스트만으로 시도하되, 사진을 구하면 일관성이 크게 오른다.
 
 ```
 [Attach: 1 = bana_idle.png (confirmed SD dot, identity lock), 2 = bana jirai-day reference photo (outfit + pose lock)]
 Keep image 1's character IDENTITY: same face, same VAMPIRE look (PALE skin, RUBY-red eyes, tiny cute FANGS),
 same SD chibi proportions (head:body ≈ 1:3~1:4), and KEEP these even in the new outfit.
-RESTYLE her into her JIRAI-DAY coordinate (image 2) — a DARK GRUNGE VAMPIRE JIRAI-KEI ("landmine girl") look (cute-gothic, age-safe):
-- Hair: long platinum / silver BLONDE with soft waves, worn DOWN with see-through BANGS (NOT twin-tails).
-- Hat: a BLACK KNIT BERET with METAL EYELET / grommet ring studs around it, tilted on the head.
-- Top: an oversized BLACK DISTRESSED / RIPPED open-knit grunge SWEATER (holey loose knit, long sleeves, slightly off one shoulder).
-- Bottom: a LEOPARD / cheetah PRINT mini skirt peeking at the bottom hem.
-- Accessories: a thin SILVER CHAIN necklace at the neck (delicate, not chunky). Lips: dark rose / wine; smoky eyes.
+RESTYLE her into her JIRAI-DAY coordinate (image 2) — a DARK VAMPIRE JIRAI-KEI ("landmine girl") look (cute-gothic, age-safe):
+- Hair: long platinum / beige BLONDE, optionally with PURPLE inner / tips, worn in TWIN-TAILS or down with bangs.
+- Top: a BLACK off-shoulder mini dress or top with PURPLE accents, WHITE lace trim; layered cute-gothic.
+- Bottom: a PURPLE & black PLAID / check mini skirt.
+- Accessories: METAL HEART buckles, small silver CROSS & CHAIN charms, a tiny BAT or COFFIN mini-bag, a black choker.
+  (these tie into Bana's purple / blood-red vampire signature). Lips: dark rose / wine.
 - Shoes: chunky platform boots (feet not in the ref — keep them simple).
-- Pose (KEEP from image 2): a cute JIRAI SELFIE — head slightly tilted, one hand raised beside the chin / face,
-  big ruby eyes, cool-cute confident look.
+- Pose (KEEP from image 2): a cute JIRAI SELFIE — head slightly tilted, one (or both) hand(s) raised beside the face
+  making a finger-heart / V sign near the eye, big ruby eyes, cool-cute confident look.
 Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients.
-       Use rich dot-art shading — 2-3 tones per color (highlight, midtone, shadow) on hair, pale skin, the black knit
-       beret & distressed sweater, the leopard skirt and accessories; NOT flat single-tone fills. True pixel art, NOT a smooth vector / cartoon look.
+       Use rich dot-art shading — 2-3 tones per color (highlight, midtone, shadow) on hair, pale skin, black dress,
+       plaid skirt and accessories; NOT flat single-tone fills. True pixel art, NOT a smooth vector / cartoon look.
        Match the Okja sprite's shading depth and pixel crispness.
-       Keep her clearly the SAME Bana (pale skin + ruby eyes + tiny fangs intact), dark grunge vampire jirai mood, age-safe.
+       Keep her clearly the SAME Bana (pale skin + ruby eyes + tiny fangs intact), dark-vampire jirai mood, age-safe.
 Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom,
-         tall vertical 4:9 portrait, even margins, a NARROW silhouette well within the frame width (clear side gaps, NOT edge-to-edge).
+         tall vertical 4:9 portrait, even margins.
 Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
 ```
 
@@ -148,18 +144,15 @@ Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow o
 ```
 no different face, no extra characters, no cropped feet, no missing fangs, no missing pale skin,
 no witch hat, no fox/cat ears, no original maid headdress dress (it is fully replaced by the jirai-day outfit),
-no twin-tails (hair is worn DOWN with bangs), no black hair (hair stays PLATINUM / SILVER BLONDE),
-no clean / smooth knit (the sweater is DISTRESSED, ripped, holey grunge knit), no beret without the metal eyelet studs,
-no purple plaid / check skirt, no metal-heart buckles (this look uses a LEOPARD skirt + studded knit beret + thin silver chain),
-no huge spread bat wings, no chunky / oversized necklace (it is a thin delicate chain),
-no pink-lace girly blouse identical to Okja (this is a DARK GRUNGE black vampire jirai look),
+no black hair (hair stays PLATINUM BLONDE, purple inner allowed), no huge spread bat wings,
+no pink-lace girly blouse identical to Okja (this is a DARK black & purple vampire jirai look),
 no flat single-tone coloring, no flat shading, no smooth vector / cartoon / anime look, no soft airbrushed cheeks,
 no oversimplified low-detail sprite (match the Okja sprite's shading & detail),
 no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
 no over-sexualized outfit (keep it cute jirai-kei, age-safe brand).
 ```
 
-> ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(바나 정체성) + 창백한 피부·루비 눈·작은 송곳니 유지 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 또 **블랙 니트 베레모(메탈 아일렛)·디스트레스드 그런지 니트·레오파드 스커트·실버 체인·턱 옆 셀카 포즈**가 살았는지 확인. 블랙·레오파드·블론드·메탈은 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/bana_jirai.png`.
+> ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(바나 정체성) + 창백한 피부·루비 눈·작은 송곳니 유지 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 또 **블랙·퍼플 다크 지뢰계·메탈하트/체인·핑거하트 포즈**가 살았는지 확인. 퍼플·메탈·블론드는 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/bana_jirai.png`.
 > 🃏 **체키 합성 레이어**: 바나 지뢰계 체키 = `bana_jirai`(누끼) + **바나 전용 배경 `bg_cheki_bana_jirai`**(아래 신설) + 이벤트 공통 `frame_jirai`(→ [공통 파일](./gemini-prompts-common.md)). **프레임은 이벤트 데이 공통, 배경은 멤버별**(ADR 0003 개정) — 바나 배경도 네온 야경 팔레트는 유지하되(공통 프레임과 짝) 스팟·연출을 바나 의상에 맞춘다.
 > 📌 **이후 이벤트 의상(유치원·힙합·집사·크리스마스 등)은 별도 아트 트랙으로 점증** — 5벌 선결 금지. 의상 + 짝 배경(`bg_cheki_bana_{slug}`)을 한 세트로 갈아끼우면 된다.
 
@@ -168,8 +161,6 @@ no over-sexualized outfit (keep it cute jirai-kei, age-safe brand).
 ## 바나 지뢰계 체키 사진 배경 (`bg_cheki_bana_jirai`)
 
 > **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경 — 지뢰계"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **공통 프레임(`frame_jirai`)과 짝이라 네온 야경 팔레트(네이비·블랙 + 네온 핑크/퍼플)는 유지**하되, **바나의 스팟 = 보랏빛 네온 + 박쥐·달이 뜬 고딕 야경 골목**(옥자=시부야 큰길·미호=홍등 야시장과 구분되는 바나만의 현장 — 퍼플 네온이 dominant, 보름달·박쥐 실루엣·고딕 아치 간판).
-> **🔑 생성 방식 = `text2img`(레퍼 첨부 금지)**: 이 배경은 인물 없는 순수 풍경이라 **실물 사진을 첨부하지 않고 텍스트만**으로 뽑는다. 일본 거리·겨울·다른 도시 사진을 레퍼로 붙이면 그 구조가 텍스트를 덮어써 **엉뚱한 장면(예: 일본 성하촌 눈거리)** 이 나온다(색 무드만 퍼플로 적용되어 "하늘만 보라"인 채 장면이 빗나감). 레퍼는 떼고 돌릴 것.
-> **🔑 하늘 = 짙은 미드나잇 블루, 퍼플은 네온 사인으로** — `Color mood`에서 **하늘은 deep midnight blue/navy**로 잡고 **퍼플/바이올렛은 네온 글로우 액센트**로 분리한다(이전엔 violet dominant라 하늘까지 통째로 보라로 떴다). 바나 정체성 퍼플은 네온·간판·발치 반사로 충분히 살고, 하늘은 차분한 블루라 캐릭터가 더 또렷이 읽힌다. 더 보랏빛으로 가고 싶으면 `deep midnight blue`→`deep blue-violet`로 한 단 올린다.
 
 ```
 Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a JIRAI-KEI ("landmine girl") girl's NIGHT street with a GOTHIC VAMPIRE vibe.
@@ -182,23 +173,10 @@ Depth: detailed glowing signs, the moon and bats along the TOP and the two SIDE 
       purple city lights so a standing character reads clearly; the LOWER-CENTER (character's feet area) stays calmer, just wet-ground reflection.
 Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
 FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
-Color mood: gothic jirai-kei night — the SKY is a deep MIDNIGHT BLUE / navy (not purple), while electric PURPLE & violet glow are the NEON SIGN accents; hot pink accents, pale moon white, a touch of cyan and blood-red.
+Color mood: gothic jirai-kei night — deep navy/black sky, electric PURPLE & violet dominant, hot pink accents, pale moon white, a touch of cyan and blood-red.
 ```
 
-### 네거티브 (바나 지뢰계 배경 — 공통 "지뢰계 배경 네거티브"에 더한다)
-
-> 공통 네거티브(캐릭터·마스코트 없는 순수 풍경·읽히는 글자 금지 등)는 그대로 두고, **일본·전통·겨울 드리프트**(일본 성하촌 눈거리로 빗나간 사례)를 막는 바나 전용 줄을 더한다.
-
-```
-no Japanese castle, no pagoda, no temple, no traditional Japanese town, no shrine gate / torii,
-no paper lanterns, no wooden old-town shops, no tiled / snow-covered curved roofs,
-no snow, no snowfall, no winter scene (this is a non-seasonal night street),
-no kanji / hanzi / Japanese signboards, no readable real letters of any language (signs are abstract neon glow only),
-no daytime, no bright daytime blue sky (the night sky is a DEEP midnight blue — dark, not bright), no busy/cluttered center blocking the character,
-no missing moon, no missing bats (keep the pale FULL MOON + small BAT silhouettes), keep electric PURPLE neon dominant.
-```
-
-> ⚠️ **검수 포인트**: ① **고딕 네온 골목**인지(일본 성·탑·눈·초롱으로 새지 않았는지) ② **보름달 + 박쥐 실루엣 + 퍼플 네온 dominant**가 살았는지 ③ 간판이 **읽히는 글자 아닌 추상 네온**인지 ④ 중앙·하단 발치가 비어 캐릭터가 읽히는지 ⑤ 완전 불투명(크로마·투명 0px) ⑥ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/bg_cheki_bana_jirai.png`.
+> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 "지뢰계 배경 네거티브" 그대로(특히 **캐릭터·마스코트 없는 순수 풍경** — 의상 누끼가 위에 올라간다). 저장: `assets/sprites/bg_cheki_bana_jirai.png`.
 
 ---
 
