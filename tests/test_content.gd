@@ -16,6 +16,7 @@ func run_suite() -> void:
   _test_dialogue_talk()
   _test_dialogue_gift()
   _test_dialogue_miho()
+  _test_dialogue_mel()
   _test_tier_affinity()
   _test_build_state()
   _test_first_cheki_nickname()
@@ -194,6 +195,50 @@ func _test_dialogue_miho() -> void:
   check(Dialogue.line("zzz_none", "enter", "guest", "지은") != "", "미정의 키 → 옥자 폴백(무손상)")
 
 
+# ── 멜 대사 본배선 (이슈 #14) ──────────────────────────────
+# 멜이 옥자 템플릿이 아닌 전용 대사를 쓰고, 말투 분기(존댓말/반말)가 캐릭터 독립이며,
+# 반말 컷인·선물·청운 에이드 보이스가 옥자/미호와 누설 없이 분리되는지 본다.
+
+func _test_dialogue_mel() -> void:
+  # 멜 drink = 시그니처 '청운 에이드' 제조 보이스(옥자·미호와 다름)
+  var mel_drink := Dialogue.line("mel", "drink", "guest", "지은")
+  check(mel_drink.contains("청운"), "멜 drink = 청운 에이드 보이스 (got: %s)" % mel_drink)
+
+  # 멜 enter = 옥자 풀과 분리된 전용 대사
+  var okja_enter := _ticker_pool("okja", "enter", "guest")
+  var mel_enter := Dialogue.line("mel", "enter", "guest", "지은")
+  check(not okja_enter.has(mel_enter), "멜 enter = 옥자 풀과 분리된 전용 대사")
+
+  # 말투 분기: 멜 guest(존댓말) vs comfy(반말) 풀이 분리 — stage 로만 분기(옥자·미호 상태 누설 없음)
+  var mel_guest_enter := _ticker_pool("mel", "enter", "guest")
+  var mel_casual := Dialogue.line("mel", "enter", "comfy", "지은")
+  check(not mel_guest_enter.has(mel_casual), "멜 comfy(반말) = 멜 존댓말 풀과 분리(말투 단일 출처)")
+
+  # 멜 대화 토막 = 멜 전용(옥자 guest 풀과 교집합 없음)
+  var mel_talk := Dialogue.pick_talk("mel", "guest", "지은")
+  check((mel_talk["choices"] as Array).size() >= 2, "멜 대화 선택지 2+")
+  check(not _talk_prompts("guest").has(String(mel_talk["prompt"])), "멜 대화 = 옥자 풀과 분리")
+
+  # 멜 선물 = 4종, reply 는 멜 톤(옥자와 다름)
+  var mel_gifts := Dialogue.gift_choices("mel", "guest", "지은")
+  check(mel_gifts.size() == 4, "멜 선물 4종 (got %d)" % mel_gifts.size())
+  var okja_g0 := String((Dialogue.gift_choices("okja", "guest", "지은")[0] as Dictionary)["reply"])
+  var mel_g0 := String((mel_gifts[0] as Dictionary)["reply"])
+  check(okja_g0 != mel_g0, "멜 선물 반응 = 옥자와 다른 전용 톤")
+
+  # 멜 단계 컷인 = 전용(반말 해금), {nick} 치환 — affinity_total 600(comfy) 도달 보상
+  var cut := Dialogue.cutin("mel", "comfy", "지은")
+  check(not (cut.get("lines", []) as Array).is_empty(), "멜 comfy 컷인 lines 존재")
+  check(String(cut.get("badge", "")).contains("반말"), "멜 반말 해금 배지")
+  check(String(cut.get("reveal", "")).contains("반말"), "멜 반말 reveal")
+  for ln in cut.get("lines", []):
+    check(not String((ln as Dictionary)["text"]).contains("{nick}"), "멜 컷인 {nick} 치환")
+
+  # 멜 버튼 감정맵 전용(buttons.json mel) — drink=brew(청운 에이드 제조 컷)
+  var mel_emotion: Dictionary = GameData.buttons().get("mel", {}).get("emotion", {})
+  check(String(mel_emotion.get("drink", "")) == "brew", "멜 drink 버튼 → brew 표정(청운 에이드 제조 컷)")
+
+
 ## ticker 풀 한 묶음을 {nick} 치환해 배열로(미호/옥자 풀 비교용).
 func _ticker_pool(key: String, situation: String, stage_key: String) -> Array:
   var c: Dictionary = GameData.ticker().get(key, {})
@@ -297,10 +342,10 @@ func _test_book_smoke() -> void:
 
 # ── 미호 컬렉션북 탭 잠금 해제 (이슈 #5) ───────────────────
 ## 미호 탭이 실루엣 → 잠금 해제되어 실제 그리드(지뢰계)를 보여주고, 미보유 칸은 예고형 빈칸,
-## 보유 시 owned 칸으로 렌더되는지. 멜만 잠겨 예고로 남는다(바나=#10·코코=#11 해제, 옥자·시온이 회귀는 _test_book_smoke).
+## 보유 시 owned 칸으로 렌더되는지. 멜은 #14 본배선으로 메인 섹션 정식 해제(옥자·시온이 회귀는 _test_book_smoke).
 func _test_miho_book_tab() -> void:
   wipe()
-  # TABS 계약: 미호·바나·코코 잠금 해제 + 멜은 잠금 유지(예고).
+  # TABS 계약: 미호·바나·코코·멜 잠금 해제(데모 전원 해제).
   var locks := {}
   for t in CollectionBook.TABS:
     locks[String(t["id"])] = bool(t["locked"])
@@ -309,8 +354,8 @@ func _test_miho_book_tab() -> void:
   check(locks.get("coco", true) == false, "코코 탭 잠금 해제(locked=false, #11)")
   check(locks.get("suna", true) == false, "선아 탭 잠금 해제(locked=false, 펫 슬라이스)")
   check(locks.get("sua", true) == false, "수아 탭 잠금 해제(locked=false, 선아 미러)")
-  check(bool(locks.get("mel", false)),
-    "멜은 여전히 잠금(예고로 유지)")
+  check(locks.get("mel", true) == false,
+    "멜 탭 잠금 해제(locked=false, #14 본배선 — 메인 섹션)")
 
   var miho_i := -1
   for i in CollectionBook.TABS.size():
@@ -427,21 +472,34 @@ func _test_t21_expansion() -> void:
   check(book._slots.size() == expected,
     "옥자 슬롯 = 이벤트 %d + 한정 1 = %d (got %d)" % [expected - 1, expected, book._slots.size()])
 
-  # 첫 잠긴 탭(바나/멜) 활성화 → 확장 슬라이드 발화. 탭 순서 변경에 견디게 동적 탐색. (→ 이슈 #5 재배치)
+  # 확장 슬라이드(잠긴 멤버 예고) — #14 본배선으로 데모엔 잠긴 탭이 없다.
+  # 잠긴 탭이 있으면 탭 경로로, 없으면(현 데모) 잠긴 탭 활성화는 무발생임을 확인하고 슬라이드는 단독으로 검증.
+  # (탭에 locked 항을 되살리면 자동으로 탭 경로로 복귀 — 미래 재잠금 대비)
   var locked_i := -1
   for i in CollectionBook.TABS.size():
     if bool(CollectionBook.TABS[i]["locked"]):
       locked_i = i
       break
-  check(locked_i >= 0, "잠긴 탭이 최소 1개 존재(바나/멜)")
   check(book._slide == null, "초기엔 슬라이드 없음")
-  book._on_tab(locked_i)
-  check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
-  check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
-  # 슬라이드 떠 있으면 셸 입력이 슬라이드로 위임됨(CANCEL 닫기 경로) — 크래시 없이 호출되는지.
-  book.handle_shell_action(&"cancel")
-  check(true, "슬라이드 열린 채 CANCEL 위임 크래시 0")
+  if locked_i >= 0:
+    book._on_tab(locked_i)
+    check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
+    check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
+    # 슬라이드 떠 있으면 셸 입력이 슬라이드로 위임됨(CANCEL 닫기 경로) — 크래시 없이 호출되는지.
+    book.handle_shell_action(&"cancel")
+    check(true, "슬라이드 열린 채 CANCEL 위임 크래시 0")
+  else:
+    check(true, "데모 무잠금: 잠긴 탭 없음(전원 정식 해제, #14)")
   book.free()
+
+  # ExpansionSlide 단독 빌드 — 잠긴 탭 부재와 무관히 예고 오버레이가 크래시 없이 뜨고 CANCEL 닫히는지.
+  var slide := ExpansionSlide.new()
+  add_child(slide)
+  slide.setup("멜", Palette.TEAL)
+  check(true, "확장 슬라이드 단독 빌드 크래시 0")
+  slide.handle_shell_action(&"cancel")
+  check(true, "확장 슬라이드 CANCEL 닫기 크래시 0")
+  slide.free()
 
   # 한정 슬롯 단독 빌드 — STATE_LIMITED 렌더 + 비보유.
   var slot := ChekiSlot.new()

@@ -54,6 +54,18 @@
       "touch_cap": "sad"
     }
   },
+  "mel": {
+    "_doc": "멜(강시 메이드) 버튼 감정 — 라벨·순서는 okja.actions 공유(잠금). emotion 만 전용. expr ∈ idle/smile/shy/sad/brew/talk. drink=brew(청운 에이드 제조 컷).",
+    "emotion": {
+      "cheki": "smile",
+      "drink": "brew",
+      "touch": [
+        "shy",
+        "smile"
+      ],
+      "touch_cap": "sad"
+    }
+  },
   "sion": {
     "_doc": "시온이 4버튼. label·emotion·ticker(ticker.json sion 풀 키) 편집 대상. id·affinity(호감도 종류) 잠금. emotion ∈ idle/snack/play/pet. affinity: cheki(AFF_CHEKI) | sion(AFF_SION).",
     "actions": [

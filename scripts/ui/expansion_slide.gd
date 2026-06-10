@@ -11,8 +11,8 @@ signal closed
 
 const LCD := Vector2(333, 480)
 const CARD := Vector2(220, 280)
-# 펫 예고 문구는 펫 전원(규종이 #6·코코 #11·선아·수아) 정식 탭 합류로 소멸 — 이제 슬라이드는 잠긴 메인(멜)만 예고한다.
-# (→ CONTEXT.md 펫 로스터 / T21 합의. 추후 새 미래 펫이 생기면 PET_LINE 류 한 줄을 여기 되살린다.)
+# 멜 #14 본배선으로 메인 전원(옥자·미호·바나·멜)·펫 전원이 정식 탭 합류 → 현재 데모엔 잠긴 멤버가 없어 슬라이드는 미발생(코드 보존).
+# (→ CONTEXT.md 로스터 / T21 합의. 추후 새 미래 멤버가 생기면 collection_book TABS 에 locked 항을 되살리면 이 슬라이드가 다시 예고로 뜬다.)
 
 var _name: String = ""
 var _accent: Color = Palette.VIOLET

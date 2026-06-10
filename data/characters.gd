@@ -30,10 +30,9 @@ const REGISTRY := {
     "accent": Palette.PURPLE,      "tag": "뱀파이어 메이드"},
   "coco": {"name": "코코",   "kind": PET,  "dialogue": "coco", "buttons": "coco", "sprite": "coco", "intro_event": "mine",
     "accent": Palette.PURPLE,      "tag": "바나의 까만 고양이"},
-  # 멜(강시 메이드) — 라이브 등장용 선행 배선(슬라이스 #14). 표정 6종 중 idle 만 확정,
-  # 나머지 표정은 임시 placeholder(=idle 복사). 대사는 dialogue.gd 폴백으로 okja 공유,
-  # buttons 도 okja 임시 공유 → 멜 전용 ticker/talk/gifts/emotion 은 #14 에서 채운다.
-  "mel": {"name": "멜",     "kind": MAIN, "dialogue": "mel", "buttons": "okja", "sprite": "mel", "intro_event": "mine",
+  # 멜(강시 메이드) — 본배선(#14): 표정 6종 누끼·전용 ticker/talk/gifts/buttons.emotion 확정.
+  # 옥자/미호/바나와 동일한 메인 틀(라이브·관계단계·반말 컷인·인트로 체키=지뢰계).
+  "mel": {"name": "멜",     "kind": MAIN, "dialogue": "mel", "buttons": "mel", "sprite": "mel", "intro_event": "mine",
     "accent": Palette.TEAL,        "tag": "강시 메이드"},
   # 선아(멜의 갈색 푸들) — 펫 슬라이스. idle 확정(나머지 반응은 sioni.gd 폴백=idle), 전용 버튼/티커 배선.
   "suna": {"name": "선아",   "kind": PET,  "dialogue": "suna", "buttons": "suna", "sprite": "suna", "intro_event": "mine",

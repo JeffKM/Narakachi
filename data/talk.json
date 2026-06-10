@@ -402,5 +402,138 @@
         ]
       }
     ]
+  },
+  "_mel_doc": "멜 대화 토픽 — 미호·바나와 같은 guest/regular 틀(prompt + choices[label/reply/tier/expr]). 톤=단정·새초롬·동양적, 모티프=부적·달·청운 에이드·강시 폴짝·선아/수아.",
+  "mel": {
+    "guest": [
+      {
+        "prompt": "오늘은 어인 일로 절 찾아오셨어요?",
+        "choices": [
+          {
+            "label": "멜님 보고 싶어서요",
+            "reply": "어머… 단정히 있으려 했는데, 그 말엔 볼이 붉어지네요.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "청운 에이드 마시러요",
+            "reply": "역시 제 한 잔이 그리우셨군요. 곱게 내어드릴게요.",
+            "tier": "plain",
+            "expr": "smile"
+          },
+          {
+            "label": "그냥 지나가다가요",
+            "reply": "후훗, 그런 걸로 해드릴게요.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "제 손, 차죠? 강시라 그래요. 잡아보실래요?",
+        "choices": [
+          {
+            "label": "시원해서 좋은데요",
+            "reply": "……그리 말해주는 분은 드물어요. 고마워요.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "폴짝 뛰어봐요",
+            "reply": "어머, 단정치 못하게. ……딱 한 번만이에요.",
+            "tier": "plain",
+            "expr": "smile"
+          }
+        ]
+      },
+      {
+        "prompt": "선아랑 수아가 {nick}님을 빤히 보네요. 마음에 든 모양이에요.",
+        "choices": [
+          {
+            "label": "강아지도 주인 닮아 단정하네요",
+            "reply": "우리 아이들 칭찬은 제 칭찬이나 같아요. 후훗.",
+            "tier": "good",
+            "expr": "smile"
+          },
+          {
+            "label": "둘이 닮았네요",
+            "reply": "선아는 곱고 수아는 폴짝대지요. 다 예뻐요.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      }
+    ],
+    "regular": [
+      {
+        "prompt": "{nick}, 오늘 좀 보고 싶었는데. ……강시가 이런 말 잘 안 하거든?",
+        "choices": [
+          {
+            "label": "나도 보고 싶었어",
+            "reply": "헤헤… 솔직하긴. 그래서 좋아.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "방금 뭐랬어?",
+            "reply": "흥, 못 들었으면 말고.",
+            "tier": "plain",
+            "expr": "talk"
+          },
+          {
+            "label": "강시도 부끄럼 타?",
+            "reply": "야! 놀리지 마, 부적으로 입 막아버린다.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "관모에 달 빨간 술 색을 바꿀까 하는데… 빨강이랑 청록 중에 뭐가 나아?",
+        "choices": [
+          {
+            "label": "넌 무슨 색이든 단정해",
+            "reply": "또, 또 그런 소리! ……그래도 기분은 좋다.",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "내가 골라줄까?",
+            "reply": "오, 그럼 {nick}이 정해줘. 믿어볼게.",
+            "tier": "plain",
+            "expr": "smile"
+          },
+          {
+            "label": "지금이 제일이야",
+            "reply": "그치? 이 빨간 술이 내 표식이니까.",
+            "tier": "plain",
+            "expr": "talk"
+          }
+        ]
+      },
+      {
+        "prompt": "설마 또 선아랑 수아 간식만 사 온 거 아니지?",
+        "choices": [
+          {
+            "label": "아니, 이건 너 주려고 산 거야",
+            "reply": "어……? 내 거였어? 헤헤, 잘 받을게!",
+            "tier": "good",
+            "expr": "shy"
+          },
+          {
+            "label": "강아지들이 좋아하길래",
+            "reply": "우리 아이들 또 폴짝대겠네. ……뭐, 좋아하면 됐지.",
+            "tier": "plain",
+            "expr": "talk"
+          },
+          {
+            "label": "둘 다 사 왔지",
+            "reply": "역시 {nick}이 최고야~ 폴짝 뛸 뻔.",
+            "tier": "plain",
+            "expr": "smile"
+          }
+        ]
+      }
+    ]
   }
 }
