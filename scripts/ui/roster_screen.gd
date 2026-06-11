@@ -69,7 +69,7 @@ func _ready() -> void:
 
   # 2) 제목
   var title := _make_label(Palette.CANDLE, Fonts.SIZE_TITLE)
-  title.text = "함께할 친구를 골라요" if _mode == MODE_ONBOARDING else "교체"
+  title.text = "오늘 누구를 만날까요" if _mode == MODE_ONBOARDING else "누구로 바꿀까요"
   title.position = Vector2(0, 20)
   title.size = Vector2(LCD.x, 28)
   add_child(title)
@@ -84,7 +84,7 @@ func _ready() -> void:
 
   # 5) 결정 버튼
   _confirm = Button.new()
-  _confirm.text = "이 친구로 시작" if _mode == MODE_ONBOARDING else "교체하기"
+  _confirm.text = "이대로 시작" if _mode == MODE_ONBOARDING else "바꾸기"
   _confirm.size = Vector2(220, 44)
   _confirm.position = Vector2((LCD.x - 220) / 2.0, 404)
   UiTheme.style_button(_confirm)
