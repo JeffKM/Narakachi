@@ -32,7 +32,6 @@ window/size/viewport_height=877
 window/size/window_width_override=953
 window/size/window_height_override=1316
 window/stretch/mode="canvas_items"
-window/per_pixel_transparency/allowed=true
 window/handheld/orientation=1
 
 [rendering]

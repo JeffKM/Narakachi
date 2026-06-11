@@ -66,7 +66,7 @@ func _ready() -> void:
 
   _lcd_viewport = SubViewport.new()
   _lcd_viewport.size = Vector2i(LCD_SIZE)
-  _lcd_viewport.transparent_bg = true  # 콘텐츠 없는 부분 = 셸 뒤 투명(웹/창 배경 비침)
+  _lcd_viewport.transparent_bg = true  # 콘텐츠 없는 부분 = 셸 뒤 잔불 백드롭이 비침 (→ ShellBackdrop)
   _lcd_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS  # 줌/표정 트윈 매 프레임
   _lcd_viewport.canvas_item_default_texture_filter = \
     Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST  # 도트 보간 금지

@@ -22,8 +22,12 @@ func _ready() -> void:
   # 내부 Control 이 엔진 기본 폰트(Open Sans, 한글 없음)로 폴백해 웹에서 한글이 깨진다.
   # 기본 테마 폰트 자체를 갈무리로 교체해 전역 보장. (상세 사유는 Fonts.install_global)
   Fonts.install_global()
-  # 셸 바깥 여백 투명 — 웹/창 배경이 비치게
-  get_window().transparent_bg = true
+  # 셸 바깥 = 잔불 백드롭(투명 폐기 → ADR 0001 개정). 레터박스 바(aspect=keep)도
+  # 백드롭 가장자리와 동색이 되게 clear color 를 먹빛 INK 로 맞춰 이음매를 없앤다.
+  RenderingServer.set_default_clear_color(Palette.INK)
+
+  # 셸 뒤 잔불 백드롭 — 셸보다 먼저 add_child(뒤에 깔림). 달걀이 중앙을 마스킹.
+  add_child(ShellBackdrop.new())
 
   _shell = ShellFrame.new()
   add_child(_shell)
